@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Reports - Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Admin Console</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
+            </a>
+            <a href="reports.html" class="nav-item active">
+                <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <a href="../../pages/profile.html"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar">A</div>
+                <div>
+                    <p class="text-sm text-white">Admin</p>
+                    <p class="text-xs text-muted">Administrator</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Financial Reports</h1>
+            <div class="flex gap-4">
+                <button class="btn btn-outline" onclick="window.print()">Export PDF</button>
+            </div>
+        </header>
+
+        <div class="dashboard-form-card">
+            <div class="flex justify-between items-center mb-6">
+                <h3 style="margin: 0;">Transaction History</h3>
+                <div class="flex gap-2">
+                    <input type="date" style="width: auto; height: 36px;">
+                    <button class="btn btn-primary" style="height: 36px; padding: 0 1rem;">Filter</button>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Transaction ID</th>
+                        <th>Type</th>
+                        <th>Details</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="report-list">
+                    <!-- JS Populated -->
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const records = Dashboard.getSales(); // Sales & Expenses
+            const tbody = document.getElementById('report-list');
+
+            if (tbody) {
+                tbody.innerHTML = records.map(r => `
+                    <tr>
+                        <td>${r.date || '2024-02-06'}</td>
+                        <td style="font-family: monospace; color: var(--text-muted);">#TXN-${r.id}</td>
+                        <td style="text-transform: capitalize;">${r.type}</td>
+                        <td>
+                            ${r.product || r.category || 'N/A'} <span style="font-size: 10px; color: var(--text-muted);">(${r.platform || '-'})</span>
+                            ${r.attachment ? `<span style="display:inline-flex; align-items:center; color: var(--accent); margin-left: 0.5rem;" title="Attachment: ${r.attachment}"><iconify-icon icon="solar:paperclip-linear"></iconify-icon></span>` : ''}
+                        </td>
+                        <td style="color: ${r.type === 'sale' ? '#4ade80' : '#f87171'}; font-weight: 500;">
+                            ${r.type === 'sale' ? '+' : '-'} ${App.formatCurrency(r.amount)}
+                        </td>
+                        <td><span class="status-badge status-success">Verified</span></td>
+                    </tr>
+                `).join('');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Smart Seller</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar (Will be dynamically loaded JS side or static for now/ we will use a back button since this is a shared page) -->
+    <!-- For simplicity in this demo, we'll keep the sidebar pattern but make it generic or provide a 'Back to Dashboard' link -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">User Account</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active">
+                <iconify-icon icon="solar:user-circle-linear"></iconify-icon> Profile
+            </a>
+            <a href="javascript:history.back()" class="nav-item">
+                <iconify-icon icon="solar:arrow-left-linear"></iconify-icon> Back to Dashboard
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <div class="avatar">U</div>
+            <div>
+                <p class="text-sm text-white" id="sidebar-user-name">User</p>
+                <p class="text-xs text-muted" id="sidebar-user-role">Role</p>
+            </div>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">My Profile</h1>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Profile Edit Form -->
+            <div class="dashboard-form-card">
+                <h3 style="margin-bottom: 1.5rem;">Edit Profile</h3>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <select id="p-company">
+                            <option value="" disabled selected>Select Your Company</option>
+                            <option value="Smart Eco System">Smart Eco System (HQ)</option>
+                            <option value="Tech Gadgets Ltd">Tech Gadgets Ltd</option>
+                            <option value="Globe Fashions">Globe Fashions</option>
+                            <option value="Organic Foods Co">Organic Foods Co</option>
+                            <option value="Digital Solutions Inc">Digital Solutions Inc</option>
+                            <option value="Demo Company">Demo Company</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="p-name" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="p-email" readonly style="opacity: 0.6; cursor: not-allowed;"
+                            title="Email cannot be changed">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <input type="text" id="p-role" readonly
+                            style="opacity: 0.6; cursor: not-allowed; text-transform: capitalize;">
+                    </div>
+
+                    <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                        <label>Change Password</label>
+                        <input type="password" id="p-password" placeholder="New Password (leave blank to keep current)">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;">Save
+                        Changes</button>
+                </form>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="flex flex-col gap-6">
+                <!-- Info Card -->
+                <div class="glass-card p-6">
+                    <h3 class="mb-2">Account Status</h3>
+                    <div class="flex items-center gap-2 text-green-400 mb-4">
+                        <iconify-icon icon="solar:verified-check-linear"></iconify-icon> Active
+                    </div>
+                    <p class="text-sm text-muted">Member since: <span id="p-join-date">Feb 2024</span></p>
+                </div>
+
+                <!-- Delete -->
+                <div class="dashboard-form-card" style="border-color: rgba(248, 113, 113, 0.3);">
+                    <h3 style="color: #f87171; margin-bottom: 1rem;">Delete Account</h3>
+                    <p class="text-sm text-muted mb-4">
+                        Permanently delete your account and remove your access to the system.
+                        <br><br>
+                        <b>Warning:</b> This action cannot be undone.
+                    </p>
+
+                    <button class="btn"
+                        style="background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2); width: 100%;"
+                        onclick="App.deleteAccount()">
+                        Delete My Account
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Profile Page Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = App.checkAuth();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Populate Fields
+            document.getElementById('p-company').value = user.company || '';
+            document.getElementById('p-name').value = user.name || '';
+            document.getElementById('p-email').value = user.email || '';
+            document.getElementById('p-role').value = user.role || '';
+
+            // Populate Sidebar
+            document.getElementById('sidebar-user-name').textContent = user.name;
+            document.getElementById('sidebar-user-role').textContent = user.role.toUpperCase();
+
+            // Handle Form Submit
+            document.getElementById('profileForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newName = document.getElementById('p-name').value;
+                const newCompany = document.getElementById('p-company').value;
+                const newPassword = document.getElementById('p-password').value;
+
+                // Update Object
+                user.name = newName;
+                user.company = newCompany;
+                if (newPassword) {
+                    user.password = newPassword;
+                }
+
+                // Update LocalStorage (Mock DB)
+                const allUsers = JSON.parse(localStorage.getItem('smartEcoUsers') || '[]');
+                const userIndex = allUsers.findIndex(u => u.email === user.email);
+
+                if (userIndex !== -1) {
+                    allUsers[userIndex] = { ...allUsers[userIndex], ...user };
+                    localStorage.setItem('smartEcoUsers', JSON.stringify(allUsers));
+                }
+
+                // Update Session
+                localStorage.setItem('smartEcoUser', JSON.stringify(user));
+
+                alert('Profile updated successfully!');
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart E-Commerce Seller & Profit Sharing System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            /* Deep black/gray */
+            color: #d4d4d4;
+        }
+
+        /* Subtle grid background pattern */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to bottom right, #ffffff, #a3a3a3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-grid overflow-x-hidden antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-6 h-6 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded flex items-center justify-center text-white text-xs font-medium">
+                    S</div>
+                <span class="text-sm font-medium tracking-tight text-white">SmartSeller<span
+                        class="text-gray-500">.sys</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-xs font-medium text-gray-400">
+                <a href="#features" class="hover:text-white transition-colors">Features</a>
+                <a href="#investors" class="hover:text-white transition-colors">Investors</a>
+                <a href="#architecture" class="hover:text-white transition-colors">Architecture</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="pages/login.html" class="text-xs font-medium hover:text-white transition-colors">Log in</a>
+                <button onclick="window.location.href='pages/register.html'"
+                    class="bg-white text-black text-xs font-medium px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+                    Get Access
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 max-w-7xl mx-auto text-center">
+        <!-- Glow effect -->
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-900/20 rounded-full blur-[120px] -z-10">
+        </div>
+
+        <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs font-medium text-indigo-300 mb-8">
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+            Solving the E-Commerce Research Gap
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-medium tracking-tight text-white mb-6 leading-[1.1]">
+            Financial Intelligence for <br class="hidden md:block">
+            <span class="text-gradient">Modern Sellers.</span>
+        </h1>
+
+        <p class="text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+            Marketplaces handle your orders. We handle your business.
+            Centralize financial operations, automate profit sharing, and gain investor trust with a transparent,
+            role-based governance system.
+        </p>
+
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+            <button onclick="window.location.href='pages/login.html'"
+                class="h-12 px-8 rounded-full bg-white text-black text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2">
+                Start System Demo
+                <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
+            </button>
+            <button
+                class="h-12 px-8 rounded-full border border-white/10 bg-white/5 text-white text-sm font-medium hover:bg-white/10 transition-colors">
+                Read Research Paper
+            </button>
+        </div>
+
+        <!-- UI Mockup Hint -->
+        <div class="mt-20 relative mx-auto max-w-5xl glass-card rounded-xl p-2 md:p-4 shadow-2xl shadow-indigo-900/20">
+            <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-xl pointer-events-none">
+            </div>
+            <!-- Mock Header -->
+            <div class="h-10 border-b border-white/5 flex items-center px-4 gap-2 mb-4">
+                <div class="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+            </div>
+            <!-- Mock Content Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left px-2 pb-2">
+                <!-- Card 1 -->
+                <div class="col-span-2 space-y-4">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-widest">Net Profit (Feb)</p>
+                            <p class="text-3xl text-white font-medium tracking-tight mt-1">$12,450.00</p>
+                        </div>
+                        <div class="text-xs text-green-400 flex items-center gap-1 bg-green-900/20 px-2 py-1 rounded">
+                            <iconify-icon icon="solar:graph-up-linear"></iconify-icon> +12.5%
+                        </div>
+                    </div>
+                    <!-- Chart Lines (CSS) -->
+                    <div class="h-32 w-full flex items-end justify-between gap-1">
+                        <div class="w-full bg-indigo-500/20 h-[40%] rounded-sm"></div>
+                        <div class="w-full bg-indigo-500/30 h-[60%] rounded-sm"></div>
+                        <div class="w-full bg-indigo-500/40 h-[45%] rounded-sm"></div>
+                        <div class="w-full bg-indigo-500/50 h-[75%] rounded-sm"></div>
+                        <div class="w-full bg-indigo-500/60 h-[55%] rounded-sm"></div>
+                        <div class="w-full bg-indigo-500/80 h-[85%] rounded-sm"></div>
+                        <div class="w-full bg-indigo-500 h-[70%] rounded-sm relative group">
+                            <div
+                                class="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                Current</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="glass-card rounded-lg p-5 flex flex-col justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mb-4">Investor Payouts</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-300">Investor A (15%)</span>
+                                <span class="text-white">$1,867.50</span>
+                            </div>
+                            <div class="w-full bg-gray-800 h-1 rounded-full overflow-hidden">
+                                <div class="bg-indigo-500 w-[15%] h-full"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs pt-2">
+                                <span class="text-gray-300">Investor B (10%)</span>
+                                <span class="text-white">$1,245.00</span>
+                            </div>
+                            <div class="w-full bg-gray-800 h-1 rounded-full overflow-hidden">
+                                <div class="bg-purple-500 w-[10%] h-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full mt-4 py-2 border border-white/10 rounded text-[10px] text-gray-400 hover:text-white transition-colors">
+                        View Full Ledger
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem & Solution -->
+    <section class="py-24 px-6 max-w-7xl mx-auto border-t border-white/5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="text-3xl font-medium text-white tracking-tight mb-6">The Gap in E-Commerce.</h2>
+                <p class="text-sm text-gray-400 leading-relaxed mb-6 font-light">
+                    Marketplace dashboards like Daraz or CartUp focus on sales execution, not business governance. Most
+                    sellers rely on fragmented spreadsheets, leading to financial inaccuracies and disputes.
+                </p>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3 text-sm text-gray-400">
+                        <iconify-icon icon="solar:close-circle-linear" class="text-red-400 mt-0.5"
+                            width="16"></iconify-icon>
+                        No centralized financial database.
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-gray-400">
+                        <iconify-icon icon="solar:close-circle-linear" class="text-red-400 mt-0.5"
+                            width="16"></iconify-icon>
+                        Manual tracking of expenses and platform fees.
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-gray-400">
+                        <iconify-icon icon="solar:close-circle-linear" class="text-red-400 mt-0.5"
+                            width="16"></iconify-icon>
+                        Opacity in investor profit sharing.
+                    </li>
+                </ul>
+            </div>
+            <div class="glass-card p-1 rounded-2xl relative overflow-hidden group">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                </div>
+                <div class="bg-black/80 rounded-xl p-8 border border-white/5">
+                    <iconify-icon icon="solar:verified-check-linear" class="text-indigo-400 mb-4"
+                        width="32"></iconify-icon>
+                    <h3 class="text-xl font-medium text-white mb-2">The Solution</h3>
+                    <p class="text-sm text-gray-400 font-light leading-relaxed">
+                        A lightweight ERP tailored for sellers. We bridge the gap by automating the "Business" side of
+                        e-commerce—from accurate P&L calculation to transparent investor reporting.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Modules Grid -->
+    <section class="max-w-7xl mr-auto ml-auto pt-24 pr-6 pb-24 pl-6" id="features">
+        <div class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-medium text-white tracking-tight">Core System Modules</h2>
+            <p class="text-sm text-gray-500 mt-2 font-light">Research-backed functionality for scalable operations.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-auto md:h-[600px]">
+
+            <!-- P&L Engine (Large) -->
+            <div
+                class="md:col-span-2 md:row-span-2 relative h-full min-h-[320px] rounded-2xl overflow-hidden group border border-white/10 bg-gray-900 hover:border-white/20 transition-all duration-500 shadow-2xl">
+                <!-- Background Image with Zoom Effect -->
+                <div class="absolute inset-0 z-0">
+                    <img src="https://images.unsplash.com/photo-1640906152676-dace6710d24b?w=2160&q=80"
+                        alt="Financial Analytics"
+                        class="w-full h-full object-cover opacity-60 group-hover:opacity-50 group-hover:scale-105 transition-all duration-700 ease-out mix-blend-overlay">
+                </div>
+
+                <!-- Gradient Overlays for Readability -->
+                <div class="absolute inset-0 z-0 bg-gradient-to-t from-black via-gray-900/80 to-transparent"></div>
+                <div class="absolute inset-0 z-0 bg-gradient-to-b from-black/40 to-transparent opacity-60"></div>
+
+                <!-- Content Container -->
+                <div class="relative z-10 flex flex-col h-full p-8 justify-between">
+                    <!-- Header / Icon -->
+                    <div class="flex justify-between items-start">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-black/20 backdrop-blur-md text-[10px] font-medium text-indigo-300">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+                            Live Analytics
+                        </div>
+                        <div
+                            class="p-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl group-hover:bg-white/10 transition-colors">
+                            <iconify-icon icon="solar:chart-square-linear" width="24" class="text-white"></iconify-icon>
+                        </div>
+                    </div>
+
+                    <!-- Main Text Content -->
+                    <div class="transform transition-transform duration-500 translate-y-2 group-hover:translate-y-0">
+                        <h3 class="text-2xl font-semibold tracking-tight text-white mb-3 text-shadow-sm">Centralized P&L
+                            Engine</h3>
+                        <p class="text-sm text-gray-300 font-light leading-relaxed mb-6 max-w-lg drop-shadow-md">
+                            Aggregates sales revenue, product costs, platform deductions (commissions), and operational
+                            expenses to generate real-time profit reports.
+                        </p>
+
+                        <!-- Feature Tags -->
+                        <div class="flex flex-wrap gap-2">
+                            <div
+                                class="flex items-center gap-1.5 text-[11px] font-medium text-white bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5 group-hover:border-white/20 transition-colors">
+                                <iconify-icon icon="solar:magic-stick-linear" width="12"></iconify-icon>
+                                <span>Auto-Margin</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-1.5 text-[11px] font-medium text-white bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5 group-hover:border-white/20 transition-colors">
+                                <iconify-icon icon="solar:calendar-linear" width="12"></iconify-icon>
+                                <span class="">Date Filtering</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory (Wide) -->
+            <div
+                class="md:col-span-2 glass-card flex flex-col relative overflow-hidden group hover:border-white/20 transition-colors rounded-2xl pt-6 pr-6 pb-6 pl-6">
+                <div class="absolute inset-0 z-0">
+                    <img src="https://images.unsplash.com/photo-1629946832022-c327f74956e0?w=2160&q=80"
+                        alt="Inventory background"
+                        class="w-full h-full object-cover opacity-50 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700 ease-out mix-blend-overlay">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-gray-900/20 mix-blend-multiply">
+                    </div>
+                </div>
+                <div class="relative z-10 flex flex-col h-full justify-between">
+                    <div class="flex justify-between items-start">
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-500/20 backdrop-blur-sm flex items-center justify-center text-indigo-300 border border-indigo-500/10">
+                            <iconify-icon icon="solar:box-minimalistic-linear" width="20"></iconify-icon>
+                        </div>
+                        <iconify-icon icon="solar:arrow-right-up-linear"
+                            class="text-white/60 group-hover:text-white transition-colors" width="20"></iconify-icon>
+                    </div>
+                    <div class="">
+                        <h3 class="text-lg font-medium text-white mt-4 drop-shadow-sm">Inventory & Product Costing</h3>
+                        <p class="text-xs text-gray-200 mt-2 font-light leading-relaxed drop-shadow-sm opacity-90">
+                            Tracks Stock In/Out and calculates inventory valuation. Unlike simple counters, this tracks
+                            cost history per batch.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investor Sharing (Small) -->
+            <div class="glass-card rounded-2xl p-6 hover:border-white/20 transition-colors">
+                <div
+                    class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 mb-4">
+                    <iconify-icon icon="solar:users-group-rounded-linear" width="20"></iconify-icon>
+                </div>
+                <h3 class="text-base font-medium text-white">Investor Management</h3>
+                <p class="text-xs text-gray-400 mt-2 font-light">Auto-calculated profit distribution based on
+                    equity/investment.</p>
+            </div>
+
+            <!-- Analytics (Small) -->
+            <div class="glass-card rounded-2xl p-6 hover:border-white/20 transition-colors">
+                <div
+                    class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 mb-4">
+                    <iconify-icon icon="solar:pie-chart-2-linear" width="20"></iconify-icon>
+                </div>
+                <h3 class="text-base font-medium text-white">Expense Mapping</h3>
+                <p class="text-xs text-gray-400 mt-2 font-light">Categorize overheads and map them directly to profit
+                    reduction.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Investor Transparency Feature (Detailed) -->
+    <section id="investors" class="py-24 bg-gradient-to-b from-gray-900/50 to-black border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
+            <div class="w-full md:w-1/2">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/20 bg-green-500/5 text-[10px] font-medium text-green-400 mb-6">
+                    <iconify-icon icon="solar:shield-check-linear"></iconify-icon>
+                    TRUST & TRANSPARENCY
+                </div>
+                <h2 class="text-3xl font-medium text-white tracking-tight mb-4">Automated Profit Sharing.</h2>
+                <p class="text-sm text-gray-400 leading-relaxed font-light mb-8">
+                    Eliminate manual calculations and disputes. The system automatically splits the monthly Net Profit
+                    based on pre-defined investor profiles and shares.
+                </p>
+
+                <div class="space-y-6">
+                    <!-- Step 1 -->
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-white">
+                                1</div>
+                            <div class="h-full w-px bg-white/10 my-2"></div>
+                        </div>
+                        <div class="">
+                            <h4 class="text-sm font-medium text-white">Define Capital & Share</h4>
+                            <p class="text-xs text-gray-500 mt-1">Input investment amounts and agreed percentage share
+                                for each stakeholder.</p>
+                        </div>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-white">
+                                2</div>
+                            <div class="h-full w-px bg-white/10 my-2"></div>
+                        </div>
+                        <div class="">
+                            <h4 class="text-sm font-medium text-white">Auto-Calculation</h4>
+                            <p class="text-xs text-gray-500 mt-1">System takes (Revenue - (COGS + Expenses + Platform
+                                Fees)) to find Net Profit.</p>
+                        </div>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-white">
+                                3</div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-white">Read-Only Investor Access</h4>
+                            <p class="text-xs text-gray-500 mt-1">Investors log in to a restricted dashboard to view
+                                real-time fund performance.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive visual component -->
+            <div class="w-full md:w-1/2">
+                <div class="glass-card rounded-2xl p-8 border border-white/10">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-sm font-medium text-white">Profit Distribution Logic</h3>
+                        <div class="px-2 py-1 bg-green-500/10 rounded text-[10px] text-green-400">Active Cycle</div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Total Profit Block -->
+                        <div class="bg-gray-900 rounded-lg p-4 border border-white/5 flex justify-between items-center">
+                            <span class="text-xs text-gray-400">Monthly Net Profit</span>
+                            <span class="text-lg font-medium text-white">$50,000</span>
+                        </div>
+
+                        <!-- Connector -->
+                        <div class="flex justify-center">
+                            <iconify-icon icon="solar:arrow-down-linear" class="text-gray-600"></iconify-icon>
+                        </div>
+
+                        <!-- Shares -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/5 rounded-lg p-4 border border-white/5">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-xs text-gray-400">Seller (Ops)</span>
+                                    <span class="text-xs text-indigo-400">60%</span>
+                                </div>
+                                <div class="text-base font-medium text-white">$30,000</div>
+                            </div>
+                            <div class="bg-white/5 rounded-lg p-4 border border-white/5">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-xs text-gray-400">Investor A</span>
+                                    <span class="text-xs text-purple-400">40%</span>
+                                </div>
+                                <div class="text-base font-medium text-white">$20,000</div>
+                            </div>
+                        </div>
+
+                        <!-- Ledger Entry -->
+                        <div class="mt-6 pt-6 border-t border-white/5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center">
+                                    <iconify-icon icon="solar:file-check-linear" class="text-gray-400"
+                                        width="16"></iconify-icon>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-white">Ledger updated automatically</p>
+                                    <p class="text-[10px] text-gray-500">Transaction ID: #TXN-9982</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture & Roles -->
+    <section id="architecture" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-medium text-white tracking-tight">Access-Controlled Architecture</h2>
+            <p class="text-sm text-gray-500 mt-2 font-light">RBAC ensures data isolation and security.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Role Card -->
+            <div class="p-6 border border-white/5 rounded-xl bg-gradient-to-b from-white/5 to-transparent text-center">
+                <div
+                    class="mx-auto w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center text-red-400 mb-4">
+                    <iconify-icon icon="solar:shield-user-linear" width="24"></iconify-icon>
+                </div>
+                <h3 class="text-sm font-medium text-white">Admin</h3>
+                <p class="text-xs text-gray-500 mt-2">Full control, approvals, and system configuration.</p>
+            </div>
+            <!-- Role Card -->
+            <div class="p-6 border border-white/5 rounded-xl bg-gradient-to-b from-white/5 to-transparent text-center">
+                <div
+                    class="mx-auto w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 mb-4">
+                    <iconify-icon icon="solar:user-id-linear" width="24"></iconify-icon>
+                </div>
+                <h3 class="text-sm font-medium text-white">Manager/Staff</h3>
+                <p class="text-xs text-gray-500 mt-2">Operational data entry, order processing, stock updates.</p>
+            </div>
+            <!-- Role Card -->
+            <div class="p-6 border border-white/5 rounded-xl bg-gradient-to-b from-white/5 to-transparent text-center">
+                <div
+                    class="mx-auto w-12 h-12 bg-yellow-500/10 rounded-full flex items-center justify-center text-yellow-400 mb-4">
+                    <iconify-icon icon="solar:calculator-linear" width="24"></iconify-icon>
+                </div>
+                <h3 class="text-sm font-medium text-white">Accountant</h3>
+                <p class="text-xs text-gray-500 mt-2">Financial oversight, expense auditing, and reconciliation.</p>
+            </div>
+            <!-- Role Card -->
+            <div class="p-6 border border-white/5 rounded-xl bg-gradient-to-b from-white/5 to-transparent text-center">
+                <div
+                    class="mx-auto w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center text-green-400 mb-4">
+                    <iconify-icon icon="solar:glasses-linear" width="24"></iconify-icon>
+                </div>
+                <h3 class="text-sm font-medium text-white">Investor</h3>
+                <p class="text-xs text-gray-500 mt-2">Read-only access to specific dashboards for transparency.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Outcomes/Footer -->
+    <footer class="border-t border-white/10 bg-black pt-20 pb-10 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+
+            <div class="max-w-xs">
+                <div class="flex items-center gap-2 mb-4">
+                    <div
+                        class="w-5 h-5 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded flex items-center justify-center text-white text-[10px] font-medium">
+                        S</div>
+                    <span class="text-sm font-medium text-white">SmartSeller.sys</span>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">
+                    A research-driven solution transforming fragmented seller operations into a single, reliable
+                    business intelligence platform.
+                </p>
+            </div>
+
+            <div class="flex gap-16">
+                <div>
+                    <h4 class="text-xs font-medium text-white mb-4">Product</h4>
+                    <ul class="space-y-2 text-xs text-gray-500">
+                        <li><a href="#" class="hover:text-white">Features</a></li>
+                        <li><a href="#" class="hover:text-white">Security</a></li>
+                        <li><a href="#" class="hover:text-white">Integrations</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-medium text-white mb-4">Research</h4>
+                    <ul class="space-y-2 text-xs text-gray-500">
+                        <li><a href="#" class="hover:text-white">Methodology</a></li>
+                        <li><a href="#" class="hover:text-white">Risk Analysis</a></li>
+                        <li><a href="#" class="hover:text-white">Case Studies</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="max-w-xs">
+                <h4 class="text-xs font-medium text-white mb-4">Get Started</h4>
+                <p class="text-xs text-gray-500 mb-4">Request a demo of the R&D prototype.</p>
+                <div class="flex gap-2">
+                    <input type="email" placeholder="Email address"
+                        class="bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 w-full">
+                    <button
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded transition-colors">
+                        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+        <div
+            class="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex justify-between items-center text-[10px] text-gray-600">
+            <p>© 2023 Smart E-Commerce Research. All rights reserved.</p>
+            <div class="flex gap-4">
+                <span>Privacy Policy</span>
+                <span>Terms of Service</span>
+            </div>
+        </div>
+    </footer>
+
+
+</body>
+
+</html>

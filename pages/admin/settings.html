@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Admin Console</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
+            </a>
+            <a href="reports.html" class="nav-item">
+                <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+            </a>
+            <a href="settings.html" class="nav-item active">
+                <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <a href="../../pages/profile.html"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar">A</div>
+                <div>
+                    <p class="text-sm text-white">Admin</p>
+                    <p class="text-xs text-muted">Administrator</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">System Settings</h1>
+        </header>
+
+        <div class="dashboard-form-card mb-8" style="margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1.5rem;">General Configuration</h3>
+            <form>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label>Application Name</label>
+                        <input type="text" value="SmartSeller.sys">
+                    </div>
+                    <div>
+                        <label>Base Currency</label>
+                        <select>
+                            <option selected>USD ($)</option>
+                            <option>BDT (৳)</option>
+                            <option>EUR (€)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Fiscal Year Start</label>
+                        <input type="date" value="2024-01-01">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" style="margin-top: 1.5rem;"
+                    onclick="alert('Settings Saved')">Save Changes</button>
+            </form>
+        </div>
+
+        <div class="dashboard-form-card" style="border-color: rgba(248, 113, 113, 0.3);">
+            <h3 style="color: #f87171; margin-bottom: 1rem;">Danger Zone</h3>
+            <p class="text-sm text-muted mb-4">Resetting the system will remove all sales, expenses, and inventory data.
+                This action cannot be undone.</p>
+
+            <button class="btn"
+                style="background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2);"
+                onclick="if(confirm('Are you sure you want to reset all data?')) { localStorage.clear(); window.location.reload(); }">
+                Reset System Data
+            </button>
+        </div>
+
+    </main>
+
+    <script src="../../js/main.js"></script>
+</body>
+
+</html>

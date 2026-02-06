@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Smart Seller System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="auth-body">
+
+    <div class="auth-card" style="max-width: 500px;">
+        <div class="auth-header">
+            <div class="auth-logo">S</div>
+            <h2>Create Account</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Start managing your business
+            </p>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="company">Company Name</label>
+                <select id="company" required>
+                    <option value="" disabled selected>Select Your Company</option>
+                    <option value="Smart Eco System">Smart Eco System (HQ)</option>
+                    <option value="Tech Gadgets Ltd">Tech Gadgets Ltd</option>
+                    <option value="Globe Fashions">Globe Fashions</option>
+                    <option value="Organic Foods Co">Organic Foods Co</option>
+                    <option value="Digital Solutions Inc">Digital Solutions Inc</option>
+                    <option value="Demo Company">Demo Company</option>
+                </select>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">I am a...</label>
+                    <select id="role" required>
+                        <option value="" disabled selected>Select Role</option>
+                        <option value="admin">Business Owner (Admin)</option>
+                        <option value="staff">Staff / Manager</option>
+                        <option value="investor">Investor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="name@company.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="login.html">Sign In</a>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+
+</html>

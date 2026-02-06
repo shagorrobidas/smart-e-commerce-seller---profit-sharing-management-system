@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Reports - Investor</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--secondary), var(--primary)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                I</div>
+            <span style="font-weight: 500;">Investor View</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon> Portfolio
+            </a>
+            <a href="reports.html" class="nav-item active">
+                <iconify-icon icon="solar:file-text-linear"></iconify-icon> Reports
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <a href="../../pages/profile.html"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar" style="background: var(--secondary);">I</div>
+                <div>
+                    <p class="text-sm text-white">Investor</p>
+                    <p class="text-xs text-muted">Shareholder</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Financial Statements</h1>
+            <div class="flex gap-4">
+                <button class="btn btn-outline" onclick="window.print()">Download Statement</button>
+            </div>
+        </header>
+
+        <!-- ROI Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="glass-card p-6" style="border-top: 4px solid var(--secondary);">
+                <h3 style="margin-bottom: 1rem;">ROI Analysis</h3>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span class="text-muted">Total Investment</span>
+                    <span class="text-white font-medium">$50,000.00</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span class="text-muted">Current Value</span>
+                    <span class="text-white font-medium">$62,450.00</span>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">
+                    <span class="text-white">Net Return</span>
+                    <span class="text-secondary font-bold">+24.9%</span>
+                </div>
+            </div>
+
+            <div class="glass-card p-6">
+                <h3 style="margin-bottom: 1rem;">Payout Schedule</h3>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <div>
+                        <p class="text-sm text-white font-medium">Q1 2024 Dividend</p>
+                        <p class="text-xs text-muted">Paid on Jan 15, 2024</p>
+                    </div>
+                    <span class="status-badge status-success">Paid</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <p class="text-sm text-white font-medium">Q2 2024 Dividend</p>
+                        <p class="text-xs text-muted">Expected Apr 15, 2024</p>
+                    </div>
+                    <span class="status-badge"
+                        style="background: rgba(255,255,255,0.1); color: var(--text-muted);">Upcoming</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Calculator -->
+        <div class="dashboard-form-card mb-8">
+            <h3 style="margin-bottom: 1rem;">Future Return Projector</h3>
+            <p class="text-sm text-muted mb-4">Estimate your future returns based on different company growth scenarios.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-size: 0.875rem; color: var(--text-muted); mb-2;">Projected
+                            Monthly Growth Rate</label>
+                        <input type="range" min="1" max="20" value="5" id="growthRate"
+                            style="width: 100%; accent-color: var(--secondary);"
+                            oninput="document.getElementById('growthVal').textContent = this.value + '%'">
+                        <div class="flex justify-between text-xs text-muted mt-1">
+                            <span>Conservative (1%)</span>
+                            <span id="growthVal" class="text-white font-bold">5%</span>
+                            <span>Aggressive (20%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 text-center">
+                    <span class="text-sm text-muted block">Projected Annual Dividend</span>
+                    <span class="text-2xl font-bold text-secondary" id="projectedReturn">$18,450</span>
+                    <p class="text-xs text-muted mt-2">*Based on current equity (40%) and selected growth.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-form-card">
+            <h3 style="margin-bottom: 1.5rem;">Profit & Loss Detail</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Transaction</th>
+                        <th>Type</th>
+                        <th>Gross Amount</th>
+                        <th>Your Share (40%)</th>
+                    </tr>
+                </thead>
+                <tbody id="investor-report-list">
+                    <!-- JS Populated -->
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const records = Dashboard.getSales();
+            const tbody = document.getElementById('investor-report-list');
+
+            // Filter only verified sales and expenses for investor transparency
+
+            if (tbody) {
+                tbody.innerHTML = records.map(r => {
+                    const share = r.type === 'sale' ? (r.amount * 0.3 * 0.4) : -(r.amount * 0.4); // Assuming 30% margin on sales, then 40% equity
+                    // Simplification: In reality share is on Net Profit, but this shows impact per transaction
+
+                    return `
+                    <tr>
+                        <td>${r.date || '2024-02-06'}</td>
+                        <td>${r.product || r.description || r.category || 'N/A'}</td>
+                        <td style="text-transform: capitalize;">${r.type}</td>
+                        <td style="color: ${r.type === 'sale' ? '#4ade80' : '#f87171'};">
+                           ${r.type === 'sale' ? '+' : '-'} ${App.formatCurrency(r.amount)}
+                        </td>
+                        <td style="font-family: monospace; color: ${share > 0 ? 'var(--secondary)' : '#9ca3af'};">
+                           ${share > 0 ? '+' : ''} ${App.formatCurrency(share)}
+                        </td>
+                    </tr>
+                `}).join('');
+            }
+        });
+
+        // ROI Calculator Logic
+        const growthInput = document.getElementById('growthRate');
+        const projOutput = document.getElementById('projectedReturn');
+
+        if (growthInput && projOutput) {
+            growthInput.addEventListener('input', (e) => {
+                const rate = Number(e.target.value) / 100;
+                // Base calculation: Current Month Profit * 12 * (1 + rate)
+                const baseMonthlyProfit = 2500; // Simplified baseline
+                const annual = baseMonthlyProfit * 12 * (1 + rate);
+                const share = annual * 0.40; // 40% equity
+
+                projOutput.textContent = App.formatCurrency(share);
+            });
+        }
+    </script>
+</body>
+
+</html>

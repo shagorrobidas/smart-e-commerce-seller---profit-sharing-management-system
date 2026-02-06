@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Smart Seller</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Admin Console</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active">
+                <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
+            </a>
+            <a href="reports.html" class="nav-item">
+                <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <a href="../../pages/profile.html"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar">A</div>
+                <div>
+                    <p class="text-sm text-white" id="user-name">Admin</p>
+                    <p class="text-xs text-muted" id="user-role">Administrator</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Business Overview</h1>
+            <div class="flex gap-4">
+                <button class="btn btn-primary" onclick="window.print()">Download Report</button>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stat-card">
+                <span class="stat-label">Total Revenue</span>
+                <span class="stat-value" id="stat-sales">$0.00</span>
+                <div class="stat-trend trend-up">
+                    <iconify-icon icon="solar:graph-up-linear"></iconify-icon> +8.2%
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total Expenses</span>
+                <span class="stat-value" id="stat-expense">$0.00</span>
+                <div class="stat-trend" style="color: var(--text-muted);">
+                    <iconify-icon icon="solar:graph-up-linear"></iconify-icon> 0%
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Net Profit</span>
+                <span class="stat-value" id="stat-profit" style="color: var(--secondary);">$0.00</span>
+                <div class="stat-trend trend-up">
+                    <iconify-icon icon="solar:graph-up-linear"></iconify-icon> +12.4%
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Charts -->
+        <div class="dashboard-form-card mb-8">
+            <h3 style="margin-bottom: 1rem;">Revenue & Expenses Analytics</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="dashboard-form-card">
+            <h3 style="margin-bottom: 1rem;">System Activity</h3>
+            <table class="data-table" id="activity-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Date</th>
+                        <th style="width: 40%;">Activity</th>
+                        <th style="width: 20%;">Amount</th>
+                        <th style="width: 20%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2024-02-06</td>
+                        <td>New Sale Recorded (Daraz)</td>
+                        <td>$1,200.00</td>
+                        <td><span class="status-badge status-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>2024-02-06</td>
+                        <td>Expense: Office Supplies</td>
+                        <td>$150.00</td>
+                        <td><span class="status-badge status-warning">Pending</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/dashboard.js"></script>
+</body>
+
+</html>
