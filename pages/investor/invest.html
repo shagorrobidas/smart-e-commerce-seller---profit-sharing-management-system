@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invest - Investor</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--secondary), var(--primary)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                I</div>
+            <span style="font-weight: 500;">Investor View</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item"><iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon>
+                Portfolio</a>
+            <a href="agreements.html" class="nav-item"><iconify-icon icon="solar:document-text-linear"></iconify-icon>
+                Agreements</a>
+            <a href="invest.html" class="nav-item active"><iconify-icon icon="solar:wallet-money-linear"></iconify-icon>
+                Invest</a>
+            <a href="reports.html" class="nav-item"><iconify-icon icon="solar:file-text-linear"></iconify-icon>
+                Reports</a>
+        </nav>
+        <div class="user-profile">
+            <a href="../../pages/profile.html"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar" style="background: var(--secondary);">I</div>
+                <div>
+                    <p class="text-sm text-white">Investor</p>
+                    <p class="text-xs text-muted">Shareholder</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
+                    icon="solar:logout-linear"></iconify-icon></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">New Investment</h1>
+        </header>
+
+        <div class="dashboard-form-card mb-8">
+            <h3>Request Capital Injection</h3>
+            <p class="text-sm text-muted mb-6">Submit a request to inject additional capital into the business. This
+                will be reviewed by the Admin.</p>
+
+            <form id="investForm">
+                <div class="grid md:grid-cols-2 gap-6 mb-4">
+                    <div>
+                        <label>Investment Amount (৳)</label>
+                        <input type="number" id="inv-amount" required placeholder="50000">
+                    </div>
+                    <div>
+                        <label>Proposed Equity Increase (%)</label>
+                        <input type="number" id="inv-equity" placeholder="e.g. 5">
+                        <span class="text-xs text-muted">Optional: Leave blank if pure debt/loan</span>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label>Terms / Notes</label>
+                    <textarea id="inv-notes" rows="4" placeholder="Terms of the investment..."
+                        style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: white; padding: 0.5rem; border-radius: 6px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Proposal</button>
+            </form>
+        </div>
+
+        <div class="dashboard-form-card">
+            <h3>Investment History</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Equity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="inv-list">
+                    <!-- JS Populated -->
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="../../js/data-manager.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = App.checkAuth();
+            if (!user || user.role !== 'investor') window.location.href = '../../pages/login.html';
+
+            const tbody = document.getElementById('inv-list');
+
+            // Init empty collection if needed
+            if (!DB.get('smartEcoInvestments')) DB.initializeCollection('smartEcoInvestments', []);
+
+            const renderHistory = () => {
+                const investments = DB.get('smartEcoInvestments') || [];
+                if (tbody) {
+                    tbody.innerHTML = investments.map(i => `
+                        <tr>
+                            <td>৳{i.date}</td>
+                            <td>৳{App.formatCurrency(i.amount)}</td>
+                            <td>৳{i.equity ? i.equity + '%' : '-'}</td>
+                            <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: var(--text-muted);">৳{i.status}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            };
+
+            document.getElementById('investForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const amount = document.getElementById('inv-amount').value;
+                const equity = document.getElementById('inv-equity').value;
+                const notes = document.getElementById('inv-notes').value;
+
+                DB.add('smartEcoInvestments', {
+                    id: Date.now(),
+                    amount,
+                    equity,
+                    notes,
+                    status: 'pending',
+                    date: new Date().toISOString().split('T')[0],
+                    investorId: user.id
+                });
+
+                alert('Investment proposal submitted!');
+                document.getElementById('investForm').reset();
+                renderHistory();
+            });
+
+            renderHistory();
+        });
+    </script>
+</body>
+
+</html>
