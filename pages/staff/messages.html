@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Staff</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+        .chat-container {
+            display: flex;
+            height: calc(100vh - 140px);
+            gap: 1rem;
+        }
+
+        .chat-sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+        }
+
+        .chat-main {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-item {
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background 0.2s;
+        }
+
+        .user-item:hover,
+        .user-item.active {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            padding: 0.75rem;
+            border-radius: 6px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Staff Portal</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item"><iconify-icon icon="solar:widget-linear"></iconify-icon>
+                Operations</a>
+            <a href="inventory.html" class="nav-item"><iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon>
+                Inventory</a>
+            <a href="orders.html" class="nav-item"><iconify-icon icon="solar:bag-check-linear"></iconify-icon>
+                Orders</a>
+            <a href="tasks.html" class="nav-item"><iconify-icon
+                    icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks</a>
+            <a href="messages.html" class="nav-item active"><iconify-icon
+                    icon="solar:chat-round-dots-linear"></iconify-icon> Messages</a>
+            <a href="reports.html" class="nav-item"><iconify-icon icon="solar:file-text-linear"></iconify-icon> My
+                Reports</a>
+        </nav>
+        <div class="user-profile">
+            <a href="../../pages/profile.html"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar" style="background: var(--accent-purple);">S</div>
+                <div>
+                    <p class="text-sm text-white">Staff</p>
+                    <p class="text-xs text-muted">Operations</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
+                    icon="solar:logout-linear"></iconify-icon></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Internal Chat</h1>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-sidebar" id="user-list">
+                <!-- JS Populated -->
+            </div>
+
+            <div class="chat-main">
+                <div class="messages-area" id="msg-area">
+                    <div
+                        style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
+                        Select a user to start chatting</div>
+                </div>
+                <form class="chat-input" id="chat-form" style="display: none;">
+                    <input type="text" id="msg-input" placeholder="Type a message..." required>
+                    <button type="submit" class="btn btn-primary" style="width: auto; padding: 0 1rem;"><iconify-icon
+                            icon="solar:plain-linear"></iconify-icon></button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/data-manager.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = App.checkAuth();
+            if (!user || user.role !== 'staff') window.location.href = '../../pages/login.html';
+
+            const users = DB.getUsers().filter(u => u.id !== user.id);
+            const userList = document.getElementById('user-list');
+            let activeChatUser = null;
+
+            // Render Users
+            userList.innerHTML = users.map(u => `
+                <div class="user-item" onclick="selectUser('৳{u.id}', '৳{u.name}')">
+                    <div class="user-avatar">৳{u.name.charAt(0)}</div>
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 500;">৳{u.name}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: capitalize;">৳{u.role}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            window.selectUser = (targetId, targetName) => {
+                activeChatUser = targetId;
+                document.getElementById('chat-form').style.display = 'flex';
+                // Highlight active
+                const items = document.querySelectorAll('.user-item');
+                items.forEach(i => i.classList.remove('active'));
+                event.currentTarget.classList.add('active'); // Note: this works because of onclick context
+
+                renderMessages();
+            };
+
+            const renderMessages = () => {
+                if (!activeChatUser) return;
+                const msgs = DB.getMessages(user.id, activeChatUser);
+                const area = document.getElementById('msg-area');
+
+                if (msgs.length === 0) {
+                    area.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 2rem;">No messages yet. Say hi!</div>';
+                } else {
+                    area.innerHTML = msgs.map(m => `
+                        <div class="message ৳{m.from === user.id ? 'sent' : 'received'}">
+                            ৳{m.content}
+                            <div style="font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right;">৳{m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                        </div>
+                    `).join('');
+                }
+                area.scrollTop = area.scrollHeight;
+            };
+
+            document.getElementById('chat-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = document.getElementById('msg-input').value;
+                if (!text.trim() || !activeChatUser) return;
+
+                DB.addMessage({
+                    from: user.id,
+                    to: activeChatUser,
+                    content: text,
+                    timestamp: new Date().toISOString()
+                });
+
+                document.getElementById('msg-input').value = '';
+                renderMessages();
+            });
+        });
+    </script>
+</body>
+
+</html>
