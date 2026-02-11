@@ -30,6 +30,9 @@
             <a href="users.html" class="nav-item">
                 <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
             </a>
+            <a href="tasks.html" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
             <a href="reports.html" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
@@ -67,21 +70,21 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="stat-card">
                 <span class="stat-label">Total Revenue</span>
-                <span class="stat-value" id="stat-sales">$0.00</span>
+                <span class="stat-value" id="stat-sales">৳0.00</span>
                 <div class="stat-trend trend-up">
                     <iconify-icon icon="solar:graph-up-linear"></iconify-icon> +8.2%
                 </div>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Total Expenses</span>
-                <span class="stat-value" id="stat-expense">$0.00</span>
+                <span class="stat-value" id="stat-expense">৳0.00</span>
                 <div class="stat-trend" style="color: var(--text-muted);">
                     <iconify-icon icon="solar:graph-up-linear"></iconify-icon> 0%
                 </div>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Net Profit</span>
-                <span class="stat-value" id="stat-profit" style="color: var(--secondary);">$0.00</span>
+                <span class="stat-value" id="stat-profit" style="color: var(--secondary);">৳0.00</span>
                 <div class="stat-trend trend-up">
                     <iconify-icon icon="solar:graph-up-linear"></iconify-icon> +12.4%
                 </div>
@@ -112,13 +115,13 @@
                     <tr>
                         <td>2024-02-06</td>
                         <td>New Sale Recorded (Daraz)</td>
-                        <td>$1,200.00</td>
+                        <td>৳1,200.00</td>
                         <td><span class="status-badge status-success">Completed</span></td>
                     </tr>
                     <tr>
                         <td>2024-02-06</td>
                         <td>Expense: Office Supplies</td>
-                        <td>$150.00</td>
+                        <td>৳150.00</td>
                         <td><span class="status-badge status-warning">Pending</span></td>
                     </tr>
                 </tbody>
@@ -127,6 +130,7 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
     <script src="../../js/dashboard.js"></script>
 </body>
