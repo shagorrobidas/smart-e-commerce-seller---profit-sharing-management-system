@@ -21,16 +21,16 @@
                 I</div>
             <span style="font-weight: 500;">Investor View</span>
         </div>
-
         <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">
-                <iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon> Portfolio
-            </a>
-            <a href="reports.html" class="nav-item active">
-                <iconify-icon icon="solar:file-text-linear"></iconify-icon> Reports
-            </a>
+            <a href="dashboard.html" class="nav-item"><iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon>
+                Portfolio</a>
+            <a href="agreements.html" class="nav-item"><iconify-icon icon="solar:document-text-linear"></iconify-icon>
+                Agreements</a>
+            <a href="invest.html" class="nav-item"><iconify-icon icon="solar:wallet-money-linear"></iconify-icon>
+                Invest</a>
+            <a href="reports.html" class="nav-item active"><iconify-icon icon="solar:file-text-linear"></iconify-icon>
+                Reports</a>
         </nav>
-
         <div class="user-profile">
             <a href="../../pages/profile.html"
                 style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
@@ -41,9 +41,8 @@
                 </div>
             </a>
             <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
-                <iconify-icon icon="solar:logout-linear"></iconify-icon>
-            </button>
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
+                    icon="solar:logout-linear"></iconify-icon></button>
         </div>
     </aside>
 
@@ -62,11 +61,11 @@
                 <h3 style="margin-bottom: 1rem;">ROI Analysis</h3>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                     <span class="text-muted">Total Investment</span>
-                    <span class="text-white font-medium">$50,000.00</span>
+                    <span class="text-white font-medium">৳50,000.00</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                     <span class="text-muted">Current Value</span>
-                    <span class="text-white font-medium">$62,450.00</span>
+                    <span class="text-white font-medium">৳62,450.00</span>
                 </div>
                 <div
                     style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">
@@ -119,7 +118,7 @@
 
                 <div class="glass-card p-4 text-center">
                     <span class="text-sm text-muted block">Projected Annual Dividend</span>
-                    <span class="text-2xl font-bold text-secondary" id="projectedReturn">$18,450</span>
+                    <span class="text-2xl font-bold text-secondary" id="projectedReturn">৳18,450</span>
                     <p class="text-xs text-muted mt-2">*Based on current equity (40%) and selected growth.</p>
                 </div>
             </div>
@@ -145,51 +144,90 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
     <script src="../../js/dashboard.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const records = Dashboard.getSales();
+            // Check Auth
+            const user = App.checkAuth();
+            if (!user) {
+                window.location.href = '../login.html';
+                return;
+            }
+            // Set Name
+            const userNameEl = document.getElementById('user-name');
+            if (userNameEl) userNameEl.textContent = user.name;
+
             const tbody = document.getElementById('investor-report-list');
 
-            // Filter only verified sales and expenses for investor transparency
+            // Get Merged Data
+            const transactions = DB.getTransactions();
+            const orders = DB.getOrders();
+
+            const allRecords = [
+                ...orders.filter(o => o.status !== 'cancelled').map(o => ({
+                    date: o.date,
+                    type: 'sale',
+                    description: `Order #৳{o.id} - ৳{o.product}`,
+                    amount: o.amount,
+                    id: o.id
+                })),
+                ...transactions.filter(t => t.type === 'expense').map(t => ({
+                    date: t.date,
+                    type: 'expense',
+                    description: t.note || t.category || 'Expense',
+                    amount: t.amount,
+                    id: t.id
+                })),
+                ...transactions.filter(t => t.type === 'profit_share').map(t => ({
+                    date: t.date,
+                    type: 'payout',
+                    description: 'Profit Distribution',
+                    amount: t.amount,
+                    id: t.id
+                }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
 
             if (tbody) {
-                tbody.innerHTML = records.map(r => {
-                    const share = r.type === 'sale' ? (r.amount * 0.3 * 0.4) : -(r.amount * 0.4); // Assuming 30% margin on sales, then 40% equity
-                    // Simplification: In reality share is on Net Profit, but this shows impact per transaction
+                tbody.innerHTML = allRecords.map(r => {
+                    let shareEffect = 0;
+                    if (r.type === 'sale') shareEffect = (r.amount * 0.3 * 0.4);
+                    else if (r.type === 'expense') shareEffect = -(r.amount * 0.4);
+
+                    const isPositive = r.type === 'sale';
+                    const isPayout = r.type === 'payout';
 
                     return `
                     <tr>
-                        <td>${r.date || '2024-02-06'}</td>
-                        <td>${r.product || r.description || r.category || 'N/A'}</td>
-                        <td style="text-transform: capitalize;">${r.type}</td>
-                        <td style="color: ${r.type === 'sale' ? '#4ade80' : '#f87171'};">
-                           ${r.type === 'sale' ? '+' : '-'} ${App.formatCurrency(r.amount)}
+                        <td>৳{r.date}</td>
+                        <td>৳{r.description}</td>
+                        <td style="text-transform: capitalize;">৳{r.type}</td>
+                        <td style="color: ৳{isPositive ? '#4ade80' : (isPayout ? '#60a5fa' : '#f87171')};">
+                           ৳{isPositive ? '+' : (isPayout ? '' : '-')} ৳{App.formatCurrency(r.amount)}
                         </td>
-                        <td style="font-family: monospace; color: ${share > 0 ? 'var(--secondary)' : '#9ca3af'};">
-                           ${share > 0 ? '+' : ''} ${App.formatCurrency(share)}
+                        <td style="font-family: monospace; color: ৳{shareEffect > 0 ? 'var(--secondary)' : '#9ca3af'};">
+                           ৳{isPayout ? '-' : (shareEffect > 0 ? '+' : '') + App.formatCurrency(shareEffect)}
                         </td>
                     </tr>
                 `}).join('');
             }
+
+            // ROI Calculator Logic
+            const growthInput = document.getElementById('growthRate');
+            const projOutput = document.getElementById('projectedReturn');
+
+            if (growthInput && projOutput) {
+                growthInput.addEventListener('input', (e) => {
+                    const rate = Number(e.target.value) / 100;
+                    const baseMonthlyProfit = 2500;
+                    const annual = baseMonthlyProfit * 12 * (1 + rate);
+                    const share = annual * 0.40;
+                    projOutput.textContent = App.formatCurrency(share);
+                });
+            }
         });
-
-        // ROI Calculator Logic
-        const growthInput = document.getElementById('growthRate');
-        const projOutput = document.getElementById('projectedReturn');
-
-        if (growthInput && projOutput) {
-            growthInput.addEventListener('input', (e) => {
-                const rate = Number(e.target.value) / 100;
-                // Base calculation: Current Month Profit * 12 * (1 + rate)
-                const baseMonthlyProfit = 2500; // Simplified baseline
-                const annual = baseMonthlyProfit * 12 * (1 + rate);
-                const share = annual * 0.40; // 40% equity
-
-                projOutput.textContent = App.formatCurrency(share);
-            });
-        }
     </script>
 </body>
 
