@@ -22,16 +22,20 @@
                 I</div>
             <span style="font-weight: 500;">Investor View</span>
         </div>
-
         <nav class="sidebar-nav">
             <a href="dashboard.html" class="nav-item active">
                 <iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon> Portfolio
+            </a>
+            <a href="agreements.html" class="nav-item">
+                <iconify-icon icon="solar:document-text-linear"></iconify-icon> Agreements
+            </a>
+            <a href="invest.html" class="nav-item">
+                <iconify-icon icon="solar:wallet-money-linear"></iconify-icon> Invest
             </a>
             <a href="reports.html" class="nav-item">
                 <iconify-icon icon="solar:file-text-linear"></iconify-icon> Reports
             </a>
         </nav>
-
         <div class="user-profile">
             <a href="../../pages/profile.html"
                 style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
@@ -42,9 +46,8 @@
                 </div>
             </a>
             <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
-                <iconify-icon icon="solar:logout-linear"></iconify-icon>
-            </button>
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
+                    icon="solar:logout-linear"></iconify-icon></button>
         </div>
     </aside>
 
@@ -58,19 +61,19 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="stat-card">
                 <span class="stat-label">Total Invested</span>
-                <span class="stat-value">$50,000</span>
+                <span class="stat-value">৳50,000</span>
                 <span class="text-xs text-muted">Fixed Capital</span>
             </div>
             <div class="stat-card">
                 <span class="stat-label">My Profit Share (Current Month)</span>
-                <span class="stat-value" id="stat-profit" style="color: var(--secondary);">$0.00</span>
+                <span class="stat-value" id="stat-profit-share" style="color: var(--secondary);">৳0.00</span>
                 <div class="stat-trend trend-up">
                     <iconify-icon icon="solar:graph-up-linear"></iconify-icon> Based on 40% Equity
                 </div>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Total Payouts Received</span>
-                <span class="stat-value">$12,450</span>
+                <span class="stat-value" id="stat-payouts">৳0.00</span>
             </div>
         </div>
 
@@ -82,15 +85,15 @@
                 <div>
                     <div class="flex justify-between py-2 border-b border-white/10">
                         <span class="text-sm text-muted">Total Sales Revenue</span>
-                        <span class="text-sm text-white font-medium" id="stat-sales">$0.00</span>
+                        <span class="text-sm text-white font-medium" id="stat-sales">৳0.00</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-white/10">
                         <span class="text-sm text-muted">Total OpEx & COGS</span>
-                        <span class="text-sm text-white font-medium" id="stat-expense">$0.00</span>
+                        <span class="text-sm text-white font-medium" id="stat-expense">৳0.00</span>
                     </div>
                     <div class="flex justify-between py-4">
                         <span class="text-base text-white">Net Profit</span>
-                        <span class="text-base text-secondary font-bold">$14,250.00</span>
+                        <span class="text-base text-secondary font-bold" id="stat-net-profit">৳0.00</span>
                     </div>
                 </div>
 
@@ -105,7 +108,7 @@
             </div>
         </div>
 
-        <!-- Investment Allocation Chart -->
+        <!-- Investment Allocation Chart (Static for now/Chart.js) -->
         <div class="dashboard-form-card">
             <h3 style="margin-bottom: 1rem;">Capital Allocation</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -140,11 +143,44 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
     <script src="../../js/dashboard.js"></script>
     <script>
-        // Override or extend dashboard logic for investor view
-        // In real app, API would filter data for investor
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check Auth
+            const user = App.checkAuth();
+            if (!user) {
+                window.location.href = '../login.html';
+                return;
+            }
+            // Set Name
+            const userNameEl = document.getElementById('user-name');
+            if (userNameEl) userNameEl.textContent = user.name;
+
+            // Load Stats
+            const stats = Dashboard.calculateStats();
+            const safeFormat = (val) => App.formatCurrency(val || 0);
+
+            const salesEl = document.getElementById('stat-sales');
+            if (salesEl) salesEl.textContent = safeFormat(stats.totalSales);
+
+            const expenseEl = document.getElementById('stat-expense');
+            if (expenseEl) expenseEl.textContent = safeFormat(stats.totalExpenses);
+
+            const netProfitEl = document.getElementById('stat-net-profit');
+            if (netProfitEl) netProfitEl.textContent = safeFormat(stats.totalProfit);
+
+            const profitShareEl = document.getElementById('stat-profit-share');
+            if (profitShareEl) profitShareEl.textContent = safeFormat(stats.totalProfit * 0.4);
+
+            // Calculate Payouts
+            const payouts = DB.getTransactions().filter(t => t.type === 'profit_share' && t.toUser === 'investors_pool');
+            const totalPayouts = payouts.reduce((acc, curr) => acc + curr.amount, 0);
+
+            const payoutEl = document.getElementById('stat-payouts');
+            if (payoutEl) payoutEl.textContent = safeFormat(totalPayouts);
+        });
     </script>
 </body>
 
