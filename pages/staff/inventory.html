@@ -29,6 +29,15 @@
             <a href="inventory.html" class="nav-item active">
                 <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon> Inventory
             </a>
+            <a href="orders.html" class="nav-item">
+                <iconify-icon icon="solar:bag-check-linear"></iconify-icon> Orders
+            </a>
+            <a href="tasks.html" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
+            <a href="messages.html" class="nav-item">
+                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+            </a>
             <a href="reports.html" class="nav-item">
                 <iconify-icon icon="solar:file-text-linear"></iconify-icon> My Reports
             </a>
@@ -114,7 +123,7 @@
             </div>
             <div class="stat-card">
                 <span class="stat-label">Total Value</span>
-                <span class="stat-value" id="inv-value">$0.00</span>
+                <span class="stat-value" id="inv-value">৳0.00</span>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Low Stock Items</span>
@@ -181,6 +190,7 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
     <script src="../../js/dashboard.js"></script>
     <script>
@@ -232,23 +242,23 @@
                     if (item.stock <= 10) lowStock++;
 
                     return `
-                    <tr onclick="viewProduct(${item.id})" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                    <tr onclick="viewProduct(৳{item.id})" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <div style="width: 32px; height: 32px; background: #333; border-radius: 4px; overflow: hidden;">
-                                     <img src="${item.image || 'https://via.placeholder.com/32'}" style="width: 100%; height: 100%; object-fit: cover;">
+                                     <img src="৳{item.image || 'https://via.placeholder.com/32'}" style="width: 100%; height: 100%; object-fit: cover;">
                                 </div>
                                 <div>
-                                    <span style="font-weight: 500;">${item.name}</span>
-                                    <span style="display: block; font-size: 10px; color: var(--text-muted);">${item.category || 'General'}</span>
+                                    <span style="font-weight: 500;">৳{item.name}</span>
+                                    <span style="display: block; font-size: 10px; color: var(--text-muted);">৳{item.category || 'General'}</span>
                                 </div>
                             </div>
                         </td>
-                        <td>${item.stock} Units</td>
-                        <td>${App.formatCurrency(item.buyPrice)}</td>
-                        <td>${App.formatCurrency(item.sellPrice)}</td>
+                        <td>৳{item.stock} Units</td>
+                        <td>৳{App.formatCurrency(item.buyPrice)}</td>
+                        <td>৳{App.formatCurrency(item.sellPrice)}</td>
                         <td>
-                            ${item.stock > 10
+                            ৳{item.stock > 10
                             ? '<span class="status-badge status-success">In Stock</span>'
                             : '<span class="status-badge status-warning">Low Stock</span>'}
                         </td>
