@@ -29,6 +29,15 @@
             <a href="inventory.html" class="nav-item">
                 <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon> Inventory
             </a>
+            <a href="orders.html" class="nav-item">
+                <iconify-icon icon="solar:bag-check-linear"></iconify-icon> Orders
+            </a>
+            <a href="tasks.html" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
+            <a href="messages.html" class="nav-item">
+                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+            </a>
             <a href="reports.html" class="nav-item active">
                 <iconify-icon icon="solar:file-text-linear"></iconify-icon> My Reports
             </a>
@@ -64,15 +73,15 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="stat-card">
                 <span class="stat-label">Total Sales Recorded</span>
-                <span class="stat-value" id="rep-sales">$0.00</span>
+                <span class="stat-value" id="rep-sales">৳0.00</span>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Expenses Submitted</span>
-                <span class="stat-value" id="rep-expense">$0.00</span>
+                <span class="stat-value" id="rep-expense">৳0.00</span>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Net Contribution</span>
-                <span class="stat-value" id="rep-net">$0.00</span>
+                <span class="stat-value" id="rep-net">৳0.00</span>
             </div>
         </div>
 
@@ -103,6 +112,7 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
     <script src="../../js/dashboard.js"></script>
     <script>
@@ -134,15 +144,15 @@
 
                     return `
                     <tr>
-                        <td>${r.date || '2024-02-06'}</td>
-                        <td style="text-transform: capitalize;">${r.type}</td>
+                        <td>৳{r.date || '2024-02-06'}</td>
+                        <td style="text-transform: capitalize;">৳{r.type}</td>
                         <td>
-                            ${r.product || r.description || r.category || 'N/A'}
-                            ${r.attachment ? `<span style="display:inline-flex; align-items:center; color: var(--accent); margin-left: 0.5rem;" title="Attachment: ${r.attachment}"><iconify-icon icon="solar:paperclip-linear"></iconify-icon></span>` : ''}
+                            ৳{r.product || r.description || r.category || 'N/A'}
+                            ৳{r.attachment ? `< span style = "display:inline-flex; align-items:center; color: var(--accent); margin-left: 0.5rem;" title = "Attachment: ৳{r.attachment}" > <iconify-icon icon="solar:paperclip-linear"></iconify-icon></span > ` : ''}
                         </td>
-                         <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">${r.platform || r.category || '-'}</span></td>
-                        <td style="color: ${r.type === 'sale' ? '#4ade80' : '#f87171'}; font-weight: 500;">
-                            ${r.type === 'sale' ? '+' : '-'} ${App.formatCurrency(r.amount)}
+                         <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">৳{r.platform || r.category || '-'}</span></td>
+                        <td style="color: ৳{r.type === 'sale' ? '#4ade80' : '#f87171'}; font-weight: 500;">
+                            ৳{r.type === 'sale' ? '+' : '-'} ৳{App.formatCurrency(r.amount)}
                         </td>
                     </tr>
                 `}).join('');
