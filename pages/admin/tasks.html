@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management - Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Admin Console</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item"><iconify-icon icon="solar:widget-linear"></iconify-icon>
+                Dashboard</a>
+            <a href="users.html" class="nav-item"><iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon>
+                Users</a>
+            <a href="tasks.html" class="nav-item active"><iconify-icon
+                    icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks</a>
+            <a href="reports.html" class="nav-item"><iconify-icon icon="solar:chart-square-linear"></iconify-icon>
+                Reports</a>
+            <a href="settings.html" class="nav-item"><iconify-icon icon="solar:settings-linear"></iconify-icon>
+                Settings</a>
+        </nav>
+        <div class="user-profile">
+            <a href="../../pages/profile.html"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar">A</div>
+                <div>
+                    <p class="text-sm text-white">Admin</p>
+                    <p class="text-xs text-muted">Administrator</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
+                    icon="solar:logout-linear"></iconify-icon></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Task Management</h1>
+            <button class="btn btn-primary" onclick="document.getElementById('addTaskModal').style.display='flex'">+
+                Assign Task</button>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Task List -->
+            <div class="dashboard-form-card">
+                <h3>Active Tasks</h3>
+                <div id="task-list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- JS Populated -->
+                    <p class="text-muted text-sm">No active tasks.</p>
+                </div>
+            </div>
+
+            <!-- Completed Tasks -->
+            <div class="dashboard-form-card">
+                <h3>Completed History</h3>
+                <div id="task-history" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- JS Populated -->
+                    <p class="text-muted text-sm">No completed tasks.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="dashboard-form-card" style="max-width: 500px; width: 90%;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3>Assign New Task</h3>
+                <button onclick="document.getElementById('addTaskModal').style.display='none'"
+                    style="background: none; border: none; color: white; cursor: pointer;">&times;</button>
+            </div>
+            <form id="addTaskForm">
+                <div style="margin-bottom: 1rem;">
+                    <label>Task Title</label>
+                    <input type="text" id="task-title" required placeholder="e.g. Update Inventory Stocks">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label>Description</label>
+                    <textarea id="task-desc" rows="3"
+                        style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: white; padding: 0.5rem; border-radius: 6px;"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>Assign To</label>
+                        <select id="task-staff" required>
+                            <!-- Populated with Staff -->
+                        </select>
+                    </div>
+                    <div>
+                        <label>Due Date</label>
+                        <input type="date" id="task-date" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Assign
+                    Task</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../js/data-manager.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check Auth
+            const user = App.checkAuth();
+            if (!user || user.role !== 'admin') window.location.href = '../../pages/login.html';
+
+            // Populate Staff Select
+            const staffList = DB.getUsers().filter(u => u.role === 'staff');
+            const staffSelect = document.getElementById('task-staff');
+            staffSelect.innerHTML = staffList.map(s => `<option value="৳{s.id}">৳{s.name}</option>`).join('');
+
+            // Render Tasks
+            const renderTasks = () => {
+                const tasks = DB.getTasks();
+                const activeEl = document.getElementById('task-list');
+                const historyEl = document.getElementById('task-history');
+
+                const activeTasks = tasks.filter(t => t.status !== 'completed');
+                const completedTasks = tasks.filter(t => t.status === 'completed');
+
+                activeEl.innerHTML = activeTasks.length ? activeTasks.map(t => createTaskCard(t)).join('') : '<p class="text-muted text-sm">No active tasks.</p>';
+                historyEl.innerHTML = completedTasks.length ? completedTasks.map(t => createTaskCard(t)).join('') : '<p class="text-muted text-sm">No completed tasks.</p>';
+            };
+
+            const createTaskCard = (t) => {
+                const assignee = DB.getUserById(t.assignedTo)?.name || 'Unknown';
+                const statusColor = t.status === 'pending' ? 'var(--warning)' : 'var(--success)';
+                const statusText = t.status === 'pending' ? 'In Progress' : 'Completed';
+
+                return `
+                <div style="padding: 1rem; border: 1px solid var(--glass-border); border-radius: 8px; background: rgba(255,255,255,0.02);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                        <h4 style="margin:0; font-size: 0.9rem;">৳{t.title}</h4>
+                        <span class="status-badge" style="background: ৳{statusColor}20; color: ৳{statusColor}; font-size: 10px;">৳{statusText}</span>
+                    </div>
+                    <p class="text-xs text-muted" style="margin-bottom: 0.5rem;">৳{t.description || ''}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted);">
+                        <span>Assigned to: <strong style="color: white;">৳{assignee}</strong></span>
+                        <span>Due: ৳{t.dueDate}</span>
+                    </div>
+                </div>`;
+            };
+
+            // Add Task
+            document.getElementById('addTaskForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                DB.addTask({
+                    title: document.getElementById('task-title').value,
+                    description: document.getElementById('task-desc').value,
+                    assignedTo: document.getElementById('task-staff').value,
+                    assignedBy: user.id,
+                    dueDate: document.getElementById('task-date').value,
+                    status: 'pending'
+                });
+                document.getElementById('addTaskModal').style.display = 'none';
+                e.target.reset();
+                renderTasks();
+                alert('Task assigned successfully!');
+            });
+
+            renderTasks();
+        });
+    </script>
+</body>
+
+</html>
