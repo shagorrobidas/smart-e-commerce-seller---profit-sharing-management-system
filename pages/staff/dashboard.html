@@ -30,6 +30,15 @@
             <a href="inventory.html" class="nav-item">
                 <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon> Inventory
             </a>
+            <a href="orders.html" class="nav-item">
+                <iconify-icon icon="solar:bag-check-linear"></iconify-icon> Orders
+            </a>
+            <a href="tasks.html" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
+            <a href="messages.html" class="nav-item">
+                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+            </a>
             <a href="reports.html" class="nav-item">
                 <iconify-icon icon="solar:file-text-linear"></iconify-icon> My Reports
             </a>
@@ -65,7 +74,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="stat-card">
                 <span class="stat-label">Sales Recorded Today</span>
-                <span class="stat-value">$3,450</span>
+                <span class="stat-value">৳3,450</span>
             </div>
             <div class="stat-card">
                 <span class="stat-label">New Orders</span>
@@ -73,9 +82,9 @@
             </div>
             <!-- Gamification: Monthly Goal -->
             <div class="stat-card" style="position: relative; overflow: hidden;">
-                <span class="stat-label">Monthly Goal ($50k)</span>
+                <span class="stat-label">Monthly Goal (৳50k)</span>
                 <div class="flex items-end justify-between">
-                    <span class="stat-value" style="font-size: 1.5rem;">$32,450</span>
+                    <span class="stat-value" style="font-size: 1.5rem;">৳32,450</span>
                     <span style="font-size: 0.75rem; color: var(--secondary);">65%</span>
                 </div>
                 <!-- Progress Bar -->
@@ -99,14 +108,14 @@
             <div class="dashboard-form-card">
                 <h3 style="margin-bottom: 1rem;">Record New Sale</h3>
                 <form
-                    onsubmit="event.preventDefault(); Dashboard.addRecord({ amount: Number(this.amount.value), type: 'sale', platform: this.platform.value, product: this.product.value, attachment: this.attachment.files[0] ? this.attachment.files[0].name : null });">
+                    onsubmit="event.preventDefault(); Dashboard.addRecord({ amount: Number(this.amount.value), type: 'sale', platform: this.platform.value, product: this.product.value, note: this.note.value, attachment: this.attachment.files[0] ? this.attachment.files[0].name : null });">
                     <div style="margin-bottom: 1rem;">
                         <label>Product Name</label>
                         <input type="text" name="product" placeholder="e.g. Wireless Mouse" required>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                         <div>
-                            <label>Amount ($)</label>
+                            <label>Amount (৳)</label>
                             <input type="number" name="amount" placeholder="0.00" required>
                         </div>
                         <div>
@@ -117,6 +126,11 @@
                                 <option value="Offline">Offline/Direct</option>
                             </select>
                         </div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label>Note (Optional)</label>
+                        <textarea name="note" placeholder="Add any additional details..." rows="2"
+                            style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: white; padding: 0.5rem; border-radius: 6px;"></textarea>
                     </div>
                     <div style="margin-bottom: 1rem;">
                         <label>Attachment (Invoice/Receipt)</label>
@@ -130,14 +144,14 @@
             <div class="dashboard-form-card">
                 <h3 style="margin-bottom: 1rem;">Submit Expense</h3>
                 <form
-                    onsubmit="event.preventDefault(); Dashboard.addRecord({ amount: Number(this.amount.value), type: 'expense', category: this.category.value, description: this.description.value, attachment: this.attachment.files[0] ? this.attachment.files[0].name : null });">
+                    onsubmit="event.preventDefault(); Dashboard.addRecord({ amount: Number(this.amount.value), type: 'expense', category: this.category.value, description: this.description.value, note: this.note.value, attachment: this.attachment.files[0] ? this.attachment.files[0].name : null });">
                     <div style="margin-bottom: 1rem;">
                         <label>Description</label>
                         <input type="text" name="description" placeholder="e.g. Packaging Material" required>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                         <div>
-                            <label>Cost ($)</label>
+                            <label>Cost (৳)</label>
                             <input type="number" name="amount" placeholder="0.00" required>
                         </div>
                         <div>
@@ -150,6 +164,11 @@
                         </div>
                     </div>
                     <div style="margin-bottom: 1rem;">
+                        <label>Note (Optional)</label>
+                        <textarea name="note" placeholder="Add any additional details..." rows="2"
+                            style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: white; padding: 0.5rem; border-radius: 6px;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
                         <label>Document (Proof of Cost)</label>
                         <input type="file" name="attachment" style="padding-top: 0.5rem; color: var(--text-muted);">
                     </div>
@@ -160,6 +179,7 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
     <script src="../../js/dashboard.js"></script>
 </body>
