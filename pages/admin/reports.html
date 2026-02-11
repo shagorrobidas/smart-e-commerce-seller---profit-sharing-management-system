@@ -29,6 +29,9 @@
             <a href="users.html" class="nav-item">
                 <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
             </a>
+            <a href="tasks.html" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
             <a href="reports.html" class="nav-item active">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
@@ -62,6 +65,32 @@
             </div>
         </header>
 
+        <!-- Profit Distribution Section -->
+        <div class="dashboard-form-card mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h3 style="margin: 0;">Profit Distribution</h3>
+                <span class="status-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">Ready to
+                    Distribute</span>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-6">
+                <div class="stat-card">
+                    <span class="stat-label">Net Profit (Current)</span>
+                    <span class="stat-value" id="dist-profit">৳0.00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Investors Share (40%)</span>
+                    <span class="stat-value" id="dist-investor">৳0.00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Retained Earnings</span>
+                    <span class="stat-value" id="dist-retained">৳0.00</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="distributeProfit()">Process Monthly Payouts</button>
+        </div>
+
         <div class="dashboard-form-card">
             <div class="flex justify-between items-center mb-6">
                 <h3 style="margin: 0;">Transaction History</h3>
@@ -90,30 +119,67 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
     <script src="../../js/dashboard.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const records = Dashboard.getSales(); // Sales & Expenses
+            // Check Auth
+            const user = App.checkAuth();
+            if (!user || user.role !== 'admin') window.location.href = '../../pages/login.html';
+
+            const records = DB.getOrders(); // Sales & Expenses
+            const txns = DB.getTransactions();
             const tbody = document.getElementById('report-list');
 
+            // Merge Orders and Txns for display
+            // Standardize format
+            const allRecords = [
+                ...records.map(r => ({ ...r, date: r.date, id: r.id, type: r.type, desc: r.product || 'Order', amount: r.amount })),
+                ...txns.map(t => ({ ...t, date: t.date || t.createdAt.split('T')[0], id: t.id, type: t.type, desc: t.note || 'Transaction', amount: t.amount }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
             if (tbody) {
-                tbody.innerHTML = records.map(r => `
+                tbody.innerHTML = allRecords.map(r => `
                     <tr>
-                        <td>${r.date || '2024-02-06'}</td>
-                        <td style="font-family: monospace; color: var(--text-muted);">#TXN-${r.id}</td>
-                        <td style="text-transform: capitalize;">${r.type}</td>
-                        <td>
-                            ${r.product || r.category || 'N/A'} <span style="font-size: 10px; color: var(--text-muted);">(${r.platform || '-'})</span>
-                            ${r.attachment ? `<span style="display:inline-flex; align-items:center; color: var(--accent); margin-left: 0.5rem;" title="Attachment: ${r.attachment}"><iconify-icon icon="solar:paperclip-linear"></iconify-icon></span>` : ''}
+                        <td>৳{r.date || 'N/A'}</td>
+                        <td style="font-family: monospace; color: var(--text-muted);">#ID-৳{String(r.id).substr(-6)}</td>
+                        <td style="text-transform: capitalize;">৳{r.type}</td>
+                        <td>৳{r.desc}</td>
+                        <td style="color: ৳{r.type === 'sale' || r.type === 'income' ? '#4ade80' : '#f87171'}; font-weight: 500;">
+                            ৳{r.type === 'sale' || r.type === 'income' ? '+' : '-'} ৳{App.formatCurrency(r.amount)}
                         </td>
-                        <td style="color: ${r.type === 'sale' ? '#4ade80' : '#f87171'}; font-weight: 500;">
-                            ${r.type === 'sale' ? '+' : '-'} ${App.formatCurrency(r.amount)}
-                        </td>
-                        <td><span class="status-badge status-success">Verified</span></td>
+                        <td><span class="status-badge status-success">৳{r.status || 'Completed'}</span></td>
                     </tr>
                 `).join('');
             }
+
+            // Profit Calc
+            const stats = Dashboard.calculateStats(); // Returns { totalProfit }
+            const profit = stats.totalProfit;
+
+            document.getElementById('dist-profit').textContent = App.formatCurrency(profit);
+            document.getElementById('dist-investor').textContent = App.formatCurrency(profit * 0.4);
+            document.getElementById('dist-retained').textContent = App.formatCurrency(profit * 0.6);
+
+            window.distributeProfit = () => {
+                if (profit <= 0) { alert('No profit to distribute!'); return; }
+                if (!confirm(`Confirm distribution of ৳{App.formatCurrency(profit * 0.4)} to investors?`)) return;
+
+                // Create Transaction
+                DB.addTransaction({
+                    type: 'profit_share',
+                    amount: profit * 0.4,
+                    fromUser: 'business',
+                    toUser: 'investors_pool', // Simplified
+                    status: 'approved',
+                    note: `Profit Share payout for ৳{new Date().toLocaleDateString()}`,
+                    date: new Date().toISOString().split('T')[0]
+                });
+
+                alert('Payout processed successfully!');
+                window.location.reload();
+            };
         });
     </script>
 </body>
