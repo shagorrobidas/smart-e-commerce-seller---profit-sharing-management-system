@@ -13,34 +13,78 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Simple mock validation
             if (email && password) {
-                // Determine role based on email for demo purposes if not found in localstorage
-                // In real app, backend would validate and return role
-
-                // Check if user exists in our mock DB
-                let user = null;
-                const storedUsers = JSON.parse(localStorage.getItem('smartEcoUsers') || '[]');
-                user = storedUsers.find(u => u.email === email && u.password === password);
+                // Check DB
+                const users = DB.getUsers();
+                let user = users.find(u => u.email === email && u.password === password);
 
                 if (user) {
+                    // Update Last Login
+                    DB.updateUser(user.id, { lastLogin: new Date().toISOString() });
+                    // Store Session
                     localStorage.setItem('smartEcoUser', JSON.stringify(user));
-                    window.location.href = `${user.role}/dashboard.html`;
+                    window.location.href = `৳{user.role}/dashboard.html`;
                 } else if (email === 'admin@demo.com' && password === 'admin') {
-                    // Backdoor for demo admin
-                    const demoUser = { name: 'Demo Admin', email: 'admin@demo.com', role: 'admin' };
-                    localStorage.setItem('smartEcoUser', JSON.stringify(demoUser));
-                    window.location.href = 'admin/dashboard.html';
+                    // Create Admin if not exists
+                    if (!users.find(u => u.email === 'admin@demo.com')) {
+                        const newAdmin = {
+                            id: 'admin_001',
+                            name: 'Demo Admin',
+                            email: 'admin@demo.com',
+                            password: 'admin',
+                            role: 'admin',
+                            company: 'Smart System',
+                            balance: 100000 // Initial Business Capital
+                        };
+                        DB.addUser(newAdmin);
+                        localStorage.setItem('smartEcoUser', JSON.stringify(newAdmin));
+                        window.location.href = 'admin/dashboard.html';
+                    } else {
+                        // Retry login to catch newly created admin
+                        const existingAdmin = users.find(u => u.email === 'admin@demo.com');
+                        localStorage.setItem('smartEcoUser', JSON.stringify(existingAdmin));
+                        window.location.href = 'admin/dashboard.html';
+                    }
                 } else if (email === 'staff@demo.com' && password === 'staff') {
-                    // Backdoor for demo staff
-                    const demoStaff = { name: 'Demo Staff', email: 'staff@demo.com', role: 'staff', company: 'Smart Eco' };
-                    localStorage.setItem('smartEcoUser', JSON.stringify(demoStaff));
-                    window.location.href = 'staff/dashboard.html';
+                    // Create Staff if not exists
+                    if (!users.find(u => u.email === 'staff@demo.com')) {
+                        const newStaff = {
+                            id: 'staff_001',
+                            name: 'Demo Staff',
+                            email: 'staff@demo.com',
+                            password: 'staff',
+                            role: 'staff',
+                            company: 'Smart System',
+                            balance: 0
+                        };
+                        DB.addUser(newStaff);
+                        localStorage.setItem('smartEcoUser', JSON.stringify(newStaff));
+                        window.location.href = 'staff/dashboard.html';
+                    } else {
+                        const existingStaff = users.find(u => u.email === 'staff@demo.com');
+                        localStorage.setItem('smartEcoUser', JSON.stringify(existingStaff));
+                        window.location.href = 'staff/dashboard.html';
+                    }
                 } else if (email === 'investor@demo.com' && password === 'investor') {
-                    // Backdoor for demo investor
-                    const demoInvestor = { name: 'Demo Investor', email: 'investor@demo.com', role: 'investor', company: 'Angel VC' };
-                    localStorage.setItem('smartEcoUser', JSON.stringify(demoInvestor));
-                    window.location.href = 'investor/dashboard.html';
+                    // Create Investor if not exists
+                    if (!users.find(u => u.email === 'investor@demo.com')) {
+                        const newInvestor = {
+                            id: 'investor_001',
+                            name: 'Demo Investor',
+                            email: 'investor@demo.com',
+                            password: 'investor',
+                            role: 'investor',
+                            company: 'Smart System',
+                            balance: 50000 // Initial Investment Value
+                        };
+                        DB.addUser(newInvestor);
+                        localStorage.setItem('smartEcoUser', JSON.stringify(newInvestor));
+                        window.location.href = 'investor/dashboard.html';
+                    } else {
+                        const existingInvestor = users.find(u => u.email === 'investor@demo.com');
+                        localStorage.setItem('smartEcoUser', JSON.stringify(existingInvestor));
+                        window.location.href = 'investor/dashboard.html';
+                    }
                 } else {
                     alert('Invalid credentials. Try admin@demo.com / admin');
                 }
@@ -60,25 +104,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('password').value;
 
             if (company && name && email && role && password) {
+                // Check if email exists
+                const users = DB.getUsers();
+                if (users.find(u => u.email === email)) {
+                    alert('Email already registered!');
+                    return;
+                }
+
                 const newUser = {
-                    id: 'u_' + Date.now(),
                     company,
                     name,
                     email,
                     role,
-                    password // In a real app, never store plain text passwords
+                    password,
+                    balance: 0,
+                    status: 'active'
                 };
 
-                // Store in mock DB
-                const storedUsers = JSON.parse(localStorage.getItem('smartEcoUsers') || '[]');
-                storedUsers.push(newUser);
-                localStorage.setItem('smartEcoUsers', JSON.stringify(storedUsers));
+                DB.addUser(newUser);
 
                 // Auto login
-                localStorage.setItem('smartEcoUser', JSON.stringify(newUser));
+                const createdUser = DB.getUsers().find(u => u.email === email);
+                localStorage.setItem('smartEcoUser', JSON.stringify(createdUser));
 
                 alert('Registration Successful!');
-                window.location.href = `${role}/dashboard.html`;
+                window.location.href = `৳{role}/dashboard.html`;
             }
         });
     }
@@ -90,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             if (email) {
-                alert(`Password reset link sent to ${email}`);
+                alert(`Password reset link sent to ৳{email}`);
                 window.location.href = 'login.html';
             }
         });
