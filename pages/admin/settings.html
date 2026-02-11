@@ -29,6 +29,9 @@
             <a href="users.html" class="nav-item">
                 <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
             </a>
+            <a href="tasks.html" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
             <a href="reports.html" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
@@ -61,27 +64,30 @@
 
         <div class="dashboard-form-card mb-8" style="margin-bottom: 2rem;">
             <h3 style="margin-bottom: 1.5rem;">General Configuration</h3>
-            <form>
+            <form id="settingsForm">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
                         <label>Application Name</label>
-                        <input type="text" value="SmartSeller.sys">
+                        <input type="text" id="biz-name" required>
                     </div>
                     <div>
                         <label>Base Currency</label>
-                        <select>
-                            <option selected>USD ($)</option>
-                            <option>BDT (৳)</option>
-                            <option>EUR (€)</option>
+                        <select id="biz-currency">
+                            <option value="USD">USD (৳)</option>
+                            <option value="BDT">BDT (৳)</option>
+                            <option value="EUR">EUR (€)</option>
                         </select>
                     </div>
                     <div>
-                        <label>Fiscal Year Start</label>
-                        <input type="date" value="2024-01-01">
+                        <label>Tax / VAT Rate (%)</label>
+                        <input type="number" id="biz-tax" min="0" max="100">
+                    </div>
+                    <div>
+                        <label>System Announcement</label>
+                        <input type="text" id="biz-announcement" placeholder="Message visible to all users">
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" style="margin-top: 1.5rem;"
-                    onclick="alert('Settings Saved')">Save Changes</button>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">Save Changes</button>
             </form>
         </div>
 
@@ -92,14 +98,38 @@
 
             <button class="btn"
                 style="background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2);"
-                onclick="if(confirm('Are you sure you want to reset all data?')) { localStorage.clear(); window.location.reload(); }">
+                onclick="if(confirm('Are you sure you want to reset all data?')) { localStorage.clear(); window.location.href='../../pages/login.html'; }">
                 Reset System Data
             </button>
         </div>
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
     <script src="../../js/main.js"></script>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load Settings
+            const settings = DB.getSettings();
+            if (settings) {
+                document.getElementById('biz-name').value = settings.businessName || '';
+                document.getElementById('biz-currency').value = settings.currency || 'USD';
+                document.getElementById('biz-tax').value = settings.taxRate || 0;
+                document.getElementById('biz-announcement').value = settings.announcement || '';
+            }
+
+            // Save Settings
+            document.getElementById('settingsForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                DB.updateSettings({
+                    businessName: document.getElementById('biz-name').value,
+                    currency: document.getElementById('biz-currency').value,
+                    taxRate: document.getElementById('biz-tax').value,
+                    announcement: document.getElementById('biz-announcement').value
+                });
+                alert('System settings updated successfully!');
+            });
+        });
+    </script>
 
 </html>
