@@ -60,10 +60,11 @@ const App = {
 
     // Format Currency
     formatCurrency: (amount) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('en-BD', {
             style: 'currency',
-            currency: 'USD'
-        }).format(amount);
+            currency: 'BDT',
+            minimumFractionDigits: 2
+        }).format(amount).replace('BDT', '৳');
     },
 
     // Theme Management
@@ -106,7 +107,7 @@ const App = {
 
             // Icon
             const isLight = saved === 'light';
-            btn.innerHTML = `<iconify-icon id="theme-icon" icon="${isLight ? 'solar:moon-linear' : 'solar:sun-linear'}" style="font-size: 24px; color: var(--text-main);"></iconify-icon>`;
+            btn.innerHTML = `<iconify-icon id="theme-icon" icon="৳{isLight ? 'solar:moon-linear' : 'solar:sun-linear'}" style="font-size: 24px; color: var(--text-main);"></iconify-icon>`;
 
             btn.onclick = App.toggleTheme;
             document.body.appendChild(btn);
@@ -126,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (user && navAuthSection) {
         // If logged in, show Dashboard link instead of Login
         navAuthSection.innerHTML = `
-            <a href="pages/${user.role}/dashboard.html" class="text-xs font-medium hover:text-white transition-colors">Dashboard</a>
+            <a href="pages/৳{user.role}/dashboard.html" class="text-xs font-medium hover:text-white transition-colors">Dashboard</a>
             <button onclick="App.logout()" class="bg-white text-black text-xs font-medium px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
                 Logout
             </button>
