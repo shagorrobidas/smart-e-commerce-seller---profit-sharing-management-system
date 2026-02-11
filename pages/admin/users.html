@@ -29,6 +29,9 @@
             <a href="users.html" class="nav-item active">
                 <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
             </a>
+            <a href="tasks.html" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
             <a href="reports.html" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
@@ -82,30 +85,131 @@
 
     </main>
 
+    <script src="../../js/data-manager.js"></script>
+    <script src="../../js/main.js"></script>
+    <!-- Add User Modal -->
+    <div id="addUserModal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="dashboard-form-card" style="max-width: 500px; width: 90%;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3>Add New User</h3>
+                <button onclick="document.getElementById('addUserModal').style.display='none'"
+                    style="background: none; border: none; color: white; cursor: pointer;">&times;</button>
+            </div>
+            <form id="addUserForm">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label>Full Name</label>
+                        <input type="text" id="new-name" required placeholder="Ex: John Doe">
+                    </div>
+                    <div>
+                        <label>Role</label>
+                        <select id="new-role" required>
+                            <option value="staff">Staff / Manager</option>
+                            <option value="investor">Investor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Email</label>
+                        <input type="email" id="new-email" required placeholder="email@company.com">
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input type="password" id="new-pass" required placeholder="Default password">
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <label>Company / Branch</label>
+                    <input type="text" id="new-company" placeholder="Optional">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Create
+                    User</button>
+            </form>
+        </div>
+    </div>
+
     <script src="../../js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const users = JSON.parse(localStorage.getItem('smartEcoUsers') || '[]');
-            // Add demo admin if not present
-            if (!users.find(u => u.email === 'admin@demo.com')) {
-                users.unshift({ name: 'Demo Admin', email: 'admin@demo.com', role: 'admin', company: 'System' });
+            // Check Auth
+            const currentUser = App.checkAuth();
+            if (!currentUser || currentUser.role !== 'admin') {
+                window.location.href = '../../pages/login.html';
+                return;
             }
 
-            const tbody = document.getElementById('user-list');
-            if (tbody) {
-                tbody.innerHTML = users.map(u => `
-                    <tr>
-                        <td style="font-weight: 500; color: white;">${u.name || 'Unknown'}</td>
-                        <td>${u.email}</td>
-                        <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: white; text-transform: capitalize;">${u.role}</span></td>
-                        <td>${u.company || '-'}</td>
-                        <td><span class="status-badge status-success">Active</span></td>
-                        <td>
-                            <button style="background:none; border:none; color: #f87171; cursor: pointer; font-size: 12px;">Remove</button>
-                        </td>
-                    </tr>
-                `).join('');
+            // Render Users
+            const renderUsers = () => {
+                const users = DB.getUsers();
+                const tbody = document.getElementById('user-list');
+                if (tbody) {
+                    tbody.innerHTML = users.map(u => `
+                        <tr>
+                            <td style="font-weight: 500; color: white;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="avatar" style="width: 24px; height: 24px; font-size: 10px;">৳{u.name.charAt(0)}</div>
+                                    ৳{u.name}
+                                </div>
+                            </td>
+                            <td>৳{u.email}</td>
+                            <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: white; text-transform: capitalize;">৳{u.role}</span></td>
+                            <td>৳{u.company || '-'}</td>
+                            <td><span class="status-badge status-success">৳{u.status || 'Active'}</span></td>
+                            <td>
+                                ৳{u.email !== currentUser.email ?
+                            `< button onclick = "deleteUser('৳{u.id}')" style = "background:none; border:none; color: #f87171; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;" >
+                    <iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon> Remove
+                                </button > ` : '<span class="text-muted text-xs">Current</span>'}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            };
+
+        // Add User Logic
+        const modal = document.getElementById('addUserModal');
+        document.querySelector('.btn.btn-primary').onclick = () => modal.style.display = 'flex'; // Bind header button
+
+        document.getElementById('addUserForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('new-name').value;
+            const email = document.getElementById('new-email').value;
+            const role = document.getElementById('new-role').value;
+            const pass = document.getElementById('new-pass').value;
+            const company = document.getElementById('new-company').value;
+
+            // Check duplicate
+            if (DB.getUsers().find(u => u.email === email)) {
+                alert('User with this email already exists.');
+                return;
             }
+
+            DB.addUser({
+                name,
+                email,
+                role,
+                password: pass,
+                company,
+                balance: 0,
+                status: 'active'
+            });
+
+            alert('User created successfully!');
+            modal.style.display = 'none';
+            e.target.reset();
+            renderUsers();
+        });
+
+        // Delete User
+        window.deleteUser = (id) => {
+            if (confirm('Are you sure you want to remove this user?')) {
+                DB.delete('smartEcoUsers', id);
+                renderUsers();
+            }
+        };
+
+        renderUsers();
         });
     </script>
 </body>
