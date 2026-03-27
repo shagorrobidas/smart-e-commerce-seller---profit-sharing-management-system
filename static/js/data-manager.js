@@ -117,6 +117,10 @@ class DataManager {
     async getProfile() { return await this.apiCall('/auth/profile/'); }
     async updateProfile(data) { return await this.apiCall('/auth/profile/', 'PATCH', data); }
     async getBusinesses() { return await this.apiCall('/auth/businesses/'); }
+    
+    // PASSWORD RESET
+    async forgotPassword(email) { return await this.apiCall('/auth/forgot-password/', 'POST', { email }); }
+    async resetPassword(email, password) { return await this.apiCall('/auth/reset-password/', 'POST', { email, password }); }
 }
 
 // Global Instance

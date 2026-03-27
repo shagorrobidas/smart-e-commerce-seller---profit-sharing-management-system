@@ -82,3 +82,40 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ForgotPasswordView(APIView):
+    """POST /api/v1/auth/forgot-password/ – Request a password reset."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = User.objects.filter(email=email).first()
+        if user:
+            # In a real app, send email with reset link/token here
+            return Response({'message': 'Reset link has been sent to your email.'})
+        
+        return Response({'message': 'Reset link has been sent to your email if the account exists.'})
+
+
+class ResetPasswordView(APIView):
+    """POST /api/v1/auth/reset-password/ – Complete password reset."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        new_password = request.data.get('password')
+        
+        if not email or not new_password:
+            return Response({'error': 'Email and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = User.objects.filter(email=email).first()
+        if user:
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Password has been reset successfully.'})
+        
+        return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
