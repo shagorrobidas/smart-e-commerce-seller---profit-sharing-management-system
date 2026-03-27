@@ -70,7 +70,8 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const companySelect = document.getElementById('company');
             try {
-                const businesses = await DB.getBusinesses();
+                const response = await DB.getBusinesses();
+                const businesses = response.results || response; // Handle both paginated and non-paginated
                 if (businesses && businesses.length > 0) {
                     companySelect.innerHTML = '<option value="" disabled selected>Select Your Business</option>';
                     businesses.forEach(b => {
