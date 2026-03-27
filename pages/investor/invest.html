@@ -114,10 +114,10 @@
                 if (tbody) {
                     tbody.innerHTML = investments.map(i => `
                         <tr>
-                            <td>৳{i.date}</td>
-                            <td>৳{App.formatCurrency(i.amount)}</td>
-                            <td>৳{i.equity ? i.equity + '%' : '-'}</td>
-                            <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: var(--text-muted);">৳{i.status}</span></td>
+                            <td>${i.date}</td>
+                            <td>${App.formatCurrency(i.amount)}</td>
+                            <td>${i.equity ? i.equity + '%' : '-'}</td>
+                            <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: var(--text-muted);">${i.status}</span></td>
                         </tr>
                     `).join('');
                 }

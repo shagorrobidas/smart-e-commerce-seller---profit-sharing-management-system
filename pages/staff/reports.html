@@ -144,15 +144,15 @@
 
                     return `
                     <tr>
-                        <td>৳{r.date || '2024-02-06'}</td>
-                        <td style="text-transform: capitalize;">৳{r.type}</td>
+                        <td>${r.date || '2024-02-06'}</td>
+                        <td style="text-transform: capitalize;">${r.type}</td>
                         <td>
-                            ৳{r.product || r.description || r.category || 'N/A'}
-                            ৳{r.attachment ? `< span style = "display:inline-flex; align-items:center; color: var(--accent); margin-left: 0.5rem;" title = "Attachment: ৳{r.attachment}" > <iconify-icon icon="solar:paperclip-linear"></iconify-icon></span > ` : ''}
+                            ${r.product || r.description || r.category || 'N/A'}
+                            ${r.attachment ? `< span style = "display:inline-flex; align-items:center; color: var(--accent); margin-left: 0.5rem;" title = "Attachment: ${r.attachment}" > <iconify-icon icon="solar:paperclip-linear"></iconify-icon></span > ` : ''}
                         </td>
-                         <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">৳{r.platform || r.category || '-'}</span></td>
-                        <td style="color: ৳{r.type === 'sale' ? '#4ade80' : '#f87171'}; font-weight: 500;">
-                            ৳{r.type === 'sale' ? '+' : '-'} ৳{App.formatCurrency(r.amount)}
+                         <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">${r.platform || r.category || '-'}</span></td>
+                        <td style="color: ${r.type === 'sale' ? '#4ade80' : '#f87171'}; font-weight: 500;">
+                            ${r.type === 'sale' ? '+' : '-'} ${App.formatCurrency(r.amount)}
                         </td>
                     </tr>
                 `}).join('');

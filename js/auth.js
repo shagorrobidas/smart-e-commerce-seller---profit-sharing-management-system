@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     DB.updateUser(user.id, { lastLogin: new Date().toISOString() });
                     // Store Session
                     localStorage.setItem('smartEcoUser', JSON.stringify(user));
-                    window.location.href = `৳{user.role}/dashboard.html`;
+                    window.location.href = `${user.role}/dashboard.html`;
                 } else if (email === 'admin@demo.com' && password === 'admin') {
                     // Create Admin if not exists
                     if (!users.find(u => u.email === 'admin@demo.com')) {
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('smartEcoUser', JSON.stringify(createdUser));
 
                 alert('Registration Successful!');
-                window.location.href = `৳{role}/dashboard.html`;
+                window.location.href = `${role}/dashboard.html`;
             }
         });
     }
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             if (email) {
-                alert(`Password reset link sent to ৳{email}`);
+                alert(`Password reset link sent to ${email}`);
                 window.location.href = 'login.html';
             }
         });

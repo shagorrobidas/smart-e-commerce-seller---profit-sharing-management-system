@@ -83,12 +83,12 @@ const Dashboard = {
     },
 
     renderTable: (elementId, data, columns) => {
-        const tableBody = document.querySelector(`#৳{elementId} tbody`);
+        const tableBody = document.querySelector(`#${elementId} tbody`);
         if (!tableBody) return;
 
         tableBody.innerHTML = data.map(row => `
             <tr>
-                ৳{columns.map(col => `< td >৳{ row[col] || '-' }</td > `).join('')}
+                ${columns.map(col => `< td >${ row[col] || '-' }</td > `).join('')}
             </tr>
         `).join('');
     },

@@ -186,11 +186,11 @@
 
             // Render Users
             userList.innerHTML = users.map(u => `
-                <div class="user-item" onclick="selectUser('৳{u.id}', '৳{u.name}')">
-                    <div class="user-avatar">৳{u.name.charAt(0)}</div>
+                <div class="user-item" onclick="selectUser('${u.id}', '${u.name}')">
+                    <div class="user-avatar">${u.name.charAt(0)}</div>
                     <div>
-                        <div style="font-size: 0.9rem; font-weight: 500;">৳{u.name}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: capitalize;">৳{u.role}</div>
+                        <div style="font-size: 0.9rem; font-weight: 500;">${u.name}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: capitalize;">${u.role}</div>
                     </div>
                 </div>
             `).join('');
@@ -215,9 +215,9 @@
                     area.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 2rem;">No messages yet. Say hi!</div>';
                 } else {
                     area.innerHTML = msgs.map(m => `
-                        <div class="message ৳{m.from === user.id ? 'sent' : 'received'}">
-                            ৳{m.content}
-                            <div style="font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right;">৳{m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                        <div class="message ${m.from === user.id ? 'sent' : 'received'}">
+                            ${m.content}
+                            <div style="font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right;">${m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
                         </div>
                     `).join('');
                 }

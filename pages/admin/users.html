@@ -148,17 +148,17 @@
                         <tr>
                             <td style="font-weight: 500; color: white;">
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <div class="avatar" style="width: 24px; height: 24px; font-size: 10px;">৳{u.name.charAt(0)}</div>
-                                    ৳{u.name}
+                                    <div class="avatar" style="width: 24px; height: 24px; font-size: 10px;">${u.name.charAt(0)}</div>
+                                    ${u.name}
                                 </div>
                             </td>
-                            <td>৳{u.email}</td>
-                            <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: white; text-transform: capitalize;">৳{u.role}</span></td>
-                            <td>৳{u.company || '-'}</td>
-                            <td><span class="status-badge status-success">৳{u.status || 'Active'}</span></td>
+                            <td>${u.email}</td>
+                            <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: white; text-transform: capitalize;">${u.role}</span></td>
+                            <td>${u.company || '-'}</td>
+                            <td><span class="status-badge status-success">${u.status || 'Active'}</span></td>
                             <td>
-                                ৳{u.email !== currentUser.email ?
-                            `< button onclick = "deleteUser('৳{u.id}')" style = "background:none; border:none; color: #f87171; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;" >
+                                ${u.email !== currentUser.email ?
+                            `< button onclick = "deleteUser('${u.id}')" style = "background:none; border:none; color: #f87171; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;" >
                     <iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon> Remove
                                 </button > ` : '<span class="text-muted text-xs">Current</span>'}
                             </td>

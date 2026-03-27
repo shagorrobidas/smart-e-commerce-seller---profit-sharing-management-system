@@ -125,7 +125,7 @@
             // Populate Staff Select
             const staffList = DB.getUsers().filter(u => u.role === 'staff');
             const staffSelect = document.getElementById('task-staff');
-            staffSelect.innerHTML = staffList.map(s => `<option value="৳{s.id}">৳{s.name}</option>`).join('');
+            staffSelect.innerHTML = staffList.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
 
             // Render Tasks
             const renderTasks = () => {
@@ -148,13 +148,13 @@
                 return `
                 <div style="padding: 1rem; border: 1px solid var(--glass-border); border-radius: 8px; background: rgba(255,255,255,0.02);">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                        <h4 style="margin:0; font-size: 0.9rem;">৳{t.title}</h4>
-                        <span class="status-badge" style="background: ৳{statusColor}20; color: ৳{statusColor}; font-size: 10px;">৳{statusText}</span>
+                        <h4 style="margin:0; font-size: 0.9rem;">${t.title}</h4>
+                        <span class="status-badge" style="background: ${statusColor}20; color: ${statusColor}; font-size: 10px;">${statusText}</span>
                     </div>
-                    <p class="text-xs text-muted" style="margin-bottom: 0.5rem;">৳{t.description || ''}</p>
+                    <p class="text-xs text-muted" style="margin-bottom: 0.5rem;">${t.description || ''}</p>
                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted);">
-                        <span>Assigned to: <strong style="color: white;">৳{assignee}</strong></span>
-                        <span>Due: ৳{t.dueDate}</span>
+                        <span>Assigned to: <strong style="color: white;">${assignee}</strong></span>
+                        <span>Due: ${t.dueDate}</span>
                     </div>
                 </div>`;
             };

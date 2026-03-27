@@ -142,14 +142,14 @@
             if (tbody) {
                 tbody.innerHTML = allRecords.map(r => `
                     <tr>
-                        <td>৳{r.date || 'N/A'}</td>
-                        <td style="font-family: monospace; color: var(--text-muted);">#ID-৳{String(r.id).substr(-6)}</td>
-                        <td style="text-transform: capitalize;">৳{r.type}</td>
-                        <td>৳{r.desc}</td>
-                        <td style="color: ৳{r.type === 'sale' || r.type === 'income' ? '#4ade80' : '#f87171'}; font-weight: 500;">
-                            ৳{r.type === 'sale' || r.type === 'income' ? '+' : '-'} ৳{App.formatCurrency(r.amount)}
+                        <td>${r.date || 'N/A'}</td>
+                        <td style="font-family: monospace; color: var(--text-muted);">#ID-${String(r.id).substr(-6)}</td>
+                        <td style="text-transform: capitalize;">${r.type}</td>
+                        <td>${r.desc}</td>
+                        <td style="color: ${r.type === 'sale' || r.type === 'income' ? '#4ade80' : '#f87171'}; font-weight: 500;">
+                            ${r.type === 'sale' || r.type === 'income' ? '+' : '-'} ${App.formatCurrency(r.amount)}
                         </td>
-                        <td><span class="status-badge status-success">৳{r.status || 'Completed'}</span></td>
+                        <td><span class="status-badge status-success">${r.status || 'Completed'}</span></td>
                     </tr>
                 `).join('');
             }
@@ -164,7 +164,7 @@
 
             window.distributeProfit = () => {
                 if (profit <= 0) { alert('No profit to distribute!'); return; }
-                if (!confirm(`Confirm distribution of ৳{App.formatCurrency(profit * 0.4)} to investors?`)) return;
+                if (!confirm(`Confirm distribution of ${App.formatCurrency(profit * 0.4)} to investors?`)) return;
 
                 // Create Transaction
                 DB.addTransaction({
@@ -173,7 +173,7 @@
                     fromUser: 'business',
                     toUser: 'investors_pool', // Simplified
                     status: 'approved',
-                    note: `Profit Share payout for ৳{new Date().toLocaleDateString()}`,
+                    note: `Profit Share payout for ${new Date().toLocaleDateString()}`,
                     date: new Date().toISOString().split('T')[0]
                 });
 

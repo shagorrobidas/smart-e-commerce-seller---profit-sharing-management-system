@@ -93,19 +93,19 @@
                 if (tbody) {
                     tbody.innerHTML = orders.map(o => `
                         <tr>
-                            <td style="font-family: monospace; color: var(--text-muted);">#ORD-৳{o.id}</td>
-                            <td>৳{o.date}</td>
-                            <td>৳{o.product}</td>
-                            <td>৳{o.platform}</td>
-                            <td>৳{App.formatCurrency(o.amount)}</td>
-                            <td><span class="status-badge" style="background: ৳{getStatusColor(o.status)}; color: white;">৳{o.status || 'Pending'}</span></td>
+                            <td style="font-family: monospace; color: var(--text-muted);">#ORD-${o.id}</td>
+                            <td>${o.date}</td>
+                            <td>${o.product}</td>
+                            <td>${o.platform}</td>
+                            <td>${App.formatCurrency(o.amount)}</td>
+                            <td><span class="status-badge" style="background: ${getStatusColor(o.status)}; color: white;">${o.status || 'Pending'}</span></td>
                             <td>
-                                <select onchange="updateStatus(৳{o.id}, this.value)" style="padding: 4px; border-radius: 4px; background: var(--input-bg); color: white; border: 1px solid var(--glass-border); font-size: 12px;">
-                                    <option value="pending" ৳{o.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="processing" ৳{o.status === 'processing' ? 'selected' : ''}>Processing</option>
-                                    <option value="shipped" ৳{o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                    <option value="delivered" ৳{o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                                    <option value="cancelled" ৳{o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                <select onchange="updateStatus(${o.id}, this.value)" style="padding: 4px; border-radius: 4px; background: var(--input-bg); color: white; border: 1px solid var(--glass-border); font-size: 12px;">
+                                    <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                    <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                    <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                    <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                                 </select>
                             </td>
                         </tr>

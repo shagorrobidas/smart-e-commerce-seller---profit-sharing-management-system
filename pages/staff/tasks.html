@@ -97,12 +97,12 @@
             const createCard = (t, isDone) => `
                 <div style="padding: 1rem; border: 1px solid var(--glass-border); border-radius: 8px; background: rgba(255,255,255,0.02);">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                        <h4 style="margin:0; font-size: 0.9rem;">৳{t.title}</h4>
-                        ৳{!isDone ? `< button onclick = "markDone(৳{t.id})" class="btn-xs" style = "background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" > Mark Done</button > ` : '<iconify-icon icon="solar:check-circle-bold" style="color:var(--success)"></iconify-icon>'}
+                        <h4 style="margin:0; font-size: 0.9rem;">${t.title}</h4>
+                        ${!isDone ? `< button onclick = "markDone(${t.id})" class="btn-xs" style = "background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" > Mark Done</button > ` : '<iconify-icon icon="solar:check-circle-bold" style="color:var(--success)"></iconify-icon>'}
                     </div>
-                    <p class="text-xs text-muted">৳{t.description || ''}</p>
+                    <p class="text-xs text-muted">${t.description || ''}</p>
                     <div style="margin-top: 0.5rem; font-size: 10px; color: var(--text-muted);">
-                        Due: ৳{t.dueDate}
+                        Due: ${t.dueDate}
                     </div>
                 </div>
             `;
