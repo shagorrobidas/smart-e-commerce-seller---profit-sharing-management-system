@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Reports - Admin</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Admin Console</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'admin-dashboard' %}" class="nav-item">
+                <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
+            </a>
+            <a href="{% url 'admin-users' %}" class="nav-item">
+                <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
+            </a>
+            <a href="{% url 'admin-tasks' %}" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
+            <a href="{% url 'admin-reports' %}" class="nav-item active">
+                <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+            </a>
+            <a href="{% url 'admin-settings' %}" class="nav-item">
+                <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <a href="{% url 'profile' %}"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar">A</div>
+                <div>
+                    <p class="text-sm text-white" id="user-name">Admin</p>
+                    <p class="text-xs text-muted" id="user-role">Administrator</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Financial Reports</h1>
+            <div class="flex gap-4">
+                <button class="btn btn-outline" onclick="window.print()">Export PDF</button>
+            </div>
+        </header>
+
+                    </div>
+                    <div>
+                        <label>Base Currency</label>
+                        <select id="biz-currency">
+                            <option value="USD">USD ($)</option>
+                            <option value="BDT">BDT (৳)</option>
+                            <option value="EUR">EUR (€)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Tax / VAT Rate (%)</label>
+                        <input type="number" id="biz-tax" min="0" max="100">
+                    </div>
+                    <div>
+                        <label>System Announcement</label>
+                        <input type="text" id="biz-announcement" placeholder="Message visible to all users">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">Save Changes</button>
+            </form>
+        </div>
+
+        <div class="dashboard-form-card" style="border-color: rgba(248, 113, 113, 0.3);">
+            <h3 style="color: #f87171; margin-bottom: 1rem;">Danger Zone</h3>
+            <p class="text-sm text-muted mb-4">Resetting the system will remove all data. This action cannot be undone.</p>
+
+            <button class="btn"
+                style="background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2);"
+                onclick="if(confirm('Are you sure you want to reset all data?')) { fetch('/api/v1/admin/settings/reset/', {method:'POST', headers:{'Authorization': 'Bearer ' + DB.getAccessToken()}}).then(() => { localStorage.clear(); window.location.href='/login/'; }); }">
+                Reset System Data
+            </button>
+        </div>
+
+    </main>
+
+    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+             // Check Auth
+            const user = App.checkAuth();
+            if (!user || user.role !== 'admin') window.location.href = '{% url "login" %}';
+
+            // UI Init
+            const userNameEl = document.getElementById('user-name');
+            if (userNameEl) userNameEl.textContent = user.name;
+            const userRoleEl = document.getElementById('user-role');
+            if (userRoleEl) userRoleEl.textContent = user.role.toUpperCase();
+
+            // Load Settings
+            try {
+                const settings = await DB.getSettings();
+                if (settings) {
+                    document.getElementById('biz-name').value = settings.business_name || '';
+                    document.getElementById('biz-currency').value = settings.currency || 'BDT';
+                    document.getElementById('biz-tax').value = settings.tax_rate || 0;
+                    document.getElementById('biz-announcement').value = settings.announcement || '';
+                }
+            } catch (err) { console.error(err); }
+
+            // Save Settings
+            document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    await DB.updateSettings({
+                        business_name: document.getElementById('biz-name').value,
+                        currency: document.getElementById('biz-currency').value,
+                        tax_rate: document.getElementById('biz-tax').value,
+                        announcement: document.getElementById('biz-announcement').value
+                    });
+                    alert('System settings updated successfully!');
+                } catch (err) {
+                    alert(err.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+</html>

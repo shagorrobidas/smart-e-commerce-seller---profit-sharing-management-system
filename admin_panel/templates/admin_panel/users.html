@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Admin Console</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'admin-dashboard' %}" class="nav-item">
+                <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
+            </a>
+            <a href="{% url 'admin-users' %}" class="nav-item active">
+                <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
+            </a>
+            <a href="{% url 'admin-tasks' %}" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
+            <a href="{% url 'admin-reports' %}" class="nav-item">
+                <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+            </a>
+            <a href="{% url 'admin-settings' %}" class="nav-item">
+                <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <a href="{% url 'profile' %}"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar">A</div>
+                <div>
+                    <p class="text-sm text-white" id="user-name">Admin</p>
+                    <p class="text-xs text-muted" id="user-role">Administrator</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">User Management</h1>
+            <button class="btn btn-primary" onclick="document.getElementById('addUserModal').style.display='flex'">
+                + Add User
+            </button>
+        </header>
+
+        <div class="dashboard-form-card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    <!-- JS Populated -->
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="dashboard-form-card" style="max-width: 500px; width: 90%;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3>Add New User</h3>
+                <button onclick="document.getElementById('addUserModal').style.display='none'"
+                    style="background: none; border: none; color: white; cursor: pointer;">&times;</button>
+            </div>
+            <form id="addUserForm">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label>Full Name</label>
+                        <input type="text" id="new-name" required placeholder="Ex: John Doe">
+                    </div>
+                    <div>
+                        <label>Role</label>
+                        <select id="new-role" required>
+                            <option value="staff">Staff / Manager</option>
+                            <option value="investor">Investor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Email</label>
+                        <input type="email" id="new-email" required placeholder="email@company.com">
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input type="password" id="new-pass" required placeholder="Default password">
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <label>Company / Branch</label>
+                    <input type="text" id="new-company" placeholder="Optional">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Create
+                    User</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check Auth
+            const currentUser = App.checkAuth();
+            if (!currentUser || currentUser.role !== 'admin') {
+                window.location.href = '{% url "login" %}';
+                return;
+            }
+
+            // UI Init
+            const userNameEl = document.getElementById('user-name');
+            if (userNameEl) userNameEl.textContent = currentUser.name;
+            const userRoleEl = document.getElementById('user-role');
+            if (userRoleEl) userRoleEl.textContent = currentUser.role.toUpperCase();
+
+            // Render Users
+            const renderUsers = async () => {
+                const data = await DB.getUsers();
+                const users = Array.isArray(data) ? data : (data.results || []);
+                const tbody = document.getElementById('user-list');
+                if (tbody) {
+                    tbody.innerHTML = users.map(u => `
+                        <tr>
+                            <td style="font-weight: 500; color: white;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="avatar" style="width: 24px; height: 24px; font-size: 10px;">${(u.name || 'U').charAt(0)}</div>
+                                    ${u.name || u.email}
+                                </div>
+                            </td>
+                            <td>${u.email}</td>
+                            <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: white; text-transform: capitalize;">${u.role}</span></td>
+                            <td>${u.company || '-'}</td>
+                            <td><span class="status-badge status-success">${u.is_active ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                                ${u.email !== currentUser.email ?
+                            `<button onclick="deleteUser('${u.id}')" style="background:none; border:none; color: #f87171; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                <iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon> Remove
+                            </button>` : '<span class="text-muted text-xs">Current</span>'}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            };
+
+            // Add User Logic
+            const modal = document.getElementById('addUserModal');
+            document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('new-name').value;
+                const email = document.getElementById('new-email').value;
+                const role = document.getElementById('new-role').value;
+                const password = document.getElementById('new-pass').value;
+                const company = document.getElementById('new-company').value;
+
+                try {
+                    await DB.addUser({ name, email, role, password, company });
+                    alert('User created successfully!');
+                    modal.style.display = 'none';
+                    e.target.reset();
+                    await renderUsers();
+                } catch (err) {
+                    alert(err.message);
+                }
+            });
+
+            // Delete User
+            window.deleteUser = async (id) => {
+                if (confirm('Are you sure you want to remove this user?')) {
+                    try {
+                        await DB.apiCall(`/admin/users/${id}/`, 'DELETE');
+                        await renderUsers();
+                    } catch (err) {
+                        alert(err.message);
+                    }
+                }
+            };
+
+            await renderUsers();
+        });
+    </script>
+</body>
+
+</html>
+</body>
+
+</html>
