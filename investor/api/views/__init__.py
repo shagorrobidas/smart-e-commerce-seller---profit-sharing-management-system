@@ -1,0 +1,3 @@
+from .dashboard_views import InvestorDashboardView
+from .investment_views import InvestmentListCreateView, InvestmentDetailView
+from .report_views import InvestorReportView, InvestorAgreementView

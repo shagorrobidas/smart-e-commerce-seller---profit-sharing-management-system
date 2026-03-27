@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agreements - Investor</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--secondary), var(--primary)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                I</div>
+            <span style="font-weight: 500;">Investor View</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'investor-dashboard-page' %}" class="nav-item">
+                <iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon> Portfolio
+            </a>
+            <a href="{% url 'investor-agreements-page' %}" class="nav-item active">
+                <iconify-icon icon="solar:document-text-linear"></iconify-icon> Agreements
+            </a>
+            <a href="{% url 'investor-invest' %}" class="nav-item">
+                <iconify-icon icon="solar:wallet-money-linear"></iconify-icon> Invest
+            </a>
+            <a href="{% url 'investor-reports-page' %}" class="nav-item">
+                <iconify-icon icon="solar:file-text-linear"></iconify-icon> Reports
+            </a>
+        </nav>
+        <div class="user-profile">
+            <a href="{% url 'profile' %}"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar" style="background: var(--secondary);">I</div>
+                <div>
+                    <p class="text-sm text-white" id="user-name">Investor</p>
+                    <p class="text-xs text-muted" id="user-role">Shareholder</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
+                    icon="solar:logout-linear"></iconify-icon></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Legal Agreements</h1>
+        </header>
+
+        <div id="agreements-container">
+            <!-- JS Populated -->
+            <div style="text-align: center; padding: 3rem; color: var(--text-muted);">Loading agreements...</div>
+        </div>
+
+    </main>
+
+    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = App.checkAuth();
+            if (!user || user.role !== 'investor') window.location.href = '{% url "login" %}';
+
+            const userEl = document.getElementById('user-name');
+            if (userEl) userEl.textContent = user.name;
+
+            try {
+                const data = await DB.getInvestorAgreements();
+                const agreements = data.agreements;
+                const container = document.getElementById('agreements-container');
+
+                if (agreements.length === 0) {
+                    container.innerHTML = `
+                        <div class="dashboard-form-card" style="text-align: center; padding: 3rem;">
+                            <iconify-icon icon="solar:document-text-linear" style="font-size: 48px; color: var(--text-muted); margin-bottom: 1rem;"></iconify-icon>
+                            <p>No active agreements found.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = agreements.map(a => `
+                    <div class="dashboard-form-card mb-6">
+                        <h3>Investment Agreement - #${a.id}</h3>
+                        <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 8px; margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div>
+                                    <h4 style="margin: 0;">Smart Eco System - ${a.notes || 'Capital Injection'}</h4>
+                                    <p class="text-sm text-muted">Date: ${a.date}</p>
+                                </div>
+                                <span class="status-badge ${a.status === 'approved' ? 'status-success' : ''}" 
+                                      style="${a.status !== 'approved' ? 'background: rgba(255,255,255,0.1); color: var(--text-muted);' : ''}">
+                                    ${a.status.toUpperCase()}
+                                </span>
+                            </div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                                <ul style="list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem;">
+                                    <li><strong>Amount:</strong> ${App.formatCurrency(a.amount)}</li>
+                                    <li><strong>Equity Share:</strong> ${a.equity_percent ? a.equity_percent + '%' : 'Fixed Loan'}</li>
+                                    <li><strong>Status:</strong> ${a.status}</li>
+                                    ${a.reviewed_by ? `<li><strong>Reviewed By:</strong> ${a.reviewed_by}</li>` : ''}
+                                </ul>
+                                <p>This document serves as an official record of the investment proposal and its current status in the SmartEcoSystem ledger.</p>
+                            </div>
+                            <div style="margin-top: 1.5rem;">
+                                <button class="btn btn-outline" onclick="window.print()">Print Record</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) { console.error(err); }
+        });
+    </script>
+</body>
+
+</html>
+
+</html>
