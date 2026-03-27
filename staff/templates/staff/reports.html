@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reports - Staff</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div
+                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S</div>
+            <span style="font-weight: 500;">Staff Portal</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'staff-dashboard' %}" class="nav-item">
+                <iconify-icon icon="solar:widget-linear"></iconify-icon> Operations
+            </a>
+            <a href="{% url 'staff-inventory' %}" class="nav-item">
+                <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon> Inventory
+            </a>
+            <a href="{% url 'staff-orders' %}" class="nav-item">
+                <iconify-icon icon="solar:bag-check-linear"></iconify-icon> Orders
+            </a>
+            <a href="{% url 'staff-tasks' %}" class="nav-item">
+                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+            </a>
+            <a href="{% url 'staff-messages' %}" class="nav-item">
+                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+            </a>
+            <a href="{% url 'staff-reports' %}" class="nav-item active">
+                <iconify-icon icon="solar:file-text-linear"></iconify-icon> My Reports
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <a href="{% url 'profile' %}"
+                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
+                <div class="avatar" style="background: var(--accent-purple);">S</div>
+                <div>
+                    <p class="text-sm text-white" id="user-name">Staff</p>
+                    <p class="text-xs text-muted" id="user-role">Operations</p>
+                </div>
+            </a>
+            <button onclick="App.logout()"
+                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">Operational Reports</h1>
+        </header>
+
+        <!-- Report Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stat-card">
+                <span class="stat-label">Total Sales Recorded</span>
+                <span class="stat-value" id="rep-sales">৳0.00</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Expenses Submitted</span>
+                <span class="stat-value" id="rep-expense">৳0.00</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Net Contribution</span>
+                <span class="stat-value" id="rep-net">৳0.00</span>
+            </div>
+        </div>
+
+        <div class="dashboard-form-card">
+            <div class="flex justify-between items-center mb-6">
+                <h3 style="margin: 0;">Sales & Expenses Log</h3>
+                <div class="flex gap-2">
+                    <button class="btn btn-primary" onclick="window.print()"
+                        style="height: 36px; padding: 0 1rem;">Print Report</button>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Item/Description</th>
+                        <th>Platform/Category</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="staff-report-list">
+                    <!-- JS Populated -->
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check Auth
+            const user = App.checkAuth();
+            if (!user || user.role !== 'staff') {
+                window.location.href = '{% url "login" %}';
+                return;
+            }
+            // Set Name
+            const userNameEl = document.getElementById('user-name');
+            if (userNameEl) userNameEl.textContent = user.name;
+            const userRoleEl = document.getElementById('user-role');
+            if (userRoleEl) userRoleEl.textContent = user.role.toUpperCase();
+
+            const renderReports = async () => {
+                try {
+                    const [ordersData, expenseData] = await Promise.all([
+                        DB.getOrders(),
+                        DB.getExpenses()
+                    ]);
+
+                    const orders = (Array.isArray(ordersData) ? ordersData : (ordersData.results || []))
+                        .map(o => ({ ...o, type: 'sale', amount: o.total_amount, label: o.product_name || 'Sale' }));
+                    
+                    const expenses = (Array.isArray(expenseData) ? expenseData : (expenseData.results || []))
+                        .map(e => ({ ...e, type: 'expense', label: e.description || e.category }));
+
+                    const records = [...orders, ...expenses].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    const tbody = document.getElementById('staff-report-list');
+                    let totalSales = 0;
+                    let totalExp = 0;
+
+                    if (tbody) {
+                        tbody.innerHTML = records.map(r => {
+                            const isSale = r.type === 'sale';
+                            if (isSale) totalSales += Number(r.amount);
+                            else totalExp += Number(r.amount);
+
+                            return `
+                                <tr>
+                                    <td>${new Date(r.created_at).toLocaleDateString()}</td>
+                                    <td style="text-transform: capitalize;">${r.type}</td>
+                                    <td>
+                                        ${r.label}
+                                        ${r.attachment ? `<span style="display:inline-flex; align-items:center; color: var(--accent); margin-left: 0.5rem;" title="Attachment Available"><iconify-icon icon="solar:paperclip-linear"></iconify-icon></span>` : ''}
+                                    </td>
+                                     <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">${r.platform || r.category || '-'}</span></td>
+                                    <td style="color: ${isSale ? '#4ade80' : '#f87171'}; font-weight: 500;">
+                                        ${isSale ? '+' : '-'} ${App.formatCurrency(r.amount)}
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+
+                    // Update Stats
+                    document.getElementById('rep-sales').textContent = App.formatCurrency(totalSales);
+                    document.getElementById('rep-expense').textContent = App.formatCurrency(totalExp);
+                    document.getElementById('rep-net').textContent = App.formatCurrency(totalSales - totalExp);
+                } catch (err) { console.error(err); }
+            };
+
+            await renderReports();
+        });
+    </script>
+</body>
+
+</html>
+
+</html>
