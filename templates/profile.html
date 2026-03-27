@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Smart Seller System</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div style="background: linear-gradient(to top right, var(--primary), var(--accent-purple));" class="logo-box">S</div>
+            <span style="font-weight: 500;">User Account</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active">
+                <iconify-icon icon="solar:user-circle-linear"></iconify-icon> Profile
+            </a>
+            <a href="javascript:history.back()" class="nav-item">
+                <iconify-icon icon="solar:arrow-left-linear"></iconify-icon> Back to Dashboard
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <div class="avatar" id="sidebar-avatar">U</div>
+            <div>
+                <p class="text-sm text-white" id="sidebar-user-name">Loading...</p>
+                <p class="text-xs text-muted" id="sidebar-user-role">Role</p>
+            </div>
+            <button onclick="App.logout()" class="logout-btn">
+                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">My Profile</h1>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="dashboard-form-card">
+                <h3 style="margin-bottom: 1.5rem;">Edit Profile</h3>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <input type="text" id="p-company" placeholder="Business Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="p-name" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="p-email" readonly class="readonly-field" title="Email cannot be changed">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Role</label>
+                        <input type="text" id="p-role" readonly class="readonly-field" style="text-transform: capitalize;">
+                    </div>
+
+                    <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                        <label>Update Password</label>
+                        <input type="password" id="p-password" placeholder="New Password (leave blank to keep current)">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;">Save Changes</button>
+                </form>
+            </div>
+
+            <div class="flex flex-col gap-6">
+                <div class="glass-card p-6">
+                    <h3 class="mb-2">Account Status</h3>
+                    <div class="flex items-center gap-2 text-green-400 mb-4">
+                        <iconify-icon icon="solar:verified-check-linear"></iconify-icon> <span id="p-status">Active</span>
+                    </div>
+                    <p class="text-sm text-muted">Member since: <span id="p-join-date">-</span></p>
+                </div>
+
+                <div class="dashboard-form-card" style="border-color: rgba(248, 113, 113, 0.3);">
+                    <h3 style="color: #f87171; margin-bottom: 1rem;">Delete Account</h3>
+                    <p class="text-sm text-muted mb-4">
+                        Permanently delete your account and remove your access. This action cannot be undone.
+                    </p>
+                    <button class="btn btn-danger-soft" style="width: 100%;" onclick="alert('Please contact administrator to delete account.')">
+                        Request Deletion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = App.checkAuth();
+            if (!user) {
+                window.location.href = '{% url "login" %}';
+                return;
+            }
+
+            // Sync with Server Data
+            try {
+                const profile = await DB.getProfile();
+                updateUI(profile);
+            } catch (err) {
+                console.error('Failed to load profile', err);
+                updateUI(user);
+            }
+
+            function updateUI(data) {
+                document.getElementById('p-company').value = data.company || '';
+                document.getElementById('p-name').value = data.name || '';
+                document.getElementById('p-email').value = data.email || '';
+                document.getElementById('p-role').value = data.role || '';
+                document.getElementById('p-join-date').textContent = new Date(data.date_joined).toLocaleDateString();
+                
+                document.getElementById('sidebar-user-name').textContent = data.name;
+                document.getElementById('sidebar-user-role').textContent = data.role.toUpperCase();
+                document.getElementById('sidebar-avatar').textContent = data.name.charAt(0).toUpperCase();
+            }
+
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    name: document.getElementById('p-name').value,
+                    company: document.getElementById('p-company').value
+                };
+                
+                const password = document.getElementById('p-password').value;
+                if (password) payload.password = password;
+
+                try {
+                    const updated = await DB.updateProfile(payload);
+                    localStorage.setItem('smartEcoUser', JSON.stringify(updated));
+                    alert('Profile updated successfully!');
+                    window.location.reload();
+                } catch (err) {
+                    alert('Error updating profile: ' + err.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

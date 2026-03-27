@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Smart Seller System</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="auth-body">
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">S</div>
+            <h2>Create Account</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Join the ecosystem today</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="company">Company/Business Name</label>
+                <select id="company" required style="width: 100%; background: var(--bg-card); border: 1px solid var(--border-light); color: white; padding: 0.75rem; border-radius: 8px;">
+                    <option value="" disabled selected>Loading businesses...</option>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Account Role</label>
+                    <select id="role" required style="width: 100%; background: var(--bg-card); border: 1px solid var(--border-light); color: white; padding: 0.75rem; border-radius: 8px;">
+                        <option value="staff">Staff/Seller</option>
+                        <option value="investor">Investor</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="name@company.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Register Now</button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="{% url 'login' %}">Sign In</a>
+        </div>
+        <div class="auth-footer" style="margin-top: 10px;">
+            <a href="{% url 'index' %}" style="font-size: 0.75rem; color: var(--text-muted);">← Back to Home</a>
+        </div>
+    </div>
+
+    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const companySelect = document.getElementById('company');
+            try {
+                const businesses = await DB.getBusinesses();
+                if (businesses && businesses.length > 0) {
+                    companySelect.innerHTML = '<option value="" disabled selected>Select Your Business</option>';
+                    businesses.forEach(b => {
+                        const opt = document.createElement('option');
+                        opt.value = b.name;
+                        opt.textContent = b.name;
+                        companySelect.appendChild(opt);
+                    });
+                } else {
+                    companySelect.innerHTML = '<option value="" disabled selected>No businesses found</option>';
+                }
+            } catch (err) {
+                console.error('Failed to load businesses', err);
+                companySelect.innerHTML = '<option value="" disabled selected>Error loading businesses</option>';
+            }
+        });
+    </script>
+</body>
+
+</html>
