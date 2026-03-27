@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from admin_panel.api.views import (
     RegisterView, LoginView, LogoutView, ProfileView,
+    ForgotPasswordView, ResetPasswordView,
     AdminDashboardView,
     UserListView, UserCreateView, UserDetailView, ToggleUserActiveView,
     AdminTaskListCreateView, AdminTaskDetailView,
