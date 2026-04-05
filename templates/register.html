@@ -128,9 +128,109 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl scale-95 transition-all duration-300 transform opacity-0 modal-content">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/10 rounded-full text-emerald-500 mb-6 border border-emerald-500/20">
+                    <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
+                </div>
+                <h2 class="text-2xl font-semibold text-white mb-3">Registration Successful!</h2>
+                <div class="space-y-4 text-gray-400 text-sm font-light leading-relaxed">
+                    <p>We've sent a verification link to your email address. Please click it to verify your account.</p>
+                    <div class="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-lg text-indigo-300 text-xs text-left flex gap-3">
+                        <iconify-icon icon="solar:info-circle-linear" width="18" class="shrink-0"></iconify-icon>
+                        <span>Note: After verification, an administrator will review and approve your account before you can log in.</span>
+                    </div>
+                </div>
+                
+                <div class="mt-8" id="debugLinkContainer" style="display: none;">
+                    <p class="text-[10px] text-gray-500 mb-2 uppercase tracking-widest font-semibold text-left">Debug Verification Link (Dev Mode):</p>
+                    <div class="p-3 bg-white/5 border border-white/10 rounded-lg break-all text-[10px] text-indigo-300 text-left font-mono">
+                        <a href="#" id="debugLink" class="hover:underline"></a>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <a href="{% url 'login' %}" 
+                        class="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-white text-black text-sm font-semibold hover:bg-gray-200 transition-all gap-2">
+                        Go to Login
+                        <iconify-icon icon="solar:login-linear" width="18"></iconify-icon>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl scale-95 transition-all duration-300 transform opacity-0 modal-content">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-red-500/10 rounded-full text-red-500 mb-6 border border-red-500/20">
+                    <iconify-icon icon="solar:danger-circle-bold" width="48"></iconify-icon>
+                </div>
+                <h2 class="text-2xl font-semibold text-white mb-3">Registration Failed</h2>
+                <p id="errorMessage" class="text-gray-400 text-sm font-light leading-relaxed mb-8">
+                    An error occurred during registration. Please try again.
+                </p>
+                
+                <div class="mt-8">
+                    <button onclick="hideErrorModal()" 
+                        class="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-all gap-2">
+                        Try Again
+                        <iconify-icon icon="solar:refresh-linear" width="18"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'js/data-manager.js' %}"></script>
     <script src="{% static 'js/auth.js' %}"></script>
     <script>
+        window.showSuccessModal = (message, debugLink = null) => {
+            const modal = document.getElementById('successModal');
+            const content = modal.querySelector('.modal-content');
+            
+            if (debugLink) {
+                const container = document.getElementById('debugLinkContainer');
+                const linkEl = document.getElementById('debugLink');
+                container.style.display = 'block';
+                linkEl.href = debugLink;
+                linkEl.textContent = debugLink;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.showErrorModal = (message) => {
+            const modal = document.getElementById('errorModal');
+            const content = modal.querySelector('.modal-content');
+            document.getElementById('errorMessage').textContent = message;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.hideErrorModal = () => {
+            const modal = document.getElementById('errorModal');
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('scale-95', 'opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        };
+
         document.addEventListener('DOMContentLoaded', async () => {
             const companySelect = document.getElementById('company');
             try {
