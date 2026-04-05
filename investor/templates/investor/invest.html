@@ -1,159 +1,189 @@
+{% extends "base_dashboard.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invest - Investor</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-</head>
+{% block title %}Invest Capital - SmartSeller{% endblock %}
+{% block portal_name %}Investor View{% endblock %}
+{% block page_title %}Capital Injection{% endblock %}
 
-<body class="dashboard-body">
+{% block sidebar_nav %}
+<a href="{% url 'investor-dashboard-page' %}" class="nav-item">
+    <iconify-icon icon="solar:pie-chart-2-linear" width="20"></iconify-icon> Portfolio
+</a>
+<a href="{% url 'investor-agreements-page' %}" class="nav-item">
+    <iconify-icon icon="solar:document-text-linear" width="20"></iconify-icon> Agreements
+</a>
+<a href="{% url 'investor-invest' %}" class="nav-item active">
+    <iconify-icon icon="solar:wallet-money-linear" width="20"></iconify-icon> Invest
+</a>
+<a href="{% url 'investor-reports-page' %}" class="nav-item">
+    <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> Reports
+</a>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div
-                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--secondary), var(--primary)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
-                I</div>
-            <span style="font-weight: 500;">Investor View</span>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{% url 'investor-dashboard-page' %}" class="nav-item">
-                <iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon> Portfolio
-            </a>
-            <a href="{% url 'investor-agreements-page' %}" class="nav-item">
-                <iconify-icon icon="solar:document-text-linear"></iconify-icon> Agreements
-            </a>
-            <a href="{% url 'investor-invest' %}" class="nav-item active">
-                <iconify-icon icon="solar:wallet-money-linear"></iconify-icon> Invest
-            </a>
-            <a href="{% url 'investor-reports-page' %}" class="nav-item">
-                <iconify-icon icon="solar:file-text-linear"></iconify-icon> Reports
-            </a>
-        </nav>
-        <div class="user-profile">
-            <a href="{% url 'profile' %}"
-                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
-                <div class="avatar" style="background: var(--secondary);">I</div>
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <!-- Proposal Form -->
+    <div class="lg:col-span-5 space-y-6">
+        <div class="glass-card p-8 rounded-3xl border-indigo-500/20 bg-indigo-500/[0.02]">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                    <iconify-icon icon="solar:hand-money-linear" width="24"></iconify-icon>
+                </div>
                 <div>
-                    <p class="text-sm text-white" id="user-name">Investor</p>
-                    <p class="text-xs text-muted" id="user-role">Shareholder</p>
+                    <h3 class="text-lg font-bold text-white">Propose Injection</h3>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">New Capital Proposal</p>
                 </div>
-            </a>
-            <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
-                    icon="solar:logout-linear"></iconify-icon></button>
-        </div>
-    </aside>
+            </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">New Investment</h1>
-        </header>
-
-        <div class="dashboard-form-card mb-8">
-            <h3>Request Capital Injection</h3>
-            <p class="text-sm text-muted mb-6">Submit a request to inject additional capital into the business. This
-                will be reviewed by the Admin.</p>
-
-            <form id="investForm">
-                <div class="grid md:grid-cols-2 gap-6 mb-4">
+            <form id="investForm" class="space-y-6">
+                <div class="space-y-4">
                     <div>
-                        <label>Investment Amount (৳)</label>
-                        <input type="number" id="inv-amount" required placeholder="50000">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Investment Amount (৳)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">৳</span>
+                            <input type="number" id="inv-amount" required class="input-glass w-full pl-9 pr-4 py-4 rounded-2xl text-sm font-bold" placeholder="50,000">
+                        </div>
                     </div>
                     <div>
-                        <label>Proposed Equity Increase (%)</label>
-                        <input type="number" id="inv-equity" placeholder="e.g. 5" step="0.01">
-                        <span class="text-xs text-muted">Optional: Leave blank if pure debt/loan</span>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Proposed Equity Stake (%)</label>
+                        <div class="relative">
+                            <input type="number" id="inv-equity" step="0.01" class="input-glass w-full px-4 py-4 rounded-2xl text-sm font-bold" placeholder="e.g. 2.5">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">%</span>
+                        </div>
+                        <p class="text-[9px] text-gray-600 mt-2 italic px-1">Optional: Leave blank for debt-based financing.</p>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Detailed Terms & Notes</label>
+                        <textarea id="inv-notes" rows="4" class="input-glass w-full px-4 py-4 rounded-2xl text-sm" placeholder="Outline the repayment terms or strategic goals of this capital injection..."></textarea>
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label>Terms / Notes</label>
-                    <textarea id="inv-notes" rows="4" placeholder="Terms of the investment..."
-                        style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: white; padding: 0.5rem; border-radius: 6px;"></textarea>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full py-4 bg-white text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-500 hover:text-white transition-all shadow-xl shadow-indigo-500/10 active:scale-[0.98]">
+                        Submit Proposal
+                    </button>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Proposal</button>
             </form>
         </div>
 
-        <div class="dashboard-form-card">
-            <h3>Investment History</h3>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Equity</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="inv-list">
-                    <!-- JS Populated -->
-                </tbody>
-            </table>
+        <div class="p-6 bg-amber-500/5 border border-amber-500/10 rounded-2xl flex gap-4">
+            <iconify-icon icon="solar:shield-warning-linear" class="text-amber-500 mt-1" width="24"></iconify-icon>
+            <div>
+                <h4 class="text-xs font-bold text-amber-500 uppercase mb-1">Legal Notice</h4>
+                <p class="text-[10px] text-gray-500 leading-relaxed">
+                    By submitting this proposal, you agree to a 48-hour cool-off period. Proposals are subject to administrative audit and anti-dilution checks before approval.
+                </p>
+            </div>
         </div>
+    </div>
 
-    </main>
+    <!-- History Table -->
+    <div class="lg:col-span-7">
+        <div class="glass-card rounded-3xl overflow-hidden min-h-[400px]">
+            <div class="px-8 py-6 border-b border-white/5 bg-white/[0.02]">
+                <h3 class="text-base font-bold text-white">Investment History</h3>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Lifecycle Tracking</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/[0.01]">
+                            <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Submission Date</th>
+                            <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Amount</th>
+                            <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Equity Stake</th>
+                            <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-list" class="divide-y divide-white/5">
+                        <!-- JS Populated -->
+                         <tr>
+                            <td colspan="4" class="px-8 py-12 text-center text-gray-500 text-sm italic">
+                                <iconify-icon icon="line-md:loading-loop" width="24" class="mb-2 block mx-auto"></iconify-icon>
+                                Retrieving ledger...
+                            </td>
+                         </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-    <script src="{% static 'js/data-manager.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = App.checkAuth();
-            if (!user || user.role !== 'investor') window.location.href = '{% url "login" %}';
-
-            const userEl = document.getElementById('user-name');
-            if (userEl) userEl.textContent = user.name;
-
+{% block extra_js %}
+<script>
+    const renderHistory = async () => {
+        try {
+            const data = await DB.getInvestments();
+            const investments = Array.isArray(data) ? data : (data.results || []);
             const tbody = document.getElementById('inv-list');
+            
+            if (investments.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-12 text-center text-gray-500 text-xs italic">No investment records found.</td></tr>`;
+                return;
+            }
 
-            const renderHistory = async () => {
-                try {
-                    const data = await DB.getInvestments();
-                    const investments = Array.isArray(data) ? data : (data.results || []);
-                    if (tbody) {
-                        tbody.innerHTML = investments.map(i => `
-                            <tr>
-                                <td>${new Date(i.created_at).toLocaleDateString()}</td>
-                                <td>${App.formatCurrency(i.amount)}</td>
-                                <td>${i.equity_percent ? i.equity_percent + '%' : '-'}</td>
-                                <td><span class="status-badge" style="background: rgba(255,255,255,0.1); color: var(--text-muted);">${i.status}</span></td>
-                            </tr>
-                        `).join('');
-                    }
-                } catch (err) { console.error(err); }
-            };
+            tbody.innerHTML = investments.map(i => `
+                <tr class="hover:bg-white/[0.01] transition-colors group">
+                    <td class="px-8 py-5">
+                        <p class="text-xs text-white font-bold">${new Date(i.created_at).toLocaleDateString()}</p>
+                        <p class="text-[9px] text-gray-600 font-medium uppercase mt-0.5">${new Date(i.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    </td>
+                    <td class="px-8 py-5">
+                        <p class="text-sm font-black text-white">${App.formatCurrency(i.amount)}</p>
+                    </td>
+                    <td class="px-8 py-5">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.equity_percent ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/10' : 'bg-gray-500/10 text-gray-500 border border-gray-500/10'}">
+                            ${i.equity_percent ? i.equity_percent + '%' : 'DEBT'}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${getStatusClass(i.status)}">
+                            ${i.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (err) { console.error(err); }
+    };
 
-            document.getElementById('investForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const amount = document.getElementById('inv-amount').value;
-                const equity = document.getElementById('inv-equity').value;
-                const notes = document.getElementById('inv-notes').value;
+    function getStatusClass(status) {
+        switch (status?.toLowerCase()) {
+            case 'approved': return 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
+            case 'pending': return 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
+            case 'rejected': return 'bg-red-500/10 text-red-500 border border-red-500/20';
+            default: return 'bg-gray-500/10 text-gray-500 border border-gray-500/20';
+        }
+    }
 
-                try {
-                    await DB.addInvestment({
-                        amount: amount,
-                        equity_percent: equity || null,
-                        notes: notes
-                    });
-                    alert('Investment proposal submitted!');
-                    document.getElementById('investForm').reset();
-                    await renderHistory();
-                } catch (err) { alert(err.message); }
+    document.getElementById('investForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = 'VALIDATING PROPOSAL...';
+            
+            await DB.addInvestment({
+                amount: document.getElementById('inv-amount').value,
+                equity_percent: document.getElementById('inv-equity').value || null,
+                notes: document.getElementById('inv-notes').value
             });
-
+            
+            alert('Investment proposal submitted for review.');
+            e.target.reset();
             await renderHistory();
-        });
-    </script>
-</body>
+        } catch (err) { alert(err.message); }
+        finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    });
 
-</html>
-
-</html>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!App.checkAuth()) { window.location.href = '{% url "login" %}'; return; }
+        renderHistory();
+    });
+</script>
+{% endblock %}
