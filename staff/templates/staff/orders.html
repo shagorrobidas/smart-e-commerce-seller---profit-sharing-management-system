@@ -1,157 +1,168 @@
+{% extends "base_dashboard.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Management - Staff</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-</head>
+{% block title %}Order Management - SmartSeller{% endblock %}
+{% block portal_name %}Staff Portal{% endblock %}
+{% block page_title %}Order Management{% endblock %}
 
-<body class="dashboard-body">
+{% block sidebar_nav %}
+<a href="{% url 'staff-dashboard' %}" class="nav-item">
+    <iconify-icon icon="solar:widget-linear" width="20"></iconify-icon> Operations
+</a>
+<a href="{% url 'staff-inventory' %}" class="nav-item">
+    <iconify-icon icon="solar:box-minimalistic-linear" width="20"></iconify-icon> Inventory
+</a>
+<a href="{% url 'staff-orders' %}" class="nav-item active">
+    <iconify-icon icon="solar:bag-check-linear" width="20"></iconify-icon> Orders
+</a>
+<a href="{% url 'staff-tasks' %}" class="nav-item">
+    <iconify-icon icon="solar:checklist-minimalistic-linear" width="20"></iconify-icon> Tasks
+</a>
+<a href="{% url 'staff-messages' %}" class="nav-item">
+    <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+</a>
+<a href="{% url 'staff-reports' %}" class="nav-item">
+    <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> My Reports
+</a>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div
-                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
-                S</div>
-            <span style="font-weight: 500;">Staff Portal</span>
+{% block content %}
+<div class="glass-card rounded-2xl overflow-hidden">
+    <div class="px-8 py-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+        <h3 class="text-base font-semibold text-white">Recent Sales Orders</h3>
+        <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Filter by status:</span>
+            <select onchange="renderOrders(this.value)" class="bg-black/20 border border-white/10 rounded-lg px-3 py-1 text-[11px] text-gray-400 outline-none hover:border-white/20 transition-colors">
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
         </div>
-        <nav class="sidebar-nav">
-            <a href="{% url 'staff-dashboard' %}" class="nav-item">
-                <iconify-icon icon="solar:widget-linear"></iconify-icon> Operations
-            </a>
-            <a href="{% url 'staff-inventory' %}" class="nav-item">
-                <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon> Inventory
-            </a>
-            <a href="{% url 'staff-orders' %}" class="nav-item active">
-                <iconify-icon icon="solar:bag-check-linear"></iconify-icon> Orders
-            </a>
-            <a href="{% url 'staff-tasks' %}" class="nav-item">
-                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
-            </a>
-            <a href="{% url 'staff-messages' %}" class="nav-item">
-                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
-            </a>
-            <a href="{% url 'staff-reports' %}" class="nav-item">
-                <iconify-icon icon="solar:file-text-linear"></iconify-icon> My Reports
-            </a>
-        </nav>
-        <div class="user-profile">
-            <a href="{% url 'profile' %}"
-                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
-                <div class="avatar" style="background: var(--accent-purple);">S</div>
-                <div>
-                    <p class="text-sm text-white" id="user-name">Staff</p>
-                    <p class="text-xs text-muted" id="user-role">Operations</p>
-                </div>
-            </a>
-            <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
-                    icon="solar:logout-linear"></iconify-icon></button>
-        </div>
-    </aside>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-white/[0.01]">
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Order ID</th>
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Date</th>
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Product</th>
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Platform</th>
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Amount</th>
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Status</th>
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="order-list" class="divide-y divide-white/5">
+                <!-- Populated via JS -->
+                 <tr>
+                    <td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">
+                        <iconify-icon icon="line-md:loading-loop" width="24" class="mb-2 block mx-auto"></iconify-icon>
+                        Fetching orders...
+                    </td>
+                 </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">Order Management</h1>
-        </header>
+{% block extra_js %}
+<script>
+    let allOrders = [];
 
-        <div class="dashboard-form-card">
-            <h3 style="margin-bottom: 1.5rem;">Recent Orders</h3>
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Product</th>
-                            <th>Platform</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="order-list">
-                        <!-- JS Populated -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    const renderOrders = async (filterStatus = 'all') => {
+        try {
+            const data = await DB.getOrders();
+            allOrders = (Array.isArray(data) ? data : (data.results || []))
+                .filter(o => o.type === 'sale')
+                .sort((a, b) => b.id - a.id);
+            
+            const tbody = document.getElementById('order-list');
+            const filtered = filterStatus === 'all' ? allOrders : allOrders.filter(o => o.status === filterStatus);
 
-    <script src="{% static 'js/data-manager.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = App.checkAuth();
-            if (!user || user.role !== 'staff') window.location.href = '{% url "login" %}';
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">No orders found matching the filter.</td></tr>`;
+                return;
+            }
 
-            // UI Init
-            const userNameEl = document.getElementById('user-name');
-            if (userNameEl) userNameEl.textContent = user.name;
-            const userRoleEl = document.getElementById('user-role');
-            if (userRoleEl) userRoleEl.textContent = user.role.toUpperCase();
+            tbody.innerHTML = filtered.map(o => `
+                <tr class="hover:bg-white/[0.02] transition-colors group">
+                    <td class="px-8 py-4">
+                        <span class="text-xs font-mono text-indigo-400 font-bold group-hover:text-indigo-300 transition-colors">#ORD-${o.id}</span>
+                    </td>
+                    <td class="px-8 py-4">
+                        <p class="text-xs text-gray-400 font-medium">${new Date(o.created_at).toLocaleDateString()}</p>
+                    </td>
+                    <td class="px-8 py-4">
+                        <p class="text-xs text-white font-semibold">${o.product_name || 'N/A'}</p>
+                    </td>
+                    <td class="px-8 py-4">
+                        <div class="flex items-center gap-2">
+                            <iconify-icon icon="${getPlatformIcon(o.platform)}" class="text-gray-500" width="16"></iconify-icon>
+                            <span class="text-xs text-gray-400">${o.platform || 'General'}</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-4">
+                        <p class="text-xs font-bold text-white">${App.formatCurrency(o.total_amount)}</p>
+                    </td>
+                    <td class="px-8 py-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusBadgeClass(o.status)}">
+                            ${o.status || 'Pending'}
+                        </span>
+                    </td>
+                    <td class="px-8 py-4 text-right">
+                        <div class="flex items-center justify-end gap-3">
+                            <select onchange="handleUpdateStatus(${o.id}, this.value)" class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-gray-500 outline-none hover:border-indigo-500/50 hover:text-white transition-all cursor-pointer">
+                                <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            console.error(err);
+            document.getElementById('order-list').innerHTML = `<tr><td colspan="7" class="px-8 py-12 text-center text-red-400 text-sm">Failed to load orders.</td></tr>`;
+        }
+    };
 
-            const renderOrders = async () => {
-                const data = await DB.getOrders();
-                const orders = (Array.isArray(data) ? data : (data.results || []))
-                    .filter(o => o.type === 'sale')
-                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                
-                const tbody = document.getElementById('order-list');
+    function getPlatformIcon(platform) {
+        if (!platform) return 'solar:shop-linear';
+        platform = platform.toLowerCase();
+        if (platform.includes('daraz')) return 'solar:bag-linear';
+        if (platform.includes('cartup')) return 'solar:cart-large-minimalistic-linear';
+        return 'solar:shop-linear';
+    }
 
-                if (tbody) {
-                    tbody.innerHTML = orders.map(o => `
-                        <tr>
-                            <td style="font-family: monospace; color: var(--text-muted);">#ORD-${o.id}</td>
-                            <td>${new Date(o.created_at).toLocaleDateString()}</td>
-                            <td>${o.product_name || 'N/A'}</td>
-                            <td>${o.platform || 'General'}</td>
-                            <td>${App.formatCurrency(o.total_amount)}</td>
-                            <td><span class="status-badge" style="background: ${getStatusColor(o.status)}; color: white;">${o.status || 'Pending'}</span></td>
-                            <td>
-                                <select onchange="handleUpdateStatus(${o.id}, this.value)" style="padding: 4px; border-radius: 4px; background: var(--input-bg); color: white; border: 1px solid var(--glass-border); font-size: 12px;">
-                                    <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
-                                    <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                    <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                                    <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                                </select>
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-            };
+    function getStatusBadgeClass(status) {
+        switch (status?.toLowerCase()) {
+            case 'delivered': return 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
+            case 'shipped': return 'bg-blue-500/10 text-blue-500 border border-blue-500/20';
+            case 'processing': return 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
+            case 'cancelled': return 'bg-red-500/10 text-red-500 border border-red-500/20';
+            default: return 'bg-gray-500/10 text-gray-500 border border-gray-500/20';
+        }
+    }
 
-            window.getStatusColor = (status) => {
-                switch (status) {
-                    case 'delivered': return '#10b981';
-                    case 'shipped': return '#3b82f6';
-                    case 'processing': return '#f59e0b';
-                    case 'cancelled': return '#ef4444';
-                    default: return '#64748b';
-                }
-            };
-
-            window.handleUpdateStatus = async (id, status) => {
-                try {
-                    await DB.updateOrderStatus(id, status);
-                    await renderOrders();
-                } catch (err) { alert(err.message); }
-            };
-
+    window.handleUpdateStatus = async (id, status) => {
+        try {
+            await DB.updateOrderStatus(id, status);
             await renderOrders();
-        });
-    </script>
-</body>
+        } catch (err) { alert(err.message); }
+    };
 
-</html>
-
-</html>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!App.checkAuth()) {
+            window.location.href = '{% url "login" %}';
+            return;
+        }
+        renderOrders();
+    });
+</script>
+{% endblock %}
