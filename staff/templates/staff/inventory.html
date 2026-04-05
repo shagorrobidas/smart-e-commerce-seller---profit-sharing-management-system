@@ -1,309 +1,316 @@
+{% extends "base_dashboard.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory - Smart Seller</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-</head>
+{% block title %}Inventory Management - SmartSeller{% endblock %}
+{% block portal_name %}Staff Portal{% endblock %}
+{% block page_title %}Inventory Management{% endblock %}
 
-<body class="dashboard-body">
+{% block sidebar_nav %}
+<a href="{% url 'staff-dashboard' %}" class="nav-item">
+    <iconify-icon icon="solar:widget-linear" width="20"></iconify-icon> Operations
+</a>
+<a href="{% url 'staff-inventory' %}" class="nav-item active">
+    <iconify-icon icon="solar:box-minimalistic-linear" width="20"></iconify-icon> Inventory
+</a>
+<a href="{% url 'staff-orders' %}" class="nav-item">
+    <iconify-icon icon="solar:bag-check-linear" width="20"></iconify-icon> Orders
+</a>
+<a href="{% url 'staff-tasks' %}" class="nav-item">
+    <iconify-icon icon="solar:checklist-minimalistic-linear" width="20"></iconify-icon> Tasks
+</a>
+<a href="{% url 'staff-messages' %}" class="nav-item">
+    <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+</a>
+<a href="{% url 'staff-reports' %}" class="nav-item">
+    <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> My Reports
+</a>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div
-                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
-                S</div>
-            <span style="font-weight: 500;">Staff Portal</span>
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div class="grid grid-cols-3 gap-6 flex-1">
+        <div class="glass-card p-4 rounded-xl">
+            <p class="text-[10px] font-medium text-gray-500 uppercase tracking-widest mb-1">Total Products</p>
+            <p class="text-xl font-semibold text-white" id="inv-total">0</p>
         </div>
+        <div class="glass-card p-4 rounded-xl">
+            <p class="text-[10px] font-medium text-gray-500 uppercase tracking-widest mb-1">Total Value</p>
+            <p class="text-xl font-semibold text-white" id="inv-value">৳0.00</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl border-l-2 border-l-amber-500/50">
+            <p class="text-[10px] font-medium text-gray-500 uppercase tracking-widest mb-1">Low Stock</p>
+            <p class="text-xl font-semibold text-amber-500" id="inv-low">0</p>
+        </div>
+    </div>
+    <button onclick="toggleAddForm()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2">
+        <iconify-icon icon="solar:add-circle-linear" width="18"></iconify-icon>
+        Add Product
+    </button>
+</div>
 
-        <nav class="sidebar-nav">
-            <a href="{% url 'staff-dashboard' %}" class="nav-item">
-                <iconify-icon icon="solar:widget-linear"></iconify-icon> Operations
-            </a>
-            <a href="{% url 'staff-inventory' %}" class="nav-item active">
-                <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon> Inventory
-            </a>
-            <a href="{% url 'staff-orders' %}" class="nav-item">
-                <iconify-icon icon="solar:bag-check-linear"></iconify-icon> Orders
-            </a>
-            <a href="{% url 'staff-tasks' %}" class="nav-item">
-                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
-            </a>
-            <a href="{% url 'staff-messages' %}" class="nav-item">
-                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
-            </a>
-            <a href="{% url 'staff-reports' %}" class="nav-item">
-                <iconify-icon icon="solar:file-text-linear"></iconify-icon> My Reports
-            </a>
-            <a href="#" class="nav-item" onclick="alert('No new notifications');">
-                <iconify-icon icon="solar:bell-linear"></iconify-icon> Notifications <span
-                    style="background: var(--primary); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; margin-left: auto;">2</span>
-            </a>
-        </nav>
-
-        <div class="user-profile">
-            <a href="{% url 'profile' %}"
-                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
-                <div class="avatar" style="background: var(--accent-purple);">S</div>
+<!-- Add Product Form (Collapsible) -->
+<div id="addProductFormContainer" class="hidden mb-8 scale-95 opacity-0 transition-all duration-300 origin-top">
+    <div class="glass-card p-8 rounded-2xl border-indigo-500/20">
+        <h3 class="text-lg font-semibold text-white mb-6">Create New Inventory Item</h3>
+        <form id="addProductForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Product Name</label>
+                    <input type="text" name="name" required class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="e.g. Wireless Mouse MX Master">
+                </div>
                 <div>
-                    <p class="text-sm text-white" id="user-name">Staff</p>
-                    <p class="text-xs text-muted" id="user-role">Operations</p>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Initial Stock</label>
+                    <input type="number" name="stock" required class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="0">
                 </div>
-            </a>
-            <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
-                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Category</label>
+                    <select name="cat" class="input-glass w-full px-4 py-3 rounded-xl text-sm bg-neutral-900">
+                        <option>Electronics</option>
+                        <option>Accessories</option>
+                        <option>Office</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Buy Price (৳)</label>
+                    <input type="number" name="bp" required class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Sell Price (৳)</label>
+                    <input type="number" name="sp" required class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="0.00">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Description</label>
+                    <textarea name="desc" rows="3" class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="Product features, specifications..."></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="toggleAddForm()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-colors">Cancel</button>
+                <button type="submit" class="px-8 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all">Save Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Inventory Table -->
+<div class="glass-card rounded-2xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-white/5 bg-white/[0.02]">
+                    <th class="px-6 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Product Details</th>
+                    <th class="px-6 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Stock Level</th>
+                    <th class="px-6 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Pricing</th>
+                    <th class="px-6 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest text-right">Status</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-list" class="divide-y divide-white/5">
+                <!-- Populated via JS -->
+                 <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-gray-500 text-sm">
+                        <iconify-icon icon="line-md:loading-loop" width="24" class="mb-2 block mx-auto"></iconify-icon>
+                        Loading inventory...
+                    </td>
+                 </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div id="productModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+    <div class="glass-card w-full max-w-lg rounded-3xl overflow-hidden relative z-10 shadow-2xl scale-95 opacity-0 transition-all duration-300" id="modalContainer">
+        <div class="h-48 bg-white/5 relative overflow-hidden">
+            <img id="modal-img" src="" class="w-full h-full object-cover opacity-50">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent"></div>
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors">
+                <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
             </button>
         </div>
-    </aside>
+        
+        <div class="p-8 -mt-12 relative z-20">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h2 id="modal-title" class="text-2xl font-bold text-white mb-2">Product Name</h2>
+                    <span id="modal-category" class="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-indigo-500/20">Category</span>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-500 mb-1">Available Stock</p>
+                    <p id="modal-stock" class="text-xl font-bold text-white">0 Units</p>
+                </div>
+            </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">Inventory Management</h1>
-            <button class="btn btn-primary"
-                onclick="document.getElementById('addProductFormContainer').classList.toggle('hidden')">
-                + Add Product
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="p-4 bg-white/[0.03] border border-white/5 rounded-2xl">
+                    <p class="text-[10px] text-gray-500 uppercase mb-1">Landing Price</p>
+                    <p id="modal-buy" class="text-lg font-semibold text-white">৳0.00</p>
+                </div>
+                <div class="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
+                    <p class="text-[10px] text-emerald-500 uppercase mb-1">Sale Price</p>
+                    <p id="modal-sell" class="text-lg font-semibold text-emerald-400">৳0.00</p>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Product Description</h4>
+                <p id="modal-desc" class="text-sm text-gray-500 leading-relaxed">No description provided.</p>
+            </div>
+
+            <button class="w-full py-4 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold rounded-2xl border border-white/10 transition-all">
+                Edit Product Details
             </button>
-        </header>
-
-        <!-- Product Details Modal -->
-        <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center"
-            style="background: rgba(0,0,0,0.6); z-index: 1000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; align-items: center; justify-content: center;">
-            <div class="bg-white p-6 rounded-lg w-full max-w-md"
-                style="background: var(--card-bg); color: var(--text-main); padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; position: relative; border: 1px solid var(--glass-border); box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                <button onclick="document.getElementById('productModal').style.display='none'"
-                    style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem;">&times;</button>
-
-                <div class="text-center mb-6">
-                    <img id="modal-img" src="" alt="Product"
-                        style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem; background: var(--bg-body);">
-                    <h2 id="modal-title" style="margin-bottom: 0.5rem; color: var(--text-main);">Product Name</h2>
-                    <span id="modal-category" class="status-badge"
-                        style="background: rgba(255,255,255,0.1);">Category</span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div
-                        style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                        <span class="text-xs text-muted block">Buy Price</span>
-                        <span id="modal-buy" class="text-lg font-bold block">-</span>
-                    </div>
-                    <div
-                        style="text-align: center; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
-                        <span class="text-xs text-muted block" style="color: #10b981;">Sell Price</span>
-                        <span id="modal-sell" class="text-lg font-bold block" style="color: #10b981;">-</span>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <h4 class="text-sm text-muted mb-2">Description</h4>
-                    <p id="modal-desc" class="text-sm" style="line-height: 1.6; color: var(--text-secondary);">No
-                        description available.</p>
-                </div>
-
-                <div class="flex justify-between items-center pt-4" style="border-top: 1px solid var(--glass-border);">
-                    <span class="text-xs text-muted">Stock Status</span>
-                    <span id="modal-stock" class="font-bold">0 Units</span>
-                </div>
-            </div>
         </div>
+    </div>
+</div>
+{% endblock %}
 
-        <!-- Inventory Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stat-card">
-                <span class="stat-label">Total Products</span>
-                <span class="stat-value" id="inv-total">0</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Total Value</span>
-                <span class="stat-value" id="inv-value">৳0.00</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Low Stock Items</span>
-                <span class="stat-value" id="inv-low" style="color: #fbbf24;">0</span>
-            </div>
-        </div>
+{% block extra_js %}
+<script>
+    let inventoryData = [];
 
-        <!-- Add Product Form -->
-        <div id="addProductFormContainer" class="dashboard-form-card mb-8 hidden" style="margin-bottom: 2rem;">
-            <h3>Add New Product</h3>
-            <form id="addProductForm">
-                <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <div class="col-span-2" style="grid-column: span 2;">
-                        <label>Product Name</label>
-                        <input type="text" name="name" required placeholder="e.g. Wireless Mouse">
-                    </div>
-                    <div>
-                        <label>Initial Stock (Qty)</label>
-                        <input type="number" name="stock" required placeholder="0">
-                    </div>
-                    <div>
-                        <label>Category</label>
-                        <select name="cat">
-                            <option>Electronics</option>
-                            <option>Accessories</option>
-                            <option>Office</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Buy Price (৳)</label>
-                        <input type="number" name="bp" required placeholder="0.00">
-                    </div>
-                    <div>
-                        <label>Sell Price (৳)</label>
-                        <input type="number" name="sp" required placeholder="0.00">
-                    </div>
-                    <div class="col-span-2" style="grid-column: span 2;">
-                        <label>Description</label>
-                        <textarea name="desc"
-                            style="width: 100%; border-radius: 6px; background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.5rem;"
-                            rows="2" placeholder="Tell us more about this product..."></textarea>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Save to Inventory</button>
-            </form>
-        </div>
+    function toggleAddForm() {
+        const container = document.getElementById('addProductFormContainer');
+        if (container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+            setTimeout(() => {
+                container.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        } else {
+            container.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                container.classList.add('hidden');
+            }, 300);
+        }
+    }
 
-        <div class="dashboard-form-card">
-            <table class="data-table" id="inventory-table">
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Stock Level</th>
-                        <th>Buy Price</th>
-                        <th>Sell Price</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-list">
-                    <!-- JS will pop this -->
-                </tbody>
-            </table>
-        </div>
+    function openModal(id) {
+        const item = inventoryData.find(i => i.id == id);
+        if (!item) return;
 
-    </main>
+        document.getElementById('modal-img').src = item.image || 'https://via.placeholder.com/800x400?text=No+Image';
+        document.getElementById('modal-title').textContent = item.name;
+        document.getElementById('modal-category').textContent = item.category || 'General';
+        document.getElementById('modal-buy').textContent = App.formatCurrency(item.buy_price);
+        document.getElementById('modal-sell').textContent = App.formatCurrency(item.sell_price);
+        document.getElementById('modal-desc').textContent = item.description || 'No detailed description available.';
+        document.getElementById('modal-stock').textContent = item.stock + ' Units';
 
-    <script src="{% static 'js/data-manager.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script>
-        // Custom Load Logic for Inventory Page
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Check Auth
-            const user = App.checkAuth();
-            if (!user) {
-                window.location.href = '{% url "login" %}';
+        const modal = document.getElementById('productModal');
+        const container = document.getElementById('modalContainer');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            container.classList.remove('scale-95', 'opacity-0');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('productModal');
+        const container = document.getElementById('modalContainer');
+        container.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    const renderInventory = async () => {
+        try {
+            const data = await DB.getInventory();
+            inventoryData = Array.isArray(data) ? data : (data.results || []);
+            const tbody = document.getElementById('inventory-list');
+
+            let totalVal = 0;
+            let lowStock = 0;
+
+            if (inventoryData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500 text-sm">No products found in inventory.</td></tr>';
                 return;
             }
-            // Set Name
-            const userNameEl = document.getElementById('user-name');
-            if (userNameEl) userNameEl.textContent = user.name;
-            const userRoleEl = document.getElementById('user-role');
-            if (userRoleEl) userRoleEl.textContent = user.role.toUpperCase();
 
-            let inventoryData = [];
+            tbody.innerHTML = inventoryData.map(item => {
+                totalVal += (Number(item.stock) * Number(item.sell_price));
+                const isLow = item.stock <= 10;
+                if (isLow) lowStock++;
 
-            const renderInventory = async () => {
-                const data = await DB.getInventory();
-                inventoryData = Array.isArray(data) ? data : (data.results || []);
-                const tbody = document.getElementById('inventory-list');
-
-                let totalVal = 0;
-                let lowStock = 0;
-
-                if (tbody) {
-                    tbody.innerHTML = inventoryData.map(item => {
-                        totalVal += (Number(item.stock) * Number(item.sell_price));
-                        if (item.stock <= 10) lowStock++;
-
-                        return `
-                        <tr onclick="viewProduct(${item.id})" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                    <div style="width: 32px; height: 32px; background: #333; border-radius: 4px; overflow: hidden;">
-                                         <img src="${item.image || 'https://via.placeholder.com/32'}" style="width: 100%; height: 100%; object-fit: cover;">
-                                    </div>
-                                    <div>
-                                        <span style="font-weight: 500;">${item.name}</span>
-                                        <span style="display: block; font-size: 10px; color: var(--text-muted);">${item.category || 'General'}</span>
-                                    </div>
+                return `
+                    <tr onclick="openModal(${item.id})" class="group hover:bg-white/[0.02] cursor-pointer transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 group-hover:border-indigo-500/30 transition-colors">
+                                    <img src="${item.image || 'https://via.placeholder.com/40'}" class="w-full h-full object-cover">
                                 </div>
-                            </td>
-                            <td>${item.stock} Units</td>
-                            <td>${App.formatCurrency(item.buy_price)}</td>
-                            <td>${App.formatCurrency(item.sell_price)}</td>
-                            <td>
-                                ${item.stock > 10
-                                ? '<span class="status-badge status-success">In Stock</span>'
-                                : '<span class="status-badge status-warning">Low Stock</span>'}
-                            </td>
-                        </tr>
-                    `}).join('');
-                }
+                                <div>
+                                    <p class="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">${item.name}</p>
+                                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">${item.category || 'General'}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-sm font-medium text-gray-300">${item.stock} Units</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-0.5">
+                                <p class="text-xs font-semibold text-white">${App.formatCurrency(item.sell_price)}</p>
+                                <p class="text-[10px] text-gray-600">Cost: ${App.formatCurrency(item.buy_price)}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isLow ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'}">
+                                ${isLow ? 'Low Stock' : 'In Stock'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
 
-                // Update Stats
-                document.getElementById('inv-total').textContent = inventoryData.length;
-                document.getElementById('inv-value').textContent = App.formatCurrency(totalVal);
-                document.getElementById('inv-low').textContent = lowStock;
-            };
+            document.getElementById('inv-total').textContent = inventoryData.length;
+            document.getElementById('inv-value').textContent = App.formatCurrency(totalVal);
+            document.getElementById('inv-low').textContent = lowStock;
+        } catch (err) {
+            console.error(err);
+            document.getElementById('inventory-list').innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-red-400 text-sm">Failed to load inventory.</td></tr>';
+        }
+    };
 
-            window.viewProduct = (id) => {
-                const item = inventoryData.find(i => i.id == id);
-                if (item) {
-                    document.getElementById('modal-img').src = item.image || 'https://via.placeholder.com/400x200?text=No+Image';
-                    document.getElementById('modal-title').textContent = item.name;
-                    document.getElementById('modal-category').textContent = item.category || 'General';
-                    document.getElementById('modal-buy').textContent = App.formatCurrency(item.buy_price);
-                    document.getElementById('modal-sell').textContent = App.formatCurrency(item.sell_price);
-                    document.getElementById('modal-desc').textContent = item.description || 'No detailed description available for this product.';
-                    document.getElementById('modal-stock').textContent = item.stock + ' Units Available';
-
-                    const modal = document.getElementById('productModal');
-                    modal.style.display = 'flex';
-
-                    // Close on outside click
-                    modal.onclick = (e) => {
-                        if (e.target === modal) modal.style.display = 'none';
-                    }
-                }
-            };
-
-            // Add Product
-            document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const fd = new FormData(e.target);
-                try {
-                    await DB.apiCall('/staff/inventory/', 'POST', {
-                        name: fd.get('name'),
-                        category: fd.get('cat'),
-                        stock: fd.get('stock'),
-                        buy_price: fd.get('bp'),
-                        sell_price: fd.get('sp'),
-                        description: fd.get('desc')
-                    });
-                    document.getElementById('addProductFormContainer').classList.add('hidden');
-                    e.target.reset();
-                    await renderInventory();
-                    alert('Product added successfully!');
-                } catch (err) {
-                    alert(err.message);
-                }
+    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+        const fd = new FormData(e.target);
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" class="mr-2"></iconify-icon> Saving...';
+            
+            await DB.apiCall('/staff/inventory/', 'POST', {
+                name: fd.get('name'),
+                category: fd.get('cat'),
+                stock: fd.get('stock'),
+                buy_price: fd.get('bp'),
+                sell_price: fd.get('sp'),
+                description: fd.get('desc')
             });
-
+            
+            toggleAddForm();
+            e.target.reset();
             await renderInventory();
-        });
-    </script>
-</body>
+            alert('Product added successfully!');
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    });
 
-</html>
-</body>
-
-</html>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!App.checkAuth()) {
+            window.location.href = '{% url "login" %}';
+            return;
+        }
+        renderInventory();
+    });
+</script>
+{% endblock %}
