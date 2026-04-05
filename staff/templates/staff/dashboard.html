@@ -1,222 +1,218 @@
+{% extends "base_dashboard.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - Smart Seller</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+{% block title %}Operations Dashboard - SmartSeller{% endblock %}
+{% block portal_name %}Staff Portal{% endblock %}
+{% block page_title %}Daily Operations{% endblock %}
 
-<body class="dashboard-body">
+{% block sidebar_nav %}
+<a href="{% url 'staff-dashboard' %}" class="nav-item active">
+    <iconify-icon icon="solar:widget-linear" width="20"></iconify-icon> Operations
+</a>
+<a href="{% url 'staff-inventory' %}" class="nav-item">
+    <iconify-icon icon="solar:box-minimalistic-linear" width="20"></iconify-icon> Inventory
+</a>
+<a href="{% url 'staff-orders' %}" class="nav-item">
+    <iconify-icon icon="solar:bag-check-linear" width="20"></iconify-icon> Orders
+</a>
+<a href="{% url 'staff-tasks' %}" class="nav-item">
+    <iconify-icon icon="solar:checklist-minimalistic-linear" width="20"></iconify-icon> Tasks
+</a>
+<a href="{% url 'staff-messages' %}" class="nav-item">
+    <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+</a>
+<a href="{% url 'staff-reports' %}" class="nav-item">
+    <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> My Reports
+</a>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div
-                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
-                S</div>
-            <span style="font-weight: 500;">Staff Portal</span>
+{% block content %}
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="glass-card p-6 rounded-2xl">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">Sales Today</p>
+        <p class="text-3xl font-semibold text-white tracking-tight" id="stat-sales-today">৳0</p>
+        <div class="mt-4 flex items-center gap-2 text-emerald-400 text-xs font-medium">
+            <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon>
+            <span>+12% vs yesterday</span>
         </div>
+    </div>
+    <div class="glass-card p-6 rounded-2xl">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">New Orders</p>
+        <p class="text-3xl font-semibold text-white tracking-tight" id="stat-orders-new">0</p>
+        <p class="mt-4 text-xs text-gray-600">Pending processing</p>
+    </div>
+    <div class="glass-card p-6 rounded-2xl border-l-4 border-l-indigo-500">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">Monthly Goal (৳50k)</p>
+        <div class="flex items-end justify-between mb-4">
+            <p class="text-2xl font-semibold text-white" id="stat-monthly-val">৳0</p>
+            <span class="text-xs font-bold text-indigo-400" id="stat-monthly-perc">0%</span>
+        </div>
+        <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div id="stat-monthly-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-1000" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
 
-        <nav class="sidebar-nav">
-            <a href="{% url 'staff-dashboard' %}" class="nav-item active">
-                <iconify-icon icon="solar:widget-linear"></iconify-icon> Operations
-            </a>
-            <a href="{% url 'staff-inventory' %}" class="nav-item">
-                <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon> Inventory
-            </a>
-            <a href="{% url 'staff-orders' %}" class="nav-item">
-                <iconify-icon icon="solar:bag-check-linear"></iconify-icon> Orders
-            </a>
-            <a href="{% url 'staff-tasks' %}" class="nav-item">
-                <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
-            </a>
-            <a href="{% url 'staff-messages' %}" class="nav-item">
-                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
-            </a>
-            <a href="{% url 'staff-reports' %}" class="nav-item">
-                <iconify-icon icon="solar:file-text-linear"></iconify-icon> My Reports
-            </a>
-            <a href="#" class="nav-item" onclick="alert('No new notifications');">
-                <iconify-icon icon="solar:bell-linear"></iconify-icon> Notifications <span
-                    style="background: var(--primary); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; margin-left: auto;">2</span>
-            </a>
-        </nav>
+<!-- Performance Chart -->
+<div class="glass-card p-8 rounded-2xl mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-base font-semibold text-white">Performance Overview</h3>
+        <select class="bg-white/5 border border-white/10 text-xs text-gray-400 rounded-lg px-3 py-1.5 outline-none">
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+        </select>
+    </div>
+    <div class="h-[300px] w-full">
+        <canvas id="staffChart"></canvas>
+    </div>
+</div>
 
-        <div class="user-profile">
-            <a href="{% url 'profile' %}"
-                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
-                <div class="avatar" style="background: var(--accent-purple);">S</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Record Sale Form -->
+    <div class="glass-card p-8 rounded-2xl">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center">
+                <iconify-icon icon="solar:wad-of-money-linear" width="24"></iconify-icon>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Record New Sale</h3>
+        </div>
+        <form id="recordSaleForm" onsubmit="handleSaleSubmit(event)" class="space-y-5">
+            <div>
+                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Product Name</label>
+                <input type="text" name="product" placeholder="e.g. Wireless Mouse" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <p class="text-sm text-white" id="user-name">Staff</p>
-                    <p class="text-xs text-muted" id="user-role">Operations</p>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Amount (৳)</label>
+                    <input type="number" name="amount" placeholder="0.00" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
                 </div>
-            </a>
-            <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
-                <iconify-icon icon="solar:logout-linear"></iconify-icon>
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Platform</label>
+                    <select name="platform" class="input-glass w-full px-4 py-3 rounded-xl text-sm bg-neutral-900">
+                        <option value="Daraz">Daraz</option>
+                        <option value="CartUp">CartUp</option>
+                        <option value="Offline">Offline/Direct</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Note (Optional)</label>
+                <textarea name="note" rows="2" class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="Add additional details..."></textarea>
+            </div>
+            <button type="submit" class="w-full py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all active:scale-[0.98]">
+                Record Sale
             </button>
+        </form>
+    </div>
+
+    <!-- Submit Expense Form -->
+    <div class="glass-card p-8 rounded-2xl">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-indigo-500/10 text-indigo-500 rounded-xl flex items-center justify-center">
+                <iconify-icon icon="solar:bill-list-linear" width="24"></iconify-icon>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Submit Expense</h3>
         </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">Daily Operations</h1>
-        </header>
-
-        <!-- Stats Overview for Staff -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stat-card">
-                <span class="stat-label">Sales Recorded Today</span>
-                <span class="stat-value" id="stat-sales-today">৳0</span>
+        <form id="recordExpenseForm" onsubmit="handleExpenseSubmit(event)" class="space-y-5">
+            <div>
+                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Description</label>
+                <input type="text" name="description" placeholder="e.g. Courier Charges" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
             </div>
-            <div class="stat-card">
-                <span class="stat-label">New Orders</span>
-                <span class="stat-value" id="stat-orders-new">0</span>
-            </div>
-            <!-- Gamification: Monthly Goal -->
-            <div class="stat-card" style="position: relative; overflow: hidden;">
-                <span class="stat-label">Monthly Goal (৳50k)</span>
-                <div class="flex items-end justify-between">
-                    <span class="stat-value" id="stat-monthly-val" style="font-size: 1.5rem;">৳0</span>
-                    <span id="stat-monthly-perc" style="font-size: 0.75rem; color: var(--secondary);">0%</span>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Cost (৳)</label>
+                    <input type="number" name="amount" placeholder="0.00" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
                 </div>
-                <!-- Progress Bar -->
-                <div
-                    style="width: 100%; height: 6px; background: var(--glass-border); border-radius: 99px; margin-top: 0.5rem;">
-                    <div id="stat-monthly-bar" style="width: 0%; height: 100%; background: var(--secondary); border-radius: 99px;"></div>
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Category</label>
+                    <select name="category" class="input-glass w-full px-4 py-3 rounded-xl text-sm bg-neutral-900">
+                        <option value="Ops">Operations</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Logistics">Logistics</option>
+                    </select>
                 </div>
             </div>
-        </div>
-
-        <!-- Analytics Chart -->
-        <div class="dashboard-form-card mb-8">
-            <h3 style="margin-bottom: 1rem;">My Performance Trend</h3>
-            <div style="position: relative; height: 250px; width: 100%;">
-                <canvas id="staffChart"></canvas>
+            <div>
+                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Receipt (Optional)</label>
+                <div class="relative group">
+                    <input type="file" name="attachment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="input-glass w-full px-4 py-3 rounded-xl text-sm flex items-center gap-2 text-gray-500 group-hover:bg-white/5 transition-colors">
+                        <iconify-icon icon="solar:upload-linear" width="18"></iconify-icon>
+                        <span id="file-name">Upload image or PDF</span>
+                    </div>
+                </div>
             </div>
-        </div>
+            <button type="submit" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20">
+                Submit for Approval
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- New Sale Form -->
-            <div class="dashboard-form-card">
-                <h3 style="margin-bottom: 1rem;">Record New Sale</h3>
-                <form id="recordSaleForm" onsubmit="handleSaleSubmit(event)">
-                    <div style="margin-bottom: 1rem;">
-                        <label>Product Name</label>
-                        <input type="text" name="product" placeholder="e.g. Wireless Mouse" required>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                        <div>
-                            <label>Amount (৳)</label>
-                            <input type="number" name="amount" placeholder="0.00" required>
-                        </div>
-                        <div>
-                            <label>Platform</label>
-                            <select name="platform">
-                                <option value="Daraz">Daraz</option>
-                                <option value="CartUp">CartUp</option>
-                                <option value="Offline">Offline/Direct</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label>Note (Optional)</label>
-                        <textarea name="note" placeholder="Add any additional details..." rows="2"
-                            style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: white; padding: 0.5rem; border-radius: 6px;"></textarea>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label>Attachment (Invoice/Receipt)</label>
-                        <input type="file" name="attachment" style="padding-top: 0.5rem; color: var(--text-muted);">
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Record Sale</button>
-                </form>
-            </div>
-
-            <!-- Expense Entry -->
-            <div class="dashboard-form-card">
-                <h3 style="margin-bottom: 1rem;">Submit Expense</h3>
-                <form id="recordExpenseForm" onsubmit="handleExpenseSubmit(event)">
-                    <div style="margin-bottom: 1rem;">
-                        <label>Description</label>
-                        <input type="text" name="description" placeholder="e.g. Packaging Material" required>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                        <div>
-                            <label>Cost (৳)</label>
-                            <input type="number" name="amount" placeholder="0.00" required>
-                        </div>
-                        <div>
-                            <label>Category</label>
-                            <select name="category">
-                                <option value="Ops">Operations</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Logistics">Logistics</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label>Note (Optional)</label>
-                        <textarea name="note" placeholder="Add any additional details..." rows="2"
-                            style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: white; padding: 0.5rem; border-radius: 6px;"></textarea>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label>Document (Proof of Cost)</label>
-                        <input type="file" name="attachment" style="padding-top: 0.5rem; color: var(--text-muted);">
-                    </div>
-                    <button type="submit" class="btn btn-outline" style="width: 100%;">Submit Expense</button>
-                </form>
-            </div>
-        </div>
-
-    </main>
-
-    <script src="{% static 'js/data-manager.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script src="{% static 'js/dashboard.js' %}"></script>
-    <script>
-        // Staff specific handlers
-        async function handleSaleSubmit(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            try {
-                await DB.addOrder({
-                    product_name: formData.get('product'),
-                    total_amount: formData.get('amount'),
-                    platform: formData.get('platform'),
-                    description: formData.get('note'),
-                    type: 'sale',
-                    status: 'pending'
-                });
-                alert('Sale recorded successfully!');
-                window.location.reload();
-            } catch (err) { alert(err.message); }
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+    // Staff specific handlers
+    async function handleSaleSubmit(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const originalText = btn.textContent;
+        const formData = new FormData(e.target);
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" class="inline-block mr-2"></iconify-icon> Recording...';
+            
+            await DB.addOrder({
+                product_name: formData.get('product'),
+                total_amount: formData.get('amount'),
+                platform: formData.get('platform'),
+                description: formData.get('note'),
+                type: 'sale',
+                status: 'pending'
+            });
+            
+            alert('Sale recorded successfully!');
+            window.location.reload();
+        } catch (err) { 
+            alert(err.message); 
+            btn.disabled = false;
+            btn.textContent = originalText;
         }
+    }
 
-        async function handleExpenseSubmit(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            try {
-                await DB.apiCall('/staff/expenses/', 'POST', {
-                    description: formData.get('description'),
-                    amount: formData.get('amount'),
-                    category: formData.get('category'),
-                    note: formData.get('note')
-                });
-                alert('Expense submitted successfully!');
-                window.location.reload();
-            } catch (err) { alert(err.message); }
+    async function handleExpenseSubmit(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const originalText = btn.textContent;
+        const formData = new FormData(e.target);
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" class="inline-block mr-2"></iconify-icon> Submitting...';
+            
+            await DB.apiCall('/staff/expenses/', 'POST', {
+                description: formData.get('description'),
+                amount: formData.get('amount'),
+                category: formData.get('category'),
+                note: formData.get('note')
+            });
+            
+            alert('Expense submitted successfully!');
+            window.location.reload();
+        } catch (err) { 
+            alert(err.message); 
+            btn.disabled = false;
+            btn.textContent = originalText;
         }
-    </script>
-</body>
+    }
 
-</html>
-
-</html>
+    // Handle file name display
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : 'Upload image or PDF';
+        document.getElementById('file-name').textContent = fileName;
+    });
+</script>
+{% endblock %}
