@@ -1,234 +1,225 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base_dashboard.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Reports - Investor</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-</head>
+{% block title %}Financial Statements - SmartSeller{% endblock %}
+{% block portal_name %}Investor View{% endblock %}
+{% block page_title %}Financial Reporting{% endblock %}
 
-<body class="dashboard-body">
+{% block sidebar_nav %}
+<a href="{% url 'investor-dashboard-page' %}" class="nav-item">
+    <iconify-icon icon="solar:pie-chart-2-linear" width="20"></iconify-icon> Portfolio
+</a>
+<a href="{% url 'investor-agreements-page' %}" class="nav-item">
+    <iconify-icon icon="solar:document-text-linear" width="20"></iconify-icon> Agreements
+</a>
+<a href="{% url 'investor-invest' %}" class="nav-item">
+    <iconify-icon icon="solar:wallet-money-linear" width="20"></iconify-icon> Invest
+</a>
+<a href="{% url 'investor-reports-page' %}" class="nav-item active">
+    <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> Reports
+</a>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div
-                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--secondary), var(--primary)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
-                I</div>
-            <span style="font-weight: 500;">Investor View</span>
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <!-- ROI Summary -->
+    <div class="glass-card p-8 rounded-3xl border-t-4 border-t-indigo-500 bg-indigo-500/[0.02]">
+        <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <iconify-icon icon="solar:chart-2-linear" class="text-indigo-400"></iconify-icon>
+            ROI Analysis
+        </h3>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Principal</span>
+                <span class="text-sm font-black text-white" id="rep-total-invested">৳0.00</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">Current Portfolio Value</span>
+                <span class="text-sm font-black text-white" id="rep-current-val">৳0.00</span>
+            </div>
+            <div class="flex justify-between items-center pt-4">
+                <span class="text-sm font-bold text-white">Net Unrealized Return</span>
+                <span class="text-xl font-black text-indigo-400" id="rep-net-return">+0.0%</span>
+            </div>
         </div>
-        <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item"><iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon>
-                Portfolio</a>
-            <a href="{% url 'investor-agreements-page' %}" class="nav-item"><iconify-icon icon="solar:document-text-linear"></iconify-icon>
-                Agreements</a>
-            <a href="invest.html" class="nav-item"><iconify-icon icon="solar:wallet-money-linear"></iconify-icon>
-                Invest</a>
-            <a href="reports.html" class="nav-item active"><iconify-icon icon="solar:file-text-linear"></iconify-icon>
-                Reports</a>
-        </nav>
-        <div class="user-profile">
-            <a href="../../pages/profile.html"
-                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
-                <div class="avatar" style="background: var(--secondary);">I</div>
+    </div>
+
+    <!-- Payout Schedule -->
+    <div class="glass-card p-8 rounded-3xl">
+        <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <iconify-icon icon="solar:calendar-date-linear" class="text-emerald-400"></iconify-icon>
+            Dividend Cycle
+        </h3>
+        <div class="space-y-6">
+            <div class="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
                 <div>
-                    <p class="text-sm text-white">Investor</p>
-                    <p class="text-xs text-muted">Shareholder</p>
+                    <p class="text-xs font-bold text-white mb-1">Q1 2026 Distribution</p>
+                    <p class="text-[10px] text-gray-500 uppercase">Settled on Mar 15, 2026</p>
                 </div>
-            </a>
-            <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
-                    icon="solar:logout-linear"></iconify-icon></button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">Financial Statements</h1>
-            <div class="flex gap-4">
-                <button class="btn btn-outline" onclick="window.print()">Download Statement</button>
+                <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Paid</span>
             </div>
-        </header>
-
-        <!-- ROI Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="glass-card p-6" style="border-top: 4px solid var(--secondary);">
-                <h3 style="margin-bottom: 1rem;">ROI Analysis</h3>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span class="text-muted">Total Investment</span>
-                    <span class="text-white font-medium">৳50,000.00</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span class="text-muted">Current Value</span>
-                    <span class="text-white font-medium">৳62,450.00</span>
-                </div>
-                <div
-                    style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">
-                    <span class="text-white">Net Return</span>
-                    <span class="text-secondary font-bold">+24.9%</span>
-                </div>
-            </div>
-
-            <div class="glass-card p-6">
-                <h3 style="margin-bottom: 1rem;">Payout Schedule</h3>
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                    <div>
-                        <p class="text-sm text-white font-medium">Q1 2024 Dividend</p>
-                        <p class="text-xs text-muted">Paid on Jan 15, 2024</p>
-                    </div>
-                    <span class="status-badge status-success">Paid</span>
-                </div>
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div>
-                        <p class="text-sm text-white font-medium">Q2 2024 Dividend</p>
-                        <p class="text-xs text-muted">Expected Apr 15, 2024</p>
-                    </div>
-                    <span class="status-badge"
-                        style="background: rgba(255,255,255,0.1); color: var(--text-muted);">Upcoming</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ROI Calculator -->
-        <div class="dashboard-form-card mb-8">
-            <h3 style="margin-bottom: 1rem;">Future Return Projector</h3>
-            <p class="text-sm text-muted mb-4">Estimate your future returns based on different company growth scenarios.
-            </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex items-center justify-between p-4 bg-white/[0.01] border border-white/5 rounded-2xl opacity-60">
                 <div>
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Projected
-                            Monthly Growth Rate</label>
-                        <input type="range" min="1" max="20" value="5" id="growthRate"
-                            style="width: 100%; accent-color: var(--secondary);"
-                            oninput="document.getElementById('growthVal').textContent = this.value + '%'">
-                        <div class="flex justify-between text-xs text-muted mt-1">
-                            <span>Conservative (1%)</span>
-                            <span id="growthVal" class="text-white font-bold">5%</span>
-                            <span>Aggressive (20%)</span>
-                        </div>
-                    </div>
+                    <p class="text-xs font-bold text-white mb-1">Q2 2026 Distribution</p>
+                    <p class="text-[10px] text-gray-500 uppercase">Expected Jun 15, 2026</p>
                 </div>
+                <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/5 text-gray-500 border border-white/5">Upcoming</span>
+            </div>
+        </div>
+    </div>
+</div>
 
-                <div class="glass-card p-4 text-center">
-                    <span class="text-sm text-muted block">Projected Annual Dividend</span>
-                    <span class="text-2xl font-bold text-secondary" id="projectedReturn">৳18,450</span>
-                    <p class="text-xs text-muted mt-2">*Based on current equity (40%) and selected growth.</p>
+<!-- ROI Calculator -->
+<div class="glass-card p-8 rounded-3xl mb-8 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+    <div class="relative z-10 flex flex-col md:flex-row gap-12 items-center">
+        <div class="flex-1 space-y-6">
+            <div>
+                <h3 class="text-xl font-bold text-white mb-2">Growth Scenario Projector</h3>
+                <p class="text-xs text-gray-500 leading-relaxed max-w-md">Simulate your future dividends based on company growth rate. This is an estimate and not a guarantee of performance.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="flex justify-between items-end">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Growth Multiplier</label>
+                    <span id="growthVal" class="text-2xl font-black text-indigo-400">5%</span>
+                </div>
+                <input type="range" min="1" max="50" value="5" id="growthRate" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                <div class="flex justify-between text-[8px] font-bold text-gray-600 uppercase tracking-widest">
+                    <span>Defensive (1%)</span>
+                    <span>Aggressive (50%)</span>
                 </div>
             </div>
         </div>
-
-        <div class="dashboard-form-card">
-            <h3 style="margin-bottom: 1.5rem;">Profit & Loss Detail</h3>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Transaction</th>
-                        <th>Type</th>
-                        <th>Gross Amount</th>
-                        <th>Your Share (40%)</th>
-                    </tr>
-                </thead>
-                <tbody id="investor-report-list">
-                    <!-- JS Populated -->
-                </tbody>
-            </table>
+        
+        <div class="w-full md:w-80 p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-center shadow-2xl relative">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-indigo-500/20">Estimated Yield</div>
+            <p class="text-[10px] text-gray-500 uppercase font-bold mt-2">Annual Dividend Estimate</p>
+            <p class="text-3xl font-black text-white mt-4 tracking-tighter" id="projectedReturn">৳0.00</p>
+            <div class="mt-8 pt-6 border-t border-white/5 flex items-center justify-center gap-2">
+                <iconify-icon icon="solar:shield-check-linear" class="text-indigo-400" width="16"></iconify-icon>
+                <span class="text-[9px] text-gray-600 uppercase font-bold tracking-widest">Calculated per Equity Share</span>
+            </div>
         </div>
+    </div>
+</div>
 
-    </main>
+<!-- Detailed Log -->
+<div class="glass-card rounded-3xl overflow-hidden">
+    <div class="px-8 py-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Profit & Loss Detailed Audit</h3>
+        <button onclick="window.print()" class="px-4 py-2 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-white/5 transition-all">Export Statement</button>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-white/[0.01]">
+                    <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Event Date</th>
+                    <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Entity Description</th>
+                    <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Gross Movement</th>
+                    <th class="px-8 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">Attributed Share</th>
+                </tr>
+            </thead>
+            <tbody id="investor-report-list" class="divide-y divide-white/5">
+                <!-- JS Populated -->
+                 <tr>
+                    <td colspan="4" class="px-8 py-12 text-center text-gray-500 text-xs italic italic">
+                        <iconify-icon icon="line-md:loading-loop" width="24" class="mb-2 block mx-auto"></iconify-icon>
+                        Reconciling global ledger...
+                    </td>
+                 </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
 
-    <script src="../../js/data-manager.js"></script>
-    <script src="../../js/main.js"></script>
-    <script src="../../js/dashboard.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check Auth
-            const user = App.checkAuth();
-            if (!user) {
-                window.location.href = '../login.html';
-                return;
-            }
-            // Set Name
-            const userNameEl = document.getElementById('user-name');
-            if (userNameEl) userNameEl.textContent = user.name;
+{% block extra_js %}
+<script>
+    let equityStake = 0;
 
+    const renderReports = async () => {
+        try {
+            const data = await DB.getInvestorDashboard();
+            equityStake = (data.portfolio.equity_percent || 0) / 100;
+            
+            // Stats from dashboard data
+            document.getElementById('rep-total-invested').textContent = App.formatCurrency(data.portfolio.total_invested);
+            document.getElementById('rep-current-val').textContent = App.formatCurrency(data.portfolio.total_invested * 1.25); // Mocked growth
+            document.getElementById('rep-net-return').textContent = '+25.0%';
+
+            // Detailed Log
+            const [ordersData, expenseData] = await Promise.all([
+                DB.getOrders(),
+                DB.getExpenses()
+            ]);
+
+            const orders = (Array.isArray(ordersData) ? ordersData : (ordersData.results || []))
+                .filter(o => o.status !== 'cancelled')
+                .map(o => ({ date: o.created_at, type: 'sale', label: `Order #SEC-${o.id}`, amount: o.total_amount }));
+
+            const expenses = (Array.isArray(expenseData) ? expenseData : (expenseData.results || []))
+                .map(e => ({ date: e.created_at, type: 'expense', label: e.description || e.category, amount: e.amount }));
+
+            const allRecords = [...orders, ...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
             const tbody = document.getElementById('investor-report-list');
 
-            // Get Merged Data
-            const transactions = DB.getTransactions();
-            const orders = DB.getOrders();
+            if (allRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-12 text-center text-gray-600 text-xs italic">No financial movements recorded in the audit period.</td></tr>`;
+                return;
+            }
 
-            const allRecords = [
-                ...orders.filter(o => o.status !== 'cancelled').map(o => ({
-                    date: o.date,
-                    type: 'sale',
-                    description: `Order #${o.id} - ${o.product}`,
-                    amount: o.amount,
-                    id: o.id
-                })),
-                ...transactions.filter(t => t.type === 'expense').map(t => ({
-                    date: t.date,
-                    type: 'expense',
-                    description: t.note || t.category || 'Expense',
-                    amount: t.amount,
-                    id: t.id
-                })),
-                ...transactions.filter(t => t.type === 'profit_share').map(t => ({
-                    date: t.date,
-                    type: 'payout',
-                    description: 'Profit Distribution',
-                    amount: t.amount,
-                    id: t.id
-                }))
-            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+            tbody.innerHTML = allRecords.map(r => {
+                const isSale = r.type === 'sale';
+                const shareAmount = isSale ? (r.amount * 0.3 * equityStake) : (r.amount * equityStake);
 
-
-            if (tbody) {
-                tbody.innerHTML = allRecords.map(r => {
-                    let shareEffect = 0;
-                    if (r.type === 'sale') shareEffect = (r.amount * 0.3 * 0.4);
-                    else if (r.type === 'expense') shareEffect = -(r.amount * 0.4);
-
-                    const isPositive = r.type === 'sale';
-                    const isPayout = r.type === 'payout';
-
-                    return `
-                    <tr>
-                        <td>${r.date}</td>
-                        <td>${r.description}</td>
-                        <td style="text-transform: capitalize;">${r.type}</td>
-                        <td style="color: ${isPositive ? '#4ade80' : (isPayout ? '#60a5fa' : '#f87171')};">
-                           ${isPositive ? '+' : (isPayout ? '' : '-')} ${App.formatCurrency(r.amount)}
+                return `
+                    <tr class="hover:bg-white/[0.01] transition-colors group">
+                        <td class="px-8 py-5">
+                            <p class="text-xs text-gray-400 font-bold">${new Date(r.date).toLocaleDateString()}</p>
                         </td>
-                        <td style="font-family: monospace; color: ${shareEffect > 0 ? 'var(--secondary)' : '#9ca3af'};">
-                           ${isPayout ? '-' : (shareEffect > 0 ? '+' : '') + App.formatCurrency(shareEffect)}
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full ${isSale ? 'bg-emerald-500' : 'bg-red-500'}"></span>
+                                <p class="text-xs font-semibold text-white group-hover:text-indigo-400 transition-colors uppercase tracking-tight">${r.label}</p>
+                            </div>
+                            <p class="text-[9px] text-gray-600 font-bold uppercase mt-1">${r.type}</p>
+                        </td>
+                        <td class="px-8 py-5">
+                            <p class="text-xs font-bold ${isSale ? 'text-emerald-500/60' : 'text-red-500/60'}">
+                                ${isSale ? '+' : '-'} ${App.formatCurrency(r.amount)}
+                            </p>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <p class="text-sm font-black ${isSale ? 'text-indigo-400' : 'text-gray-500'}">
+                                ${isSale ? '+' : '-'} ${App.formatCurrency(shareAmount)}
+                            </p>
                         </td>
                     </tr>
-                `}).join('');
-            }
+                `;
+            }).join('');
 
-            // ROI Calculator Logic
-            const growthInput = document.getElementById('growthRate');
-            const projOutput = document.getElementById('projectedReturn');
+            // Initial Calculator update
+            updateProjector(5);
 
-            if (growthInput && projOutput) {
-                growthInput.addEventListener('input', (e) => {
-                    const rate = Number(e.target.value) / 100;
-                    const baseMonthlyProfit = 2500;
-                    const annual = baseMonthlyProfit * 12 * (1 + rate);
-                    const share = annual * 0.40;
-                    projOutput.textContent = App.formatCurrency(share);
-                });
-            }
-        });
-    </script>
-</body>
+        } catch (err) { console.error(err); }
+    };
 
-</html>
+    const updateProjector = (rate) => {
+        const growthRate = rate / 100;
+        const baseMonthlyProfit = 50000; // Mocked company monthly profit
+        const annual = baseMonthlyProfit * 12 * (1 + growthRate);
+        const share = annual * equityStake;
+        document.getElementById('projectedReturn').textContent = App.formatCurrency(share);
+        document.getElementById('growthVal').textContent = rate + '%';
+    };
+
+    document.getElementById('growthRate')?.addEventListener('input', (e) => {
+        updateProjector(Number(e.target.value));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!App.checkAuth()) { window.location.href = '{% url "login" %}'; return; }
+        renderReports();
+    });
+</script>
+{% endblock %}
