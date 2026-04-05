@@ -7,11 +7,28 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.contrib.auth import authenticate
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 
 from api.models import User
 from admin_panel.api.serializers.user_serializers import (
     UserRegisterSerializer, UserLoginSerializer, UserProfileSerializer
 )
+
+
+def send_verification_email(user):
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    link = f"{settings.SITE_URL}/api/v1/auth/verify-email/{uid}/{token}/"
+    
+    subject = "Verify your SmartSeller Account"
+    message = f"Hi {user.name},\n\nPlease verify your email by clicking the link below:\n{link}\n\nAfter verification, an admin will review and approve your account."
+    
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+    return link
 
 
 class RegisterView(APIView):
@@ -22,16 +39,48 @@ class RegisterView(APIView):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'message': 'Registration successful.',
-                'user': UserProfileSerializer(user).data,
-                'tokens': {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
+            # Set unverified and unapproved
+            user.is_email_verified = False
+            user.is_approved = False
+            user.save()
+            
+            try:
+                link = send_verification_email(user)
+                response_data = {
+                    'message': 'Registration successful. Please check your email for verification.',
+                    'user': UserProfileSerializer(user).data,
+                    'verification_required': True
                 }
-            }, status=status.HTTP_201_CREATED)
+                if settings.DEBUG:
+                    response_data['debug_verification_link'] = link
+                
+                return Response(response_data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({
+                    'message': 'Registration successful but failed to send email.',
+                    'error': str(e),
+                    'verification_required': True
+                }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyEmailView(APIView):
+    """GET /api/v1/auth/verify-email/<uidb64>/<token>/ – Verify user email."""
+    permission_classes = [AllowAny]
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            user.is_email_verified = True
+            user.save()
+            # Redirect to login page in a real app, here we return JSON
+            return Response({'message': 'Email verified successfully. Please wait for admin approval.'})
+        return Response({'error': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
@@ -44,16 +93,29 @@ class LoginView(APIView):
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
             user = authenticate(request, username=email, password=password)
-            if user and user.is_active:
-                refresh = RefreshToken.for_user(user)
-                return Response({
-                    'message': 'Login successful.',
-                    'user': UserProfileSerializer(user).data,
-                    'tokens': {
-                        'refresh': str(refresh),
-                        'access': str(refresh.access_token),
-                    }
-                })
+            
+            if user:
+                if not user.is_email_verified:
+                    return Response(
+                        {'error': 'Email not verified. Please check your inbox.'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+                if not user.is_approved:
+                    return Response(
+                        {'error': 'Account pending admin approval.'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+                
+                if user.is_active:
+                    refresh = RefreshToken.for_user(user)
+                    return Response({
+                        'message': 'Login successful.',
+                        'user': UserProfileSerializer(user).data,
+                        'tokens': {
+                            'refresh': str(refresh),
+                            'access': str(refresh.access_token),
+                        }
+                    })
             return Response(
                 {'error': 'Invalid email or password.'},
                 status=status.HTTP_401_UNAUTHORIZED
