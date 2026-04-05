@@ -51,6 +51,8 @@ class User(AbstractUser):
         help_text="Investor's equity percentage (e.g. 40.00)"
     )
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    is_email_verified = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
