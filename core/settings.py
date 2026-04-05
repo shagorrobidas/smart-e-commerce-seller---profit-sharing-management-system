@@ -134,3 +134,17 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5500',
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+# ─── Email Configuration ──────────────────────────────────────────────────────
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@smartseller.sys'
+
+EMAIL_HOST_USER='shagorrobidasjvai@gmail.com'
+EMAIL_HOST_PASSWORD='gqsr mpuj jhhr riur'
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+
+# ─── Site Configuration ───────────────────────────────────────────────────────
+SITE_URL = 'http://127.0.0.1:8000'
+
