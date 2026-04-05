@@ -62,13 +62,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    localStorage.setItem('smartEcoTokens', JSON.stringify(data.tokens));
-                    localStorage.setItem('smartEcoUser', JSON.stringify(data.user));
-                    alert('Registration Successful!');
-                    window.location.href = `/${data.user.role}/dashboard/`;
+                    // Registration Successful -> Show Modal
+                    if (window.showSuccessModal) {
+                        window.showSuccessModal(data.message, data.debug_verification_link);
+                    } else {
+                        alert('Registration Successful! Please check your email for verification.');
+                        window.location.href = '/login/';
+                    }
                 } else {
                     const error = await response.json();
-                    alert(JSON.stringify(error));
+                    const msg = error.error || (typeof error === 'object' ? JSON.stringify(error) : error);
+                    if (window.showErrorModal) {
+                        window.showErrorModal(msg);
+                    } else {
+                        alert(msg);
+                    }
                 }
             } catch (err) {
                 console.error('Registration Error:', err);
