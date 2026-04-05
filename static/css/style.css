@@ -11,20 +11,14 @@
     --secondary: #10b981;
     /* Emerald 500 */
     --accent-purple: #a855f7;
+    
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.08);
     --input-bg: rgba(255, 255, 255, 0.05);
-    /* Added for input backgrounds */
 
     --card-bg: #0a0a0a;
     --sidebar-bg: rgba(10, 10, 10, 0.95);
     --hover-bg: rgba(255, 255, 255, 0.05);
-
-
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --input-bg: rgba(255, 255, 255, 0.05);
-    /* Added for input backgrounds */
 
     /* Spacing & Layout */
     --container-width: 1280px;
