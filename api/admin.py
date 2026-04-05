@@ -19,8 +19,8 @@ class BusinessAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('email', 'name', 'role', 'company', 'balance', 'is_active', 'date_joined')
-    list_filter = ('role', 'is_active', 'date_joined')
+    list_display = ('email', 'name', 'role', 'is_email_verified', 'is_approved', 'is_active', 'date_joined')
+    list_filter = ('role', 'is_email_verified', 'is_approved', 'is_active', 'date_joined')
     search_fields = ('email', 'name', 'company')
     ordering = ('-date_joined',)
     readonly_fields = ('date_joined', 'last_login')
@@ -29,7 +29,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('email', 'password')}),
         ('Personal Info', {'fields': ('name', 'avatar', 'company')}),
         ('Role & Finance', {'fields': ('role', 'balance', 'equity_percent')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Permissions', {'fields': ('is_email_verified', 'is_approved', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
@@ -38,6 +38,12 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'name', 'role', 'password1', 'password2'),
         }),
     )
+
+    def approve_users(self, request, queryset):
+        queryset.update(is_approved=True)
+    approve_users.short_description = "Approve selected users"
+
+    actions = BaseUserAdmin.actions + ['approve_users'] if BaseUserAdmin.actions else ['approve_users']
 
 
 @admin.register(Category)
