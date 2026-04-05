@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from admin_panel.api.views import (
     RegisterView, LoginView, LogoutView, ProfileView,
-    ForgotPasswordView, ResetPasswordView,
+    ForgotPasswordView, ResetPasswordView, VerifyEmailView,
     AdminDashboardView,
     UserListView, UserCreateView, UserDetailView, ToggleUserActiveView,
     AdminTaskListCreateView, AdminTaskDetailView,
@@ -22,6 +22,7 @@ auth_urlpatterns = [
     path('profile/', ProfileView.as_view(), name='auth-profile'),
     path('forgot-password/', ForgotPasswordView.as_view(), name='auth-forgot-password'),
     path('reset-password/', ResetPasswordView.as_view(), name='auth-reset-password'),
+    path('verify-email/<str:uidb64>/<str:token>/', VerifyEmailView.as_view(), name='auth-verify-email'),
 ]
 
 # Admin endpoints  /api/v1/admin/
