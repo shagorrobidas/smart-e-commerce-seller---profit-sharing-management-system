@@ -1,202 +1,191 @@
+{% extends "base_dashboard.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investor Dashboard - Smart Seller</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+{% block title %}Investor Portfolio - SmartSeller{% endblock %}
+{% block portal_name %}Investor View{% endblock %}
+{% block page_title %}Investment Overview{% endblock %}
 
-<body class="dashboard-body">
+{% block sidebar_nav %}
+<a href="{% url 'investor-dashboard-page' %}" class="nav-item active">
+    <iconify-icon icon="solar:pie-chart-2-linear" width="20"></iconify-icon> Portfolio
+</a>
+<a href="{% url 'investor-agreements-page' %}" class="nav-item">
+    <iconify-icon icon="solar:document-text-linear" width="20"></iconify-icon> Agreements
+</a>
+<a href="{% url 'investor-invest' %}" class="nav-item">
+    <iconify-icon icon="solar:wallet-money-linear" width="20"></iconify-icon> Invest
+</a>
+<a href="{% url 'investor-reports-page' %}" class="nav-item">
+    <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> Reports
+</a>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div
-                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--secondary), var(--primary)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
-                I</div>
-            <span style="font-weight: 500;">Investor View</span>
+{% block content %}
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <iconify-icon icon="solar:safe-2-linear" width="64"></iconify-icon>
         </div>
-        <nav class="sidebar-nav">
-            <a href="{% url 'investor-dashboard-page' %}" class="nav-item active">
-                <iconify-icon icon="solar:pie-chart-2-linear"></iconify-icon> Portfolio
-            </a>
-            <a href="{% url 'investor-agreements-page' %}" class="nav-item">
-                <iconify-icon icon="solar:document-text-linear"></iconify-icon> Agreements
-            </a>
-            <a href="{% url 'investor-invest' %}" class="nav-item">
-                <iconify-icon icon="solar:wallet-money-linear"></iconify-icon> Invest
-            </a>
-            <a href="{% url 'investor-reports-page' %}" class="nav-item">
-                <iconify-icon icon="solar:file-text-linear"></iconify-icon> Reports
-            </a>
-        </nav>
-        <div class="user-profile">
-            <a href="{% url 'profile' %}"
-                style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
-                <div class="avatar" style="background: var(--secondary);">I</div>
-                <div>
-                    <p class="text-sm text-white" id="user-name">Investor</p>
-                    <p class="text-xs text-muted" id="user-role">Shareholder</p>
-                </div>
-            </a>
-            <button onclick="App.logout()"
-                style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;"><iconify-icon
-                    icon="solar:logout-linear"></iconify-icon></button>
+        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Total Capital Invested</p>
+        <p class="text-3xl font-bold text-white tracking-tight mb-4" id="stat-invested">৳0.00</p>
+        <div class="flex items-center gap-2 text-[10px] text-gray-400 font-medium">
+            <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+            Fixed Capital Base
         </div>
-    </aside>
+    </div>
+    
+    <div class="glass-card p-6 rounded-2xl border-l-4 border-l-emerald-500 bg-emerald-500/5 transition-all hover:bg-emerald-500/10">
+        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Accrued Profit Share</p>
+        <div class="flex items-end justify-between mb-4">
+            <p class="text-3xl font-bold text-emerald-400 tracking-tight" id="stat-profit-share">৳0.00</p>
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full" id="equity-label">0% Equity</span>
+        </div>
+        <p class="text-[10px] text-gray-500">Includes pending dividends for Q2 2026</p>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">Investment Overview</h1>
-        </header>
+    <div class="glass-card p-6 rounded-2xl">
+        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Dividends Paid Out</p>
+        <p class="text-3xl font-bold text-white tracking-tight mb-4" id="stat-payouts">৳0.00</p>
+        <div class="flex items-center gap-2 text-[10px] text-gray-400 font-medium">
+            <iconify-icon icon="solar:history-linear" width="14"></iconify-icon>
+            Last payout: 15 days ago
+        </div>
+    </div>
+</div>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stat-card">
-                <span class="stat-label">Total Invested</span>
-                <span class="stat-value" id="stat-invested">৳0.00</span>
-                <span class="text-xs text-muted">Fixed Capital</span>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- P&L Statement -->
+    <div class="glass-card p-8 rounded-3xl">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h3 class="text-lg font-bold text-white">Profit & Loss (Live)</h3>
+                <p class="text-xs text-gray-500 mt-1">Real-time business performance audit.</p>
             </div>
-            <div class="stat-card">
-                <span class="stat-label">My Profit Share (Current)</span>
-                <span class="stat-value" id="stat-profit-share" style="color: var(--secondary);">৳0.00</span>
-                <div class="stat-trend trend-up" id="equity-label">
-                    <iconify-icon icon="solar:graph-up-linear"></iconify-icon> Based on 0% Equity
-                </div>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Total Payouts Received</span>
-                <span class="stat-value" id="stat-payouts">৳0.00</span>
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl" id="audit-badge">
+                <iconify-icon icon="solar:shield-check-bold" class="text-emerald-500" width="16"></iconify-icon>
+                <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest" id="audit-label">Verified</span>
             </div>
         </div>
 
-        <div class="dashboard-form-card">
-            <h3 style="margin-bottom: 1rem;">Profit & Loss Statement (Live)</h3>
-            <p class="text-sm text-muted mb-4">Real-time view of business performance affecting your dividends.</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <div class="flex justify-between py-2 border-b border-white/10">
-                        <span class="text-sm text-muted">Total Sales Revenue</span>
-                        <span class="text-sm text-white font-medium" id="stat-sales">৳0.00</span>
-                    </div>
-                    <div class="flex justify-between py-2 border-b border-white/10">
-                        <span class="text-sm text-muted">Total OpEx & COGS</span>
-                        <span class="text-sm text-white font-medium" id="stat-expense">৳0.00</span>
-                    </div>
-                    <div class="flex justify-between py-4">
-                        <span class="text-base text-white">Net Profit</span>
-                        <span class="text-base text-secondary font-bold" id="stat-net-profit">৳0.00</span>
-                    </div>
-                </div>
-
-                <div class="glass-card p-4 flex items-center justify-center">
-                    <div style="text-align: center;">
-                        <iconify-icon icon="solar:shield-check-linear"
-                            style="font-size: 48px; color: var(--secondary); margin-bottom: 1rem;" id="audit-icon"></iconify-icon>
-                        <h4 class="text-white" id="audit-label">Audit Status: Verified</h4>
-                        <p class="text-xs text-muted mt-2">All transactions are logged and immutable.</p>
-                    </div>
-                </div>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/[0.04] transition-colors">
+                <span class="text-xs font-medium text-gray-400">Gross Sales Revenue</span>
+                <span class="text-sm font-bold text-white" id="stat-sales">৳0.00</span>
+            </div>
+            <div class="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/[0.04] transition-colors">
+                <span class="text-xs font-medium text-gray-400">Operational Expenses</span>
+                <p class="text-sm font-bold text-red-400" id="stat-expense">৳0.00</p>
+            </div>
+            <div class="pt-4 mt-2 border-t border-white/5 flex justify-between items-center px-4">
+                <span class="text-sm font-bold text-white">Net Business Profit</span>
+                <span class="text-xl font-black text-emerald-400" id="stat-net-profit">৳0.00</span>
             </div>
         </div>
+        
+        <div class="mt-8 p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl flex items-start gap-4">
+            <iconify-icon icon="solar:info-circle-linear" class="text-indigo-400 mt-0.5" width="20"></iconify-icon>
+            <p class="text-[11px] text-gray-500 leading-relaxed">
+                Profit share is calculated based on your current equity stake of the <span class="text-indigo-400 font-bold">SmartSeller.sys</span> net monthly operations.
+            </p>
+        </div>
+    </div>
 
-        <!-- Investment Allocation Chart -->
-        <div class="dashboard-form-card">
-            <h3 style="margin-bottom: 1rem;">Capital Allocation</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div style="height: 250px; position: relative;">
-                    <canvas id="allocationChart"></canvas>
-                </div>
-                <div>
-                    <h4 class="text-white mb-2">Where is your money going?</h4>
-                    <p class="text-sm text-muted mb-4">Your capital is strategically distributed across high-growth
-                        vectors.</p>
-                    <ul class="text-sm text-muted space-y-2" id="allocation-list">
-                        <!-- JS Populated -->
-                    </ul>
+    <!-- Capital Allocation -->
+    <div class="glass-card p-8 rounded-3xl">
+        <h3 class="text-lg font-bold text-white mb-2">Capital Allocation</h3>
+        <p class="text-xs text-gray-500 mb-8">Strategic distribution of your invested funds.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center">
+            <div class="relative h-48 flex items-center justify-center">
+                <canvas id="allocationChart"></canvas>
+                <div class="absolute flex flex-col items-center">
+                    <p class="text-[9px] font-bold text-gray-500 uppercase">Growth</p>
+                    <p class="text-lg font-black text-white">HQ</p>
                 </div>
             </div>
+            <div class="space-y-4" id="allocation-list">
+                <!-- Populated via JS -->
+                 <div class="text-gray-600 text-xs italic">Mapping allocation...</div>
+            </div>
         </div>
+    </div>
+</div>
+{% endblock %}
 
-    </main>
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = App.checkAuth();
+        if (!user || user.role !== 'investor') {
+            window.location.href = '{% url "login" %}';
+            return;
+        }
 
-    <script src="{% static 'js/data-manager.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = App.checkAuth();
-            if (!user || user.role !== 'investor') {
-                window.location.href = '{% url "login" %}';
-                return;
+        try {
+            const data = await DB.getInvestorDashboard();
+            const port = data.portfolio;
+            const pnl = data.business_pnl;
+
+            // Stats
+            document.getElementById('stat-invested').textContent = App.formatCurrency(port.total_invested);
+            document.getElementById('stat-profit-share').textContent = App.formatCurrency(port.profit_share);
+            document.getElementById('stat-payouts').textContent = App.formatCurrency(port.total_payouts);
+            document.getElementById('equity-label').textContent = port.equity_percent + '% Equity';
+
+            // PNL
+            document.getElementById('stat-sales').textContent = App.formatCurrency(pnl.total_sales);
+            document.getElementById('stat-expense').textContent = '-' + App.formatCurrency(pnl.total_expenses);
+            document.getElementById('stat-net-profit').textContent = App.formatCurrency(pnl.net_profit);
+
+            // Audit
+            if (data.audit_status !== 'verified') {
+                const badge = document.getElementById('audit-badge');
+                badge.className = 'flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl';
+                document.getElementById('audit-label').textContent = 'Pending Audit';
+                document.getElementById('audit-label').className = 'text-[9px] font-bold text-amber-500 uppercase tracking-widest';
+                badge.querySelector('iconify-icon').className = 'text-amber-500';
             }
 
-            const userNameEl = document.getElementById('user-name');
-            if (userNameEl) userNameEl.textContent = user.name;
+            // Allocation
+            const allocation = data.capital_allocation;
+            const list = document.getElementById('allocation-list');
+            const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444'];
 
-            try {
-                const data = await DB.getInvestorDashboard();
-                const port = data.portfolio;
-                const pnl = data.business_pnl;
+            list.innerHTML = allocation.map((a, i) => `
+                <div class="flex items-center justify-between group">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full" style="background: ${colors[i]}"></span>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">${a.name}</span>
+                    </div>
+                    <span class="text-sm font-black text-white">${a.percent}%</span>
+                </div>
+            `).join('');
 
-                // Stats
-                document.getElementById('stat-invested').textContent = App.formatCurrency(port.total_invested);
-                document.getElementById('stat-profit-share').textContent = App.formatCurrency(port.profit_share);
-                document.getElementById('stat-payouts').textContent = App.formatCurrency(port.total_payouts);
-                document.getElementById('equity-label').innerHTML = `<iconify-icon icon="solar:graph-up-linear"></iconify-icon> Based on ${port.equity_percent}% Equity`;
-
-                // PNL
-                document.getElementById('stat-sales').textContent = App.formatCurrency(pnl.total_sales);
-                document.getElementById('stat-expense').textContent = App.formatCurrency(pnl.total_expenses);
-                document.getElementById('stat-net-profit').textContent = App.formatCurrency(pnl.net_profit);
-
-                // Audit
-                if (data.audit_status !== 'verified') {
-                    document.getElementById('audit-label').textContent = 'Audit Status: Pending';
-                    document.getElementById('audit-icon').style.color = '#eab308';
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: allocation.map(a => a.name),
+                    datasets: [{
+                        data: allocation.map(a => a.percent),
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    responsive: true,
+                    animation: { animateRotate: true, duration: 2000 }
                 }
+            });
 
-                // Chart & List
-                const allocation = data.capital_allocation;
-                const list = document.getElementById('allocation-list');
-                list.innerHTML = allocation.map(a => `
-                    <li class="flex justify-between border-b border-white/5 py-2">
-                        <span>${a.name}</span>
-                        <span class="text-white">${a.percent}%</span>
-                    </li>
-                `).join('');
-
-                const ctx = document.getElementById('allocationChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: allocation.map(a => a.name),
-                        datasets: [{
-                            data: allocation.map(a => a.percent),
-                            backgroundColor: ['#4299e1', '#48bb78', '#ecc94b', '#f56565'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        maintainAspectRatio: false,
-                        cutout: '70%'
-                    }
-                });
-
-            } catch (err) { console.error(err); }
-        });
-    </script>
-</body>
-
-</html>
-
-</html>
+        } catch (err) {
+            console.error(err);
+        }
+    });
+</script>
+{% endblock %}
