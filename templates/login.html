@@ -102,8 +102,132 @@
         </div>
     </div>
 
+    <!-- Verification Success Modal -->
+    <div id="verifySuccessModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl scale-95 transition-all duration-300 transform opacity-0 modal-content">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/10 rounded-full text-emerald-500 mb-6 border border-emerald-500/20">
+                    <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
+                </div>
+                <h2 class="text-2xl font-semibold text-white mb-3">Email Verified!</h2>
+                <div class="space-y-4 text-gray-400 text-sm font-light leading-relaxed">
+                    <p>Your email has been successfully verified.</p>
+                    <div class="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-lg text-indigo-300 text-xs text-left flex gap-3">
+                        <iconify-icon icon="solar:info-circle-linear" width="18" class="shrink-0"></iconify-icon>
+                        <span>Note: Your account is now pending administrator review. You will be able to log in once approved.</span>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <button onclick="hideModal('verifySuccessModal')" 
+                        class="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-white text-black text-sm font-semibold hover:bg-gray-200 transition-all gap-2">
+                        Great, Thanks!
+                        <iconify-icon icon="solar:check-read-linear" width="18"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Error Modal -->
+    <div id="verifyErrorModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl scale-95 transition-all duration-300 transform opacity-0 modal-content">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-red-500/10 rounded-full text-red-500 mb-6 border border-red-500/20">
+                    <iconify-icon icon="solar:danger-circle-bold" width="48"></iconify-icon>
+                </div>
+                <h2 class="text-2xl font-semibold text-white mb-3">Verification Failed</h2>
+                <p class="text-gray-400 text-sm font-light leading-relaxed mb-8">
+                    The verification link is invalid or has expired. Please try registering again or contact support.
+                </p>
+                <div class="mt-8">
+                    <button onclick="hideModal('verifyErrorModal')" 
+                        class="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-all gap-2">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Error Modal (General) -->
+    <div id="authErrorModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl scale-95 transition-all duration-300 transform opacity-0 modal-content">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-amber-500/10 rounded-full text-amber-500 mb-6 border border-amber-500/20">
+                    <iconify-icon id="authErrorIcon" icon="solar:info-circle-bold" width="48"></iconify-icon>
+                </div>
+                <h2 class="text-2xl font-semibold text-white mb-3" id="authErrorTitle">Notice</h2>
+                <p id="authErrorMessage" class="text-gray-400 text-sm font-light leading-relaxed mb-8">
+                    Your account is pending administrator review.
+                </p>
+                <div class="mt-8">
+                    <button onclick="hideModal('authErrorModal')" 
+                        class="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-all gap-2">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'js/data-manager.js' %}"></script>
     <script src="{% static 'js/auth.js' %}"></script>
+    <script>
+        window.showModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            const content = modal.querySelector('.modal-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.hideModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('scale-95', 'opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        };
+
+        window.showAuthError = (message, title = "Notice") => {
+            document.getElementById('authErrorTitle').textContent = title;
+            document.getElementById('authErrorMessage').textContent = message;
+            
+            // Adjust styling based on content
+            const icon = document.getElementById('authErrorIcon');
+            if (message.includes('pending')) {
+                icon.icon = "solar:clock-circle-bold";
+                icon.parentElement.classList.replace('bg-red-500/10', 'bg-amber-500/10');
+                icon.parentElement.classList.replace('text-red-500', 'text-amber-500');
+            } else {
+                icon.icon = "solar:danger-circle-bold";
+                icon.parentElement.classList.replace('bg-amber-500/10', 'bg-red-500/10');
+                icon.parentElement.classList.replace('text-amber-500', 'text-red-500');
+            }
+            
+            showModal('authErrorModal');
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('verified') === 'true') {
+                showModal('verifySuccessModal');
+            } else if (urlParams.get('verified') === 'false') {
+                showModal('verifyErrorModal');
+            }
+            
+            if (urlParams.has('verified')) {
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+        });
+    </script>
 </body>
 
 </html>
