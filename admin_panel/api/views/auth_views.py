@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import redirect
 from django.conf import settings
 
 from api.models import User
@@ -78,9 +79,11 @@ class VerifyEmailView(APIView):
         if user is not None and default_token_generator.check_token(user, token):
             user.is_email_verified = True
             user.save()
-            # Redirect to login page in a real app, here we return JSON
-            return Response({'message': 'Email verified successfully. Please wait for admin approval.'})
-        return Response({'error': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
+            # Redirect to login page with success flag
+            return redirect(f"{settings.SITE_URL}/login/?verified=true")
+        
+        # Redirect to login page with failure flag
+        return redirect(f"{settings.SITE_URL}/login/?verified=false")
 
 
 class LoginView(APIView):
