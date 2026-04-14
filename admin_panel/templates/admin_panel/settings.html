@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Reports - Admin</title>
+    <title>System Settings - Admin</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -33,10 +33,10 @@
             <a href="{% url 'admin-tasks' %}" class="nav-item">
                 <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
             </a>
-            <a href="{% url 'admin-reports' %}" class="nav-item active">
+            <a href="{% url 'admin-reports' %}" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
-            <a href="{% url 'admin-settings' %}" class="nav-item">
+            <a href="{% url 'admin-settings' %}" class="nav-item active">
                 <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
             </a>
         </nav>
@@ -60,24 +60,28 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="top-bar">
-            <h1 class="page-title">Financial Reports</h1>
-            <div class="flex gap-4">
-                <button class="btn btn-outline" onclick="window.print()">Export PDF</button>
-            </div>
+            <h1 class="page-title">System Settings</h1>
         </header>
 
+        <div class="dashboard-form-card mb-8">
+            <h3 style="margin-bottom: 1.5rem;">Business Configuration</h3>
+            <form id="settingsForm">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label>Business Name</label>
+                        <input type="text" id="biz-name" placeholder="Enter business name">
                     </div>
                     <div>
                         <label>Base Currency</label>
                         <select id="biz-currency">
                             <option value="USD">USD ($)</option>
-                            <option value="BDT">BDT (৳)</option>
+                            <option value="BDT" selected>BDT (৳)</option>
                             <option value="EUR">EUR (€)</option>
                         </select>
                     </div>
                     <div>
                         <label>Tax / VAT Rate (%)</label>
-                        <input type="number" id="biz-tax" min="0" max="100">
+                        <input type="number" id="biz-tax" min="0" max="100" value="0">
                     </div>
                     <div>
                         <label>System Announcement</label>
@@ -94,7 +98,7 @@
 
             <button class="btn"
                 style="background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2);"
-                onclick="if(confirm('Are you sure you want to reset all data?')) { fetch('/api/v1/admin/settings/reset/', {method:'POST', headers:{'Authorization': 'Bearer ' + DB.getAccessToken()}}).then(() => { localStorage.clear(); window.location.href='/login/'; }); }">
+                onclick="if(confirm('Are you sure you want to reset all data?')) { DB.resetSystem(); }">
                 Reset System Data
             </button>
         </div>
@@ -144,6 +148,5 @@
         });
     </script>
 </body>
-</html>
 
 </html>
