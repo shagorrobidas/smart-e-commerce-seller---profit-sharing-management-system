@@ -32,11 +32,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         window.location.href = `/${role}/dashboard/`;
                     } else {
                         const error = await response.json();
-                        alert(error.error || 'Login failed. Check your credentials.');
+                        const msg = error.error || 'Login failed. Check your credentials.';
+                        if (window.showAuthError) {
+                            window.showAuthError(msg);
+                        } else {
+                            alert(msg);
+                        }
                     }
                 } catch (err) {
                     console.error('Login Error:', err);
-                    alert('Server error. Please try again later.');
+                    const msg = 'Server error. Please try again later.';
+                    if (window.showAuthError) {
+                        window.showAuthError(msg, "Error");
+                    } else {
+                        alert(msg);
+                    }
                 }
             }
         });
@@ -75,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (window.showErrorModal) {
                         window.showErrorModal(msg);
                     } else {
-                        alert(msg);
+                        // alert(msg);
+                        window.showAuthError(msg, "Error");
                     }
                 }
             } catch (err) {
