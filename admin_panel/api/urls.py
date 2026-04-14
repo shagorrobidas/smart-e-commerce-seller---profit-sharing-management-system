@@ -27,15 +27,15 @@ auth_urlpatterns = [
 
 # Admin endpoints  /api/v1/admin/
 admin_urlpatterns = [
-    path('dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
+    path('dashboard/', AdminDashboardView.as_view(), name='api-admin-dashboard'),
     path('users/', UserListView.as_view(), name='admin-user-list'),
     path('users/create/', UserCreateView.as_view(), name='admin-user-create'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='admin-user-detail'),
     path('users/<int:pk>/toggle-active/', ToggleUserActiveView.as_view(), name='admin-user-toggle'),
     path('tasks/', AdminTaskListCreateView.as_view(), name='admin-task-list'),
     path('tasks/<int:pk>/', AdminTaskDetailView.as_view(), name='admin-task-detail'),
-    path('settings/', BusinessSettingsView.as_view(), name='admin-settings'),
-    path('reports/', AdminReportView.as_view(), name='admin-reports'),
+    path('settings/', BusinessSettingsView.as_view(), name='api-admin-settings'),
+    path('reports/', AdminReportView.as_view(), name='api-admin-reports'),
     path('transactions/', TransactionListView.as_view(), name='admin-transactions'),
     path('transactions/<int:pk>/approve/', TransactionApproveView.as_view(), name='admin-transaction-approve'),
 ]
