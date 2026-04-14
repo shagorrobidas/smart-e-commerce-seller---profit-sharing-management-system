@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Reports - Admin</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
@@ -23,25 +24,25 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">
+            <a href="{% url 'admin-dashboard' %}" class="nav-item">
                 <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
             </a>
-            <a href="users.html" class="nav-item">
+            <a href="{% url 'admin-users' %}" class="nav-item">
                 <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
             </a>
-            <a href="tasks.html" class="nav-item">
+            <a href="{% url 'admin-tasks' %}" class="nav-item">
                 <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
             </a>
-            <a href="reports.html" class="nav-item active">
+            <a href="{% url 'admin-reports' %}" class="nav-item active">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
-            <a href="settings.html" class="nav-item">
+            <a href="{% url 'admin-settings' %}" class="nav-item">
                 <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
             </a>
         </nav>
 
         <div class="user-profile">
-            <a href="../../pages/profile.html"
+            <a href="{% url 'profile' %}"
                 style="display: flex; gap: 0.75rem; text-decoration: none; align-items: center; flex: 1;">
                 <div class="avatar">A</div>
                 <div>
@@ -119,21 +120,20 @@
 
     </main>
 
-    <script src="../../js/data-manager.js"></script>
-    <script src="../../js/main.js"></script>
-    <script src="../../js/dashboard.js"></script>
+    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/dashboard.js' %}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Check Auth
             const user = App.checkAuth();
-            if (!user || user.role !== 'admin') window.location.href = '../../pages/login.html';
+            if (!user || user.role !== 'admin') window.location.href = '{% url "login" %}';
 
             const records = DB.getOrders(); // Sales & Expenses
             const txns = DB.getTransactions();
             const tbody = document.getElementById('report-list');
 
             // Merge Orders and Txns for display
-            // Standardize format
             const allRecords = [
                 ...records.map(r => ({ ...r, date: r.date, id: r.id, type: r.type, desc: r.product || 'Order', amount: r.amount })),
                 ...txns.map(t => ({ ...t, date: t.date || t.createdAt.split('T')[0], id: t.id, type: t.type, desc: t.note || 'Transaction', amount: t.amount }))
