@@ -144,12 +144,7 @@
                     </div>
                 </div>
                 
-                <div class="mt-8" id="debugLinkContainer" style="display: none;">
-                    <p class="text-[10px] text-gray-500 mb-2 uppercase tracking-widest font-semibold text-left">Debug Verification Link (Dev Mode):</p>
-                    <div class="p-3 bg-white/5 border border-white/10 rounded-lg break-all text-[10px] text-indigo-300 text-left font-mono">
-                        <a href="#" id="debugLink" class="hover:underline"></a>
-                    </div>
-                </div>
+
 
                 <div class="mt-8">
                     <a href="{% url 'login' %}" 
@@ -192,13 +187,7 @@
             const modal = document.getElementById('successModal');
             const content = modal.querySelector('.modal-content');
             
-            if (debugLink) {
-                const container = document.getElementById('debugLinkContainer');
-                const linkEl = document.getElementById('debugLink');
-                container.style.display = 'block';
-                linkEl.href = debugLink;
-                linkEl.textContent = debugLink;
-            }
+
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
