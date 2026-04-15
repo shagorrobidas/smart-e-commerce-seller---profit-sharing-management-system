@@ -89,5 +89,9 @@ class StaffUserListView(generics.ListAPIView):
     serializer_class = UserListSerializer 
     queryset = User.objects.filter(role__in=['admin', 'staff']).exclude(is_active=False)
 
-    def get_serializer_class(self):
-        return UserListSerializer
+    def get_queryset(self):
+        user = self.request.user
+        qs = super().get_queryset()
+        if user.company:
+            return qs.filter(company=user.company)
+        return qs

@@ -14,7 +14,4 @@ urlpatterns = [
     path('tasks/', StaffTasksView.as_view(), name='staff-tasks'),
     path('messages/', StaffMessagesView.as_view(), name='staff-messages'),
     path('reports/', StaffReportsView.as_view(), name='staff-reports'),
-
-    # API endpoints
-    path('api/v1/', include('staff.api.urls')),
 ]

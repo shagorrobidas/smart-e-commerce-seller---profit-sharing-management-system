@@ -13,7 +13,7 @@ from staff.api.views import (
 
 urlpatterns = [
     # Dashboard
-    path('dashboard/', StaffDashboardView.as_view(), name='staff-dashboard'),
+    path('dashboard/', StaffDashboardView.as_view(), name='staff-api-dashboard'),
 
     # Orders / Sales
     path('orders/', StaffOrderListCreateView.as_view(), name='staff-order-list'),
