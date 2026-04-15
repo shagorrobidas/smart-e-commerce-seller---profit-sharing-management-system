@@ -14,11 +14,7 @@ const Dashboard = {
                 return;
             }
 
-            // Set UI Names
-            const userNameEl = document.getElementById('user-name');
-            if (userNameEl) userNameEl.textContent = user.name;
-            const userRoleEl = document.getElementById('user-role');
-            if (userRoleEl) userRoleEl.textContent = user.role.toUpperCase();
+            // Main UI setup is now handled globally in main.js.
 
             // Fetch Data
             const stats = await Dashboard.calculateStats();

@@ -88,4 +88,19 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `;
     }
+
+    // Global Dashboard UI updates
+    if (user) {
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) userNameEl.textContent = user.name || 'User';
+
+        const userRoleEl = document.getElementById('user-role');
+        if (userRoleEl && user.role) userRoleEl.textContent = user.role.toUpperCase();
+        
+        const userCompanyEl = document.getElementById('user-company');
+        if (userCompanyEl && user.company) userCompanyEl.textContent = user.company;
+
+        const userInitialEl = document.getElementById('user-initial');
+        if (userInitialEl && user.name) userInitialEl.textContent = user.name.charAt(0).toUpperCase();
+    }
 });

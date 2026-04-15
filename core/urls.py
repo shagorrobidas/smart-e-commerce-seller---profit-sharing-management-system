@@ -16,10 +16,13 @@ urlpatterns = [
     # Django Admin Panel
     path('django-admin/', admin.site.urls),
 
-    # Shared Auth API (namespaced)
+    # API Endpoints (Unified v1)
     path('api/v1/auth/', include((auth_urlpatterns, 'auth'))),
+    path('api/v1/admin/', include('admin_panel.api.urls')),
+    path('api/v1/staff/', include('staff.api.urls')),
+    path('api/v1/investor/', include('investor.api.urls')),
 
-    # Role-based Apps (Frontend + API)
+    # Role-based App Frontend Pages
     path('admin/', include('admin_panel.urls')),
     path('staff/', include('staff.urls')),
     path('investor/', include('investor.urls')),
