@@ -34,6 +34,9 @@
             <a href="{% url 'admin-tasks' %}" class="nav-item">
                 <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
             </a>
+            <a href="{% url 'admin-messages' %}" class="nav-item">
+                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+            </a>
             <a href="{% url 'admin-reports' %}" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
@@ -62,7 +65,8 @@
     <main class="main-content">
         <header class="top-bar">
             <h1 class="page-title">Business Overview</h1>
-            <div class="flex gap-4">
+            <div class="flex items-center gap-4">
+                <span id="user-company" class="text-xs text-muted hidden sm:block">{{ user.company|default:"No Company" }}</span>
                 <button class="btn btn-primary" onclick="window.print()">Download Report</button>
             </div>
         </header>

@@ -17,3 +17,6 @@ class AdminReportsView(TemplateView):
 
 class AdminSettingsView(TemplateView):
     template_name = 'admin_panel/settings.html'
+
+class AdminMessagesView(TemplateView):
+    template_name = 'admin_panel/messages.html'
