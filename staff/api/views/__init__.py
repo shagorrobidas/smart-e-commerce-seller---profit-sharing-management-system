@@ -3,7 +3,7 @@ from .order_views import StaffOrderListCreateView, StaffOrderDetailView
 from .expense_views import StaffExpenseListCreateView, StaffExpenseDetailView
 from .inventory_views import InventoryListCreateView, InventoryDetailView
 from .task_views import StaffTaskListView, StaffTaskUpdateView
-from .message_views import MessageListView, MessageCreateView, MessageMarkReadView, UnreadCountView, StaffUserListView
+from .message_views import MessageListView, MessageCreateView, MessageMarkReadView, UnreadCountView, MessageContactListView
 
 
 __all__ = [
@@ -12,5 +12,5 @@ __all__ = [
     StaffExpenseListCreateView, StaffExpenseDetailView,
     InventoryListCreateView, InventoryDetailView,
     StaffTaskListView, StaffTaskUpdateView,
-    MessageListView, MessageCreateView, MessageMarkReadView, UnreadCountView, StaffUserListView,
+    MessageListView, MessageCreateView, MessageMarkReadView, UnreadCountView, MessageContactListView,
 ]

@@ -254,8 +254,10 @@ class Message(models.Model):
     receiver = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='messages_received'
     )
-    content = models.TextField()
+    content = models.TextField(blank=True, default='')
     is_read = models.BooleanField(default=False)
+    attachment = models.FileField(upload_to='message_files/%Y/%m/', null=True, blank=True)
+    attachment_name = models.CharField(max_length=255, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

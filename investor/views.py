@@ -13,3 +13,6 @@ class InvestorInvestView(TemplateView):
 
 class InvestorReportsView(TemplateView):
     template_name = 'investor/reports.html'
+
+class InvestorMessagesView(TemplateView):
+    template_name = 'investor/messages.html'

@@ -13,13 +13,17 @@ from admin_panel.api.serializers.user_serializers import (
 
 
 class UserListView(generics.ListAPIView):
-    """GET /api/v1/admin/users/ – List all system users."""
+    """GET /api/v1/admin/users/ – List users from the same company as the admin."""
     permission_classes = [IsAuthenticated, IsAdminRole]
     serializer_class = UserListSerializer
-    queryset = User.objects.all().order_by('-date_joined')
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        admin = self.request.user
+        # Base: exclude the requesting admin themselves; filter by same company
+        qs = User.objects.all().order_by('-date_joined')
+        if admin.company:
+            qs = qs.filter(company=admin.company)
+
         role = self.request.query_params.get('role')
         search = self.request.query_params.get('search')
         if role:
@@ -30,16 +34,29 @@ class UserListView(generics.ListAPIView):
 
 
 class UserCreateView(generics.CreateAPIView):
-    """POST /api/v1/admin/users/ – Create a new user."""
+    """POST /api/v1/admin/users/create/ – Create a new user.
+    Auto-assigns the admin's company if none provided."""
     permission_classes = [IsAuthenticated, IsAdminRole]
     serializer_class = UserCreateSerializer
+
+    def perform_create(self, serializer):
+        admin = self.request.user
+        # Inherit admin's company if not explicitly set
+        company = serializer.validated_data.get('company') or admin.company
+        serializer.save(company=company)
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """GET/PATCH/DELETE /api/v1/admin/users/<id>/ – Manage individual user."""
     permission_classes = [IsAuthenticated, IsAdminRole]
     serializer_class = UserProfileSerializer
-    queryset = User.objects.all()
+
+    def get_queryset(self):
+        admin = self.request.user
+        qs = User.objects.all()
+        if admin.company:
+            qs = qs.filter(company=admin.company)
+        return qs
 
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
@@ -57,8 +74,13 @@ class ToggleUserActiveView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
 
     def patch(self, request, pk):
+        admin = request.user
         try:
-            user = User.objects.get(pk=pk)
+            # Only allow toggling users in the same company
+            qs = User.objects.all()
+            if admin.company:
+                qs = qs.filter(company=admin.company)
+            user = qs.get(pk=pk)
         except User.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 

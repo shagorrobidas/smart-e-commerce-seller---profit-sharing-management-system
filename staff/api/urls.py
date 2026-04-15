@@ -8,7 +8,7 @@ from staff.api.views import (
     StaffExpenseListCreateView, StaffExpenseDetailView,
     InventoryListCreateView, InventoryDetailView,
     StaffTaskListView, StaffTaskUpdateView,
-    MessageListView, MessageCreateView, MessageMarkReadView, UnreadCountView, StaffUserListView,
+    MessageListView, MessageCreateView, MessageMarkReadView, UnreadCountView, MessageContactListView,
 )
 
 urlpatterns = [
@@ -38,5 +38,5 @@ urlpatterns = [
     path('messages/unread-count/', UnreadCountView.as_view(), name='staff-unread-count'),
 
     # User List for Messaging
-    path('users/', StaffUserListView.as_view(), name='staff-user-list'),
+    path('users/', MessageContactListView.as_view(), name='staff-user-list'),
 ]

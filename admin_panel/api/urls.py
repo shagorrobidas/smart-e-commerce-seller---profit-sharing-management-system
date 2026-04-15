@@ -12,6 +12,11 @@ from admin_panel.api.views import (
     BusinessSettingsView,
     AdminReportView, TransactionListView, TransactionApproveView,
 )
+# Re-use shared messaging views (import directly to avoid circular imports)
+from staff.api.views.message_views import (
+    MessageListView, MessageCreateView,
+    MessageMarkReadView, UnreadCountView, MessageContactListView,
+)
 
 # Auth endpoints  /api/v1/auth/
 auth_urlpatterns = [
@@ -38,6 +43,13 @@ admin_urlpatterns = [
     path('reports/', AdminReportView.as_view(), name='api-admin-reports'),
     path('transactions/', TransactionListView.as_view(), name='admin-transactions'),
     path('transactions/<int:pk>/approve/', TransactionApproveView.as_view(), name='admin-transaction-approve'),
+
+    # Messaging (Admin → Staff & Investors)
+    path('messages/', MessageListView.as_view(), name='admin-message-list'),
+    path('messages/send/', MessageCreateView.as_view(), name='admin-message-send'),
+    path('messages/<int:pk>/read/', MessageMarkReadView.as_view(), name='admin-message-read'),
+    path('messages/unread-count/', UnreadCountView.as_view(), name='admin-unread-count'),
+    path('messages/users/', MessageContactListView.as_view(), name='admin-user-contact-list'),
 ]
 
 # Unified urlpatterns
