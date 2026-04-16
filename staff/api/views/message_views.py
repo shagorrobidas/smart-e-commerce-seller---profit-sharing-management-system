@@ -139,6 +139,20 @@ class UnreadCountView(APIView):
         return Response({'unread_count': count})
 
 
+class BulkMarkReadView(APIView):
+    """PATCH – Mark all messages from a specific sender as read for the current user."""
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, sender_id):
+        # Mark all messages from the specified sender to the current user as read
+        Message.objects.filter(
+            sender_id=sender_id,
+            receiver=request.user,
+            is_read=False
+        ).update(is_read=True)
+        return Response({'message': 'All messages from sender marked as read.'})
+
+
 class MessageContactListView(generics.ListAPIView):
     """GET – Return users this role can chat with.
 

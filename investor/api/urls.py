@@ -11,6 +11,7 @@ from investor.api.views import (
 from staff.api.views.message_views import (
     MessageListView, MessageCreateView,
     MessageMarkReadView, UnreadCountView, MessageContactListView,
+    BulkMarkReadView,
 )
 
 urlpatterns = [
@@ -25,5 +26,6 @@ urlpatterns = [
     path('messages/send/', MessageCreateView.as_view(), name='investor-message-send'),
     path('messages/<int:pk>/read/', MessageMarkReadView.as_view(), name='investor-message-read'),
     path('messages/unread-count/', UnreadCountView.as_view(), name='investor-unread-count'),
+    path('messages/mark-read/<int:sender_id>/', BulkMarkReadView.as_view(), name='investor-mark-read'),
     path('messages/users/', MessageContactListView.as_view(), name='investor-user-list'),
 ]

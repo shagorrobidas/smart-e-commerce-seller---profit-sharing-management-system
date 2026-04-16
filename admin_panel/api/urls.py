@@ -10,12 +10,13 @@ from admin_panel.api.views import (
     UserListView, UserCreateView, UserDetailView, ToggleUserActiveView,
     AdminTaskListCreateView, AdminTaskDetailView,
     BusinessSettingsView,
-    AdminReportView, TransactionListView, TransactionApproveView,
+    AdminReportView, TransactionListView, TransactionApproveView, InvestmentApprovalView,
 )
 # Re-use shared messaging views (import directly to avoid circular imports)
 from staff.api.views.message_views import (
     MessageListView, MessageCreateView,
     MessageMarkReadView, UnreadCountView, MessageContactListView,
+    BulkMarkReadView,
 )
 
 # Auth endpoints  /api/v1/auth/
@@ -43,12 +44,14 @@ admin_urlpatterns = [
     path('reports/', AdminReportView.as_view(), name='api-admin-reports'),
     path('transactions/', TransactionListView.as_view(), name='admin-transactions'),
     path('transactions/<int:pk>/approve/', TransactionApproveView.as_view(), name='admin-transaction-approve'),
+    path('investments/<int:pk>/approve/', InvestmentApprovalView.as_view(), name='admin-investment-approve'),
 
     # Messaging (Admin → Staff & Investors)
     path('messages/', MessageListView.as_view(), name='admin-message-list'),
     path('messages/send/', MessageCreateView.as_view(), name='admin-message-send'),
     path('messages/<int:pk>/read/', MessageMarkReadView.as_view(), name='admin-message-read'),
     path('messages/unread-count/', UnreadCountView.as_view(), name='admin-unread-count'),
+    path('messages/mark-read/<int:sender_id>/', BulkMarkReadView.as_view(), name='admin-mark-read'),
     path('messages/users/', MessageContactListView.as_view(), name='admin-user-contact-list'),
 ]
 
