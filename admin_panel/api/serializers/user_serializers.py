@@ -49,18 +49,22 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=4)
+    password = serializers.CharField(write_only=True, min_length=4, required=False)
+
+    company = serializers.CharField(required=False, allow_blank=True)
+    balance = serializers.DecimalField(max_digits=15, decimal_places=2, required=False)
+    is_approved = serializers.BooleanField(required=False)
+    is_email_verified = serializers.BooleanField(required=False)
 
     class Meta:
         model = User
-        fields = ['email', 'name', 'password', 'role', 'company', 'balance']
+        fields = [
+            'id', 'email', 'name', 'password', 'role', 'company', 'balance',
+            'is_approved', 'is_email_verified'
+        ]
+
+
 
     def create(self, validated_data):
-        return User.objects.create_user(
-            email=validated_data['email'],
-            password=validated_data['password'],
-            name=validated_data['name'],
-            role=validated_data.get('role', 'staff'),
-            company=validated_data.get('company', ''),
-            balance=validated_data.get('balance', 0),
-        )
+        return User.objects.create_user(**validated_data)
+

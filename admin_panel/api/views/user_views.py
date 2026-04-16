@@ -5,11 +5,31 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.crypto import get_random_string
+
 from api.models import User
 from api.permissions import IsAdminRole
 from admin_panel.api.serializers.user_serializers import (
     UserListSerializer, UserCreateSerializer, UserProfileSerializer
 )
+
+
+def send_user_credentials_email(user, password):
+    """Sends credential email to the newly created user."""
+    subject = "Your SmartSeller Account Credentials"
+    login_url = f"{settings.SITE_URL}/login/"
+    message = (
+        f"Hi {user.name},\n\n"
+        f"An administrator has created an account for you at {settings.SITE_URL}.\n\n"
+        f"Email: {user.email}\n"
+        f"Password: {password}\n\n"
+        f"You can log in here: {login_url}\n\n"
+        f"Please change your password after logging in."
+    )
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+
 
 
 class UserListView(generics.ListAPIView):
@@ -41,9 +61,25 @@ class UserCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         admin = self.request.user
-        # Inherit admin's company if not explicitly set
-        company = serializer.validated_data.get('company') or admin.company
-        serializer.save(company=company)
+        # Generate random 10-character password
+        password = get_random_string(10)
+        # Strictly inherit admin's company if it exists
+        company = admin.company if admin.company else serializer.validated_data.get('company', '')
+        
+        user = serializer.save(company=company, password=password)
+        user.is_approved = True
+        user.is_email_verified = True
+        user.save()
+
+
+        
+        # Send credential email
+        try:
+            send_user_credentials_email(user, password)
+        except Exception as e:
+            # Log error or handle as needed; creation still succeeds
+            print(f"Failed to send credential email: {e}")
+
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
