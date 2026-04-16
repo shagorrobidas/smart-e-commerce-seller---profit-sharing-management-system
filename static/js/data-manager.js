@@ -45,20 +45,45 @@ class DataManager {
         const response = await fetch(url, options);
         
         if (response.status === 401) {
-            // Token expired or invalid
             console.warn('Unauthorized. Redirecting to login...');
-            // Optional: handle token refresh here
             window.location.href = '/login/';
             return null;
         }
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || error.detail || 'API Call Failed');
+        const responseText = await response.text();
+        let responseData = null;
+        if (responseText) {
+            try {
+                responseData = JSON.parse(responseText);
+            } catch (e) {
+                console.warn('Response is not JSON:', responseText);
+            }
         }
 
-        return await response.json();
+        if (!response.ok) {
+            let errorMsg = 'API Call Failed';
+            if (responseData) {
+                if (responseData.error) {
+                    errorMsg = responseData.error;
+                } else if (responseData.detail) {
+                    errorMsg = responseData.detail;
+                } else if (typeof responseData === 'object') {
+                    // Extract first field error if available
+                    const firstKey = Object.keys(responseData)[0];
+                    const firstVal = responseData[firstKey];
+                    errorMsg = Array.isArray(firstVal) ? `${firstKey}: ${firstVal[0]}` : `${firstKey}: ${firstVal}`;
+                }
+            } else {
+                errorMsg = response.statusText ? `${response.statusText} (Status ${response.status})` : `API Call Failed (Status ${response.status})`;
+            }
+
+            throw new Error(errorMsg);
+        }
+
+
+        return responseData || { message: 'Action successful' };
     }
+
 
     // --- HELPERS MAPPED TO OLD METHODS (but now async) ---
     
