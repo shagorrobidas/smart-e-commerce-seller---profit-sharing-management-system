@@ -1,7 +1,12 @@
 """Inventory/Product serializers."""
 
 from rest_framework import serializers
-from api.models import Product
+from api.models import Product, Category
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
 
 
 class ProductSerializer(serializers.ModelSerializer):

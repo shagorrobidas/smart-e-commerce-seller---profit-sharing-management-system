@@ -1,6 +1,48 @@
 {% extends "base_dashboard.html" %}
 {% load static %}
 
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+.select2-container--default .select2-selection--single {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.75rem;
+    height: 48px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: white;
+    line-height: 48px;
+    padding-left: 1rem;
+    font-size: 0.875rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 46px;
+}
+.select2-dropdown {
+    background: #171717;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.75rem;
+}
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background: #6366f1;
+    color: white;
+}
+.select2-container--default .select2-results__option--selected {
+    background: rgba(99,102,241,0.15);
+    color: #a5b4fc;
+}
+.select2-search--dropdown .select2-search__field {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.5rem;
+    color: white;
+    padding: 0.4rem 0.75rem;
+}
+.product-option-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; margin-right: 10px; }
+</style>
+{% endblock %}
+
 {% block title %}Operations Dashboard - SmartSeller{% endblock %}
 {% block portal_name %}Staff Portal{% endblock %}
 {% block page_title %}Daily Operations{% endblock %}
@@ -20,6 +62,7 @@
 </a>
 <a href="{% url 'staff-messages' %}" class="nav-item">
     <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+    <span class="msg-badge hidden">0</span>
 </a>
 <a href="{% url 'staff-reports' %}" class="nav-item">
     <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> My Reports
@@ -28,29 +71,60 @@
 
 {% block content %}
 <!-- Stats Overview -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    <!-- Sales Today -->
     <div class="glass-card p-6 rounded-2xl">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">Sales Today</p>
-        <p class="text-3xl font-semibold text-white tracking-tight" id="stat-sales-today">৳0</p>
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-widest">Sales Today</p>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                <iconify-icon icon="solar:graph-up-linear" width="16"></iconify-icon>
+            </div>
+        </div>
+        <p class="text-3xl font-semibold text-white tracking-tight" id="stat-sales-today">৳ ...</p>
         <div class="mt-4 flex items-center gap-2 text-emerald-400 text-xs font-medium">
-            <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon>
-            <span>+12% vs yesterday</span>
+            <iconify-icon icon="solar:bag-check-linear"></iconify-icon>
+            <span id="stat-today-orders">— orders today</span>
         </div>
     </div>
+    <!-- Pending Orders -->
     <div class="glass-card p-6 rounded-2xl">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">New Orders</p>
-        <p class="text-3xl font-semibold text-white tracking-tight" id="stat-orders-new">0</p>
-        <p class="mt-4 text-xs text-gray-600">Pending processing</p>
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-widest">Pending Orders</p>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                <iconify-icon icon="solar:hourglass-linear" width="16"></iconify-icon>
+            </div>
+        </div>
+        <p class="text-3xl font-semibold text-white tracking-tight" id="stat-orders-new">...</p>
+        <p class="mt-4 text-xs text-gray-600">Awaiting completion</p>
     </div>
+    <!-- Expenses -->
+    <div class="glass-card p-6 rounded-2xl">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-widest">Expenses</p>
+            <div class="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center">
+                <iconify-icon icon="solar:bill-list-linear" width="16"></iconify-icon>
+            </div>
+        </div>
+        <p class="text-3xl font-semibold text-white tracking-tight" id="stat-expense-total">৳ ...</p>
+        <div class="mt-4 flex items-center justify-between">
+            <span class="text-xs text-gray-600" id="stat-expense-count">...</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-amber-500/10 text-amber-400 border border-amber-500/20" id="stat-expense-pending"></span>
+        </div>
+    </div>
+    <!-- Monthly Goal -->
     <div class="glass-card p-6 rounded-2xl border-l-4 border-l-indigo-500">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">Monthly Goal (৳50k)</p>
-        <div class="flex items-end justify-between mb-4">
-            <p class="text-2xl font-semibold text-white" id="stat-monthly-val">৳0</p>
-            <span class="text-xs font-bold text-indigo-400" id="stat-monthly-perc">0%</span>
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-widest">Monthly Goal</p>
+            <span class="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">৳50k</span>
+        </div>
+        <div class="flex items-end justify-between mb-3">
+            <p class="text-2xl font-semibold text-white" id="stat-monthly-val">৳ ...</p>
+            <span class="text-xs font-bold text-indigo-400" id="stat-monthly-perc">...%</span>
         </div>
         <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
             <div id="stat-monthly-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-1000" style="width: 0%"></div>
         </div>
+        <p class="text-[10px] text-gray-600 mt-2" id="stat-monthly-orders"></p>
     </div>
 </div>
 
@@ -78,24 +152,53 @@
             <h3 class="text-lg font-semibold text-white">Record New Sale</h3>
         </div>
         <form id="recordSaleForm" onsubmit="handleSaleSubmit(event)" class="space-y-5">
+            <!-- Product Dropdown -->
             <div>
-                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Product Name</label>
-                <input type="text" name="product" placeholder="e.g. Wireless Mouse" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
+                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Product</label>
+                <select id="saleProductSelect" name="product" class="w-full" required>
+                    <option value="">Loading products...</option>
+                </select>
             </div>
+
+            <!-- Product Info Card (shown after selection) -->
+            <div id="productInfoCard" class="hidden p-3 bg-white/[0.03] border border-white/5 rounded-xl flex items-center gap-3">
+                <img id="productInfoImg" src="" class="w-12 h-12 rounded-lg object-cover border border-white/10" />
+                <div class="flex-1">
+                    <p id="productInfoName" class="text-sm font-semibold text-white"></p>
+                    <p id="productInfoStock" class="text-[10px] text-gray-500"></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Unit Price</p>
+                    <p id="productInfoPrice" class="text-sm font-bold text-emerald-400"></p>
+                </div>
+            </div>
+
+            <!-- Quantity + Platform -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Amount (৳)</label>
-                    <input type="number" name="amount" placeholder="0.00" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Quantity</label>
+                    <input type="number" id="saleQty" name="quantity" value="1" min="1" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Platform</label>
-                    <select name="platform" class="input-glass w-full px-4 py-3 rounded-xl text-sm bg-neutral-900">
-                        <option value="Daraz">Daraz</option>
-                        <option value="CartUp">CartUp</option>
-                        <option value="Offline">Offline/Direct</option>
+                    <select name="platform" id="salePlatform" class="input-glass w-full px-4 py-3 rounded-xl text-sm bg-neutral-900">
+                        <!-- Populated by JS -->
                     </select>
                 </div>
             </div>
+
+            <!-- Auto-calculated Amount -->
+            <div>
+                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Total Amount (৳)</span>
+                    <span class="text-indigo-400 normal-case font-normal">Auto-calculated</span>
+                </label>
+                <div class="relative">
+                    <input type="number" id="saleAmount" name="amount" placeholder="0.00" step="0.01" class="input-glass w-full px-4 py-3 pl-10 rounded-xl text-sm font-semibold text-emerald-400" required>
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">৳</span>
+                </div>
+            </div>
+
             <div>
                 <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Note (Optional)</label>
                 <textarea name="note" rows="2" class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="Add additional details..."></textarea>
@@ -115,6 +218,12 @@
             <h3 class="text-lg font-semibold text-white">Submit Expense</h3>
         </div>
         <form id="recordExpenseForm" onsubmit="handleExpenseSubmit(event)" class="space-y-5">
+            <!-- Title / Note -->
+            <div>
+                <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Title / Note</label>
+                <input type="text" name="note" placeholder="e.g. Monthly courier fee for Daraz shipments" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
+            </div>
+            <!-- Description -->
             <div>
                 <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Description</label>
                 <input type="text" name="description" placeholder="e.g. Courier Charges" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
@@ -122,7 +231,10 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Cost (৳)</label>
-                    <input type="number" name="amount" placeholder="0.00" class="input-glass w-full px-4 py-3 rounded-xl text-sm" required>
+                    <div class="relative">
+                        <input type="number" name="amount" placeholder="0.00" step="0.01" min="0" class="input-glass w-full px-4 py-3 pl-8 rounded-xl text-sm" required>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">৳</span>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Category</label>
@@ -130,54 +242,158 @@
                         <option value="Ops">Operations</option>
                         <option value="Marketing">Marketing</option>
                         <option value="Logistics">Logistics</option>
+                        <option value="HR">HR / Staff</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
             </div>
             <div>
                 <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Receipt (Optional)</label>
-                <div class="relative group">
-                    <input type="file" name="attachment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                <label class="relative group cursor-pointer block">
+                    <input type="file" id="expenseAttachment" name="attachment" accept="image/*,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                     <div class="input-glass w-full px-4 py-3 rounded-xl text-sm flex items-center gap-2 text-gray-500 group-hover:bg-white/5 transition-colors">
                         <iconify-icon icon="solar:upload-linear" width="18"></iconify-icon>
                         <span id="file-name">Upload image or PDF</span>
                     </div>
-                </div>
+                </label>
             </div>
-            <button type="submit" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20">
+            <button type="submit" id="expenseSubmitBtn" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20">
                 Submit for Approval
             </button>
         </form>
     </div>
 </div>
+
+<!-- Recent Expenses List -->
+<div class="glass-card rounded-2xl overflow-hidden mt-8">
+    <div class="px-8 py-5 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-indigo-500/10 text-indigo-400 rounded-lg flex items-center justify-center">
+                <iconify-icon icon="solar:bill-list-linear" width="18"></iconify-icon>
+            </div>
+            <h3 class="text-sm font-semibold text-white">My Recent Expenses</h3>
+        </div>
+        <a href="{% url 'staff-reports' %}" class="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
+            View All <iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon>
+        </a>
+    </div>
+    <div id="recent-expenses-container">
+        <div class="px-8 py-8 text-center text-gray-500 text-sm">
+            <iconify-icon icon="line-md:loading-loop" width="24" class="mb-2 block mx-auto"></iconify-icon>
+            Loading expenses...
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 <script>
+    let inventoryProducts = [];
+    let selectedProductPrice = 0;
+
+    // Format currency helper
+    const fmt = (v) => '৳' + parseFloat(v || 0).toFixed(2);
+
+    // Load inventory products into Select2
+    const loadSaleProducts = async () => {
+        try {
+            const data = await DB.getInventory();
+            inventoryProducts = Array.isArray(data) ? data : (data.results || []);
+
+            const select = $('#saleProductSelect');
+            select.empty().append(new Option('Select a product...', '', true, true));
+
+            inventoryProducts.forEach(p => {
+                const opt = new Option(
+                    `${p.name} — Stock: ${p.stock} | ৳${parseFloat(p.sell_price).toFixed(2)}`,
+                    p.id, false, false
+                );
+                $(opt).data('product', p);
+                select.append(opt);
+            });
+
+            select.trigger('change');
+        } catch (err) {
+            console.error('Failed to load products', err);
+        }
+    };
+
+    // Update amount when qty or product changes
+    const recalcAmount = () => {
+        const qty = parseInt(document.getElementById('saleQty').value) || 1;
+        const total = selectedProductPrice * qty;
+        document.getElementById('saleAmount').value = total.toFixed(2);
+    };
+
+    // Handle product selection
+    $('#saleProductSelect').on('select2:select', function (e) {
+        const productId = $(this).val();
+        const product = inventoryProducts.find(p => p.id == productId);
+        if (!product) return;
+
+        selectedProductPrice = parseFloat(product.sell_price || 0);
+
+        // Show info card
+        const card = document.getElementById('productInfoCard');
+        card.classList.remove('hidden');
+        card.classList.add('flex');
+        document.getElementById('productInfoName').textContent = product.name;
+        document.getElementById('productInfoStock').textContent = `${product.stock} units in stock • Category: ${product.category_name || 'General'}`;
+        document.getElementById('productInfoPrice').textContent = fmt(product.sell_price);
+        const img = document.getElementById('productInfoImg');
+        img.src = product.image || 'https://via.placeholder.com/48?text=P';
+
+        // Set max quantity
+        document.getElementById('saleQty').max = product.stock;
+
+        recalcAmount();
+    });
+
+    $('#saleProductSelect').on('select2:unselect', function () {
+        document.getElementById('productInfoCard').classList.add('hidden');
+        document.getElementById('productInfoCard').classList.remove('flex');
+        selectedProductPrice = 0;
+        document.getElementById('saleAmount').value = '';
+    });
+
+    document.getElementById('saleQty').addEventListener('input', recalcAmount);
+
     // Staff specific handlers
     async function handleSaleSubmit(e) {
         e.preventDefault();
-        const btn = e.target.querySelector('button');
+        const btn = e.target.querySelector('button[type="submit"]');
         const originalText = btn.textContent;
         const formData = new FormData(e.target);
+
+        const productId = formData.get('product');
+        const quantity = parseInt(formData.get('quantity'));
+        const amount = parseFloat(formData.get('amount'));
+        const platform = formData.get('platform');
+        const note = formData.get('note');
+
+        if (!productId) { alert('Please select a product.'); return; }
+        if (!quantity || quantity < 1) { alert('Please enter a valid quantity.'); return; }
         
+        // Check stock
+        const product = inventoryProducts.find(p => p.id == productId);
+        if (product && quantity > product.stock) {
+            alert(`Not enough stock! Only ${product.stock} units available.`);
+            return;
+        }
+
         try {
             btn.disabled = true;
             btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" class="inline-block mr-2"></iconify-icon> Recording...';
-            
-            await DB.addOrder({
-                product_name: formData.get('product'),
-                total_amount: formData.get('amount'),
-                platform: formData.get('platform'),
-                description: formData.get('note'),
-                type: 'sale',
-                status: 'pending'
-            });
-            
+
+            await DB.addOrder({ product: productId, quantity, amount, platform, note });
+
             alert('Sale recorded successfully!');
             window.location.reload();
-        } catch (err) { 
-            alert(err.message); 
+        } catch (err) {
+            alert(err.message);
             btn.disabled = false;
             btn.textContent = originalText;
         }
@@ -185,34 +401,238 @@
 
     async function handleExpenseSubmit(e) {
         e.preventDefault();
-        const btn = e.target.querySelector('button');
+        const btn = document.getElementById('expenseSubmitBtn');
         const originalText = btn.textContent;
-        const formData = new FormData(e.target);
-        
+        const form = e.target;
+        const formData = new FormData(form);
+
+        const note = formData.get('note');
+        const description = formData.get('description');
+        const amount = formData.get('amount');
+        const category = formData.get('category');
+        const attachment = formData.get('attachment');
+
+        if (!note || !description || !amount) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
         try {
             btn.disabled = true;
             btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" class="inline-block mr-2"></iconify-icon> Submitting...';
+
+            // Use FormData to support file attachment
+            const payload = new FormData();
+            payload.append('note', note);
+            payload.append('description', description);
+            payload.append('amount', amount);
+            payload.append('category', category);
+            if (attachment && attachment.size > 0) {
+                payload.append('attachment', attachment);
+            }
+
+            await DB.apiCall('/staff/expenses/', 'POST', payload);
+
+            // Show success toast
+            form.reset();
+            document.getElementById('file-name').textContent = 'Upload image or PDF';
+            await loadRecentExpenses();
+
+            btn.disabled = false;
+            btn.textContent = originalText;
             
-            await DB.apiCall('/staff/expenses/', 'POST', {
-                description: formData.get('description'),
-                amount: formData.get('amount'),
-                category: formData.get('category'),
-                note: formData.get('note')
-            });
-            
-            alert('Expense submitted successfully!');
-            window.location.reload();
-        } catch (err) { 
-            alert(err.message); 
+            // Inline success feedback
+            btn.innerHTML = '<iconify-icon icon="solar:check-circle-linear" class="inline-block mr-2"></iconify-icon> Submitted!';
+            btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+            }, 2500);
+
+        } catch (err) {
+            alert('Error: ' + err.message);
             btn.disabled = false;
             btn.textContent = originalText;
         }
     }
 
+    const STATUS_COLORS = {
+        pending:  'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+        approved: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+        rejected: 'bg-red-500/10 text-red-400 border border-red-500/20',
+    };
+
+    const loadRecentExpenses = async () => {
+        const container = document.getElementById('recent-expenses-container');
+        if (!container) return;
+        try {
+            const data = await DB.getExpenses();
+            const expenses = (Array.isArray(data) ? data : (data.results || []))
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 6);
+
+            if (expenses.length === 0) {
+                container.innerHTML = `<div class="px-8 py-10 text-center text-gray-600 text-sm italic">No expenses submitted yet.</div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="divide-y divide-white/5">
+                    ${expenses.map(ex => `
+                        <div class="px-8 py-4 flex items-start justify-between gap-4 hover:bg-white/[0.01] transition-colors">
+                            <div class="flex items-start gap-3 flex-1 min-w-0">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <iconify-icon icon="${getCategoryIcon(ex.category)}" width="16"></iconify-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-white truncate">${ex.note || ex.description}</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5 truncate">${ex.description} &middot; ${ex.category || 'General'}</p>
+                                    <p class="text-[9px] text-gray-700 mt-0.5">${new Date(ex.created_at).toLocaleDateString('en-BD', { day:'2-digit', month:'short', year:'numeric' })}</p>
+                                </div>
+                            </div>
+                            <div class="text-right flex-shrink-0">
+                                <p class="text-sm font-bold text-red-400">- ${App.formatCurrency(ex.amount)}</p>
+                                <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide ${STATUS_COLORS[ex.status] || STATUS_COLORS.pending}">${ex.status || 'pending'}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } catch (err) {
+            container.innerHTML = `<div class="px-8 py-6 text-center text-red-400 text-sm">Failed to load expenses: ${err.message}</div>`;
+        }
+    };
+
+    const getCategoryIcon = (cat) => {
+        if (!cat) return 'solar:bill-list-linear';
+        cat = cat.toLowerCase();
+        if (cat.includes('log')) return 'solar:delivery-linear';
+        if (cat.includes('market')) return 'solar:target-linear';
+        if (cat.includes('hr') || cat.includes('staff')) return 'solar:users-group-rounded-linear';
+        return 'solar:bill-list-linear';
+    };
+
     // Handle file name display
     document.querySelector('input[type="file"]').addEventListener('change', function(e) {
         const fileName = e.target.files[0] ? e.target.files[0].name : 'Upload image or PDF';
         document.getElementById('file-name').textContent = fileName;
+    });
+
+    // Platform choices matching backend model
+    const PLATFORMS = [
+        { value: 'Daraz',   label: 'Daraz',        icon: 'solar:bag-linear' },
+        { value: 'CartUp',  label: 'CartUp',       icon: 'solar:cart-large-minimalistic-linear' },
+        { value: 'Offline', label: 'Offline/Direct', icon: 'solar:shop-linear' },
+        { value: 'Other',   label: 'Other',        icon: 'solar:planet-linear' },
+    ];
+
+    const populatePlatforms = () => {
+        const sel = document.getElementById('salePlatform');
+        if (!sel) return;
+        sel.innerHTML = PLATFORMS.map(p =>
+            `<option value="${p.value}">${p.label}</option>`
+        ).join('');
+    };
+
+    // Init Select2 + load products on page ready
+    document.addEventListener('DOMContentLoaded', async () => {
+        $('#saleProductSelect').select2({
+            placeholder: 'Search and select a product...',
+            width: '100%',
+            allowClear: true,
+        });
+        populatePlatforms();
+        await loadSaleProducts();
+        await loadRecentExpenses();
+
+        // ── Load real staff dashboard stats directly here ──────────────────
+        // (bypasses the role-check in dashboard.js to guarantee it always runs)
+        try {
+            const dash = await DB.getStaffDashboard();
+
+            const elSalesToday = document.getElementById('stat-sales-today');
+            if (elSalesToday) elSalesToday.textContent = App.formatCurrency(dash.today.sales);
+
+            const elTodayOrders = document.getElementById('stat-today-orders');
+            if (elTodayOrders) elTodayOrders.textContent = `${dash.today.orders} order${dash.today.orders !== 1 ? 's' : ''} today`;
+
+            const elOrdersNew = document.getElementById('stat-orders-new');
+            if (elOrdersNew) elOrdersNew.textContent = dash.pending_orders;
+
+            const elMonthlyVal = document.getElementById('stat-monthly-val');
+            if (elMonthlyVal) {
+                elMonthlyVal.textContent = App.formatCurrency(dash.month.sales);
+                const perc = Math.min(100, Math.round(dash.month.progress));
+                document.getElementById('stat-monthly-perc').textContent = perc + '%';
+                document.getElementById('stat-monthly-bar').style.width = perc + '%';
+                const elMonOrd = document.getElementById('stat-monthly-orders');
+                if (elMonOrd) elMonOrd.textContent = `${dash.month.orders} completed orders this month`;
+            }
+
+            // Weekly chart - destroy existing first to prevent "canvas in use" error
+            const sCtx = document.getElementById('staffChart');
+            if (sCtx && dash.weekly_trend && typeof Chart !== 'undefined') {
+                // Destroy any existing Chart.js instance on this canvas
+                const existingChart = Chart.getChart(sCtx);
+                if (existingChart) existingChart.destroy();
+                const labels    = dash.weekly_trend.map(d => d.date);
+                const salesData = dash.weekly_trend.map(d => d.amount);
+                new Chart(sCtx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Sales (৳)',
+                            data: salesData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#10b981',
+                            pointRadius: 4,
+                            pointHoverRadius: 7,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: c => ' ৳' + c.parsed.y.toLocaleString() } }
+                        },
+                        scales: {
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a3a3a3', callback: v => '৳' + v.toLocaleString() } },
+                            x: { grid: { display: false }, ticks: { color: '#a3a3a3' } }
+                        }
+                    }
+                });
+            }
+            // Expense stat card
+            try {
+                const expData = await DB.getExpenses();
+                const exps = Array.isArray(expData) ? expData : (expData.results || []);
+                const totalExp = exps.reduce((s, e) => s + Number(e.amount || 0), 0);
+                const pendingCount = exps.filter(e => e.status === 'pending').length;
+
+                const elExpTotal = document.getElementById('stat-expense-total');
+                if (elExpTotal) elExpTotal.textContent = App.formatCurrency(totalExp);
+
+                const elExpCount = document.getElementById('stat-expense-count');
+                if (elExpCount) elExpCount.textContent = `${exps.length} expense${exps.length !== 1 ? 's' : ''} total`;
+
+                const elExpPending = document.getElementById('stat-expense-pending');
+                if (elExpPending && pendingCount > 0) elExpPending.textContent = `${pendingCount} pending`;
+                else if (elExpPending) { elExpPending.textContent = 'All cleared'; elExpPending.className = elExpPending.className.replace('amber', 'emerald'); }
+            } catch(_) {}
+
+        } catch(err) {
+            console.error('Dashboard stats error:', err);
+            // Show zeros gracefully
+            const ids = ['stat-sales-today','stat-orders-new','stat-monthly-val'];
+            ids.forEach(id => { const el = document.getElementById(id); if (el && el.textContent.includes('...')) el.textContent = '৳0'; });
+            const ordEl = document.getElementById('stat-orders-new');
+            if (ordEl && ordEl.textContent.includes('...')) ordEl.textContent = '0';
+        }
     });
 </script>
 {% endblock %}

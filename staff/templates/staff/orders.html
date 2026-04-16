@@ -20,6 +20,7 @@
 </a>
 <a href="{% url 'staff-messages' %}" class="nav-item">
     <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+    <span class="msg-badge hidden">0</span>
 </a>
 <a href="{% url 'staff-reports' %}" class="nav-item">
     <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> My Reports
@@ -35,9 +36,7 @@
             <select onchange="renderOrders(this.value)" class="bg-black/20 border border-white/10 rounded-lg px-3 py-1 text-[11px] text-gray-400 outline-none hover:border-white/20 transition-colors">
                 <option value="all">All Orders</option>
                 <option value="pending">Pending</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
+                <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
             </select>
         </div>
@@ -49,6 +48,7 @@
                     <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Order ID</th>
                     <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Date</th>
                     <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Product</th>
+                    <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Qty</th>
                     <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Platform</th>
                     <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Amount</th>
                     <th class="px-8 py-4 text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Status</th>
@@ -57,12 +57,12 @@
             </thead>
             <tbody id="order-list" class="divide-y divide-white/5">
                 <!-- Populated via JS -->
-                 <tr>
-                    <td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">
+                <tr>
+                    <td colspan="8" class="px-8 py-12 text-center text-gray-500 text-sm">
                         <iconify-icon icon="line-md:loading-loop" width="24" class="mb-2 block mx-auto"></iconify-icon>
                         Fetching orders...
                     </td>
-                 </tr>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -74,17 +74,16 @@
     let allOrders = [];
 
     const renderOrders = async (filterStatus = 'all') => {
+        const tbody = document.getElementById('order-list');
         try {
             const data = await DB.getOrders();
             allOrders = (Array.isArray(data) ? data : (data.results || []))
-                .filter(o => o.type === 'sale')
-                .sort((a, b) => b.id - a.id);
-            
-            const tbody = document.getElementById('order-list');
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
             const filtered = filterStatus === 'all' ? allOrders : allOrders.filter(o => o.status === filterStatus);
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">No orders found matching the filter.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="px-8 py-12 text-center text-gray-500 text-sm">No orders found matching the filter.</td></tr>`;
                 return;
             }
 
@@ -95,9 +94,13 @@
                     </td>
                     <td class="px-8 py-4">
                         <p class="text-xs text-gray-400 font-medium">${new Date(o.created_at).toLocaleDateString()}</p>
+                        <p class="text-[10px] text-gray-600">${new Date(o.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
                     </td>
                     <td class="px-8 py-4">
                         <p class="text-xs text-white font-semibold">${o.product_name || 'N/A'}</p>
+                    </td>
+                    <td class="px-8 py-4">
+                        <span class="text-xs text-gray-300 font-medium">${o.quantity || 1}</span>
                     </td>
                     <td class="px-8 py-4">
                         <div class="flex items-center gap-2">
@@ -106,7 +109,7 @@
                         </div>
                     </td>
                     <td class="px-8 py-4">
-                        <p class="text-xs font-bold text-white">${App.formatCurrency(o.total_amount)}</p>
+                        <p class="text-xs font-bold text-white">${App.formatCurrency(o.amount)}</p>
                     </td>
                     <td class="px-8 py-4">
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusBadgeClass(o.status)}">
@@ -117,9 +120,7 @@
                         <div class="flex items-center justify-end gap-3">
                             <select onchange="handleUpdateStatus(${o.id}, this.value)" class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-gray-500 outline-none hover:border-indigo-500/50 hover:text-white transition-all cursor-pointer">
                                 <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
-                                <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="completed" ${o.status === 'completed' ? 'selected' : ''}>Completed</option>
                                 <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                             </select>
                         </div>
@@ -128,7 +129,7 @@
             `).join('');
         } catch (err) {
             console.error(err);
-            document.getElementById('order-list').innerHTML = `<tr><td colspan="7" class="px-8 py-12 text-center text-red-400 text-sm">Failed to load orders.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="px-8 py-12 text-center text-red-400 text-sm">Failed to load orders: ${err.message}</td></tr>`;
         }
     };
 

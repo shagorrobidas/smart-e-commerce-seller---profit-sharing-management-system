@@ -1,6 +1,46 @@
 {% extends "base_dashboard.html" %}
 {% load static %}
 
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Select2 Dark Theme Styling */
+    .select2-container--default .select2-selection--single {
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        height: 48px;
+        color: white;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: white;
+        line-height: 48px;
+        padding-left: 1rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px;
+    }
+    .select2-dropdown {
+        background-color: #171717;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+    }
+    .select2-container--default .select2-results__option--selected {
+        background-color: rgba(99, 102, 241, 0.2);
+    }
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+        background-color: #6366f1;
+        color: white;
+    }
+    .select2-search--dropdown .select2-search__field {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        color: white;
+    }
+</style>
+{% endblock %}
+
 {% block title %}Inventory Management - SmartSeller{% endblock %}
 {% block portal_name %}Staff Portal{% endblock %}
 {% block page_title %}Inventory Management{% endblock %}
@@ -20,6 +60,7 @@
 </a>
 <a href="{% url 'staff-messages' %}" class="nav-item">
     <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+    <span class="msg-badge hidden">0</span>
 </a>
 <a href="{% url 'staff-reports' %}" class="nav-item">
     <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> My Reports
@@ -63,12 +104,12 @@
                     <input type="number" name="stock" required class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="0">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Category</label>
-                    <select name="cat" class="input-glass w-full px-4 py-3 rounded-xl text-sm bg-neutral-900">
-                        <option>Electronics</option>
-                        <option>Accessories</option>
-                        <option>Office</option>
-                        <option>Other</option>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2 flex justify-between items-center">
+                        Category
+                        <button type="button" onclick="toggleAddCategoryModal()" class="text-indigo-400 hover:text-indigo-300 text-[10px] bg-indigo-500/10 px-2 py-0.5 rounded cursor-pointer">+ Add New</button>
+                    </label>
+                    <select name="cat" id="categorySelect" class="w-full px-4 py-3 rounded-xl text-sm bg-neutral-900 border border-white/10" required>
+                        <option value="">Select a category...</option>
                     </select>
                 </div>
                 <div>
@@ -82,6 +123,10 @@
                 <div class="md:col-span-2">
                     <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Description</label>
                     <textarea name="desc" rows="3" class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="Product features, specifications..."></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Product Image (Optional)</label>
+                    <input type="file" name="image" accept="image/*" class="input-glass w-full px-4 py-3 rounded-xl text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all cursor-pointer">
                 </div>
             </div>
             <div class="flex justify-end gap-3">
@@ -163,11 +208,37 @@
         </div>
     </div>
 </div>
+
+<!-- Add Category Modal -->
+<div id="categoryModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleAddCategoryModal()"></div>
+    <div class="glass-card w-full max-w-sm rounded-2xl overflow-hidden relative z-10 shadow-2xl scale-95 opacity-0 transition-all duration-300" id="catModalContainer">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-white">New Category</h3>
+                <button onclick="toggleAddCategoryModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
+                </button>
+            </div>
+            <form id="addCategoryForm" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 uppercase tracking-widest mb-2">Category Name</label>
+                    <input type="text" id="newCategoryName" required class="input-glass w-full px-4 py-3 rounded-xl text-sm" placeholder="e.g. Furniture">
+                </div>
+                <button type="submit" class="w-full px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all">Add Category</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     let inventoryData = [];
+    let categoriesData = [];
 
     function toggleAddForm() {
         const container = document.getElementById('addProductFormContainer');
@@ -215,6 +286,59 @@
         }, 300);
     }
 
+    function toggleAddCategoryModal() {
+        const modal = document.getElementById('categoryModal');
+        const container = document.getElementById('catModalContainer');
+        if (modal.classList.contains('hidden')) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                container.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+            document.getElementById('newCategoryName').focus();
+        } else {
+            container.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+            document.getElementById('addCategoryForm').reset();
+        }
+    }
+
+    const loadCategories = async () => {
+        try {
+            const data = await DB.getCategories();
+            categoriesData = Array.isArray(data) ? data : (data.results || []);
+            const select = $('#categorySelect');
+            select.empty();
+            select.append(new Option("Select a category...", "", true, true));
+            categoriesData.forEach(c => {
+                select.append(new Option(c.name, c.id, false, false));
+            });
+            select.trigger('change');
+        } catch (err) {
+            console.error("Failed to load categories", err);
+        }
+    };
+
+    document.getElementById('addCategoryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('newCategoryName').value.trim();
+        if (!name) return;
+        try {
+            const res = await DB.addCategory(name);
+            await loadCategories();
+            toggleAddCategoryModal();
+            // Select the newly added category
+            if (res && res.id) {
+                $('#categorySelect').val(res.id).trigger('change');
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
     const renderInventory = async () => {
         try {
             const data = await DB.getInventory();
@@ -243,7 +367,7 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">${item.name}</p>
-                                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">${item.category || 'General'}</p>
+                                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">${item.category_name || 'General'}</p>
                                 </div>
                             </div>
                         </td>
@@ -284,14 +408,21 @@
             btn.disabled = true;
             btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" class="mr-2"></iconify-icon> Saving...';
             
-            await DB.apiCall('/staff/inventory/', 'POST', {
-                name: fd.get('name'),
-                category: fd.get('cat'),
-                stock: fd.get('stock'),
-                buy_price: fd.get('bp'),
-                sell_price: fd.get('sp'),
-                description: fd.get('desc')
-            });
+            // Map the input fields to their expected API keys
+            const payload = new FormData();
+            payload.append('name', fd.get('name'));
+            payload.append('category', fd.get('cat'));
+            payload.append('stock', fd.get('stock'));
+            payload.append('buy_price', fd.get('bp'));
+            payload.append('sell_price', fd.get('sp'));
+            payload.append('description', fd.get('desc'));
+            
+            const imgFile = fd.get('image');
+            if (imgFile && imgFile.size > 0) {
+                payload.append('image', imgFile);
+            }
+            
+            await DB.apiCall('/staff/inventory/', 'POST', payload);
             
             toggleAddForm();
             e.target.reset();
@@ -305,12 +436,20 @@
         }
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         if (!App.checkAuth()) {
             window.location.href = '{% url "login" %}';
             return;
         }
-        renderInventory();
+        
+        // Initialize Select2
+        $('#categorySelect').select2({
+            placeholder: "Select a category...",
+            width: '100%',
+        });
+        
+        await loadCategories();
+        await renderInventory();
     });
 </script>
 {% endblock %}

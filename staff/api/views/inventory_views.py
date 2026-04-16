@@ -3,9 +3,15 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from api.models import Product
+from api.models import Product, Category
 from api.permissions import IsAdminOrStaff
-from staff.api.serializers.inventory_serializers import ProductSerializer, ProductCreateSerializer
+from staff.api.serializers.inventory_serializers import ProductSerializer, ProductCreateSerializer, CategorySerializer
+
+class CategoryListCreateView(generics.ListCreateAPIView):
+    """GET/POST /api/v1/staff/categories/"""
+    permission_classes = [IsAuthenticated, IsAdminOrStaff]
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
 
 
 class InventoryListCreateView(generics.ListCreateAPIView):
