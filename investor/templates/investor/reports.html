@@ -18,6 +18,10 @@
 <a href="{% url 'investor-reports-page' %}" class="nav-item active">
     <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> Reports
 </a>
+<a href="{% url 'investor-messages-page' %}" class="nav-item">
+    <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+    <span class="msg-badge hidden">0</span>
+</a>
 {% endblock %}
 
 {% block content %}
@@ -138,70 +142,56 @@
     let equityStake = 0;
 
     const renderReports = async () => {
+        const tbody = document.getElementById('investor-report-list');
         try {
-            const data = await DB.getInvestorDashboard();
-            equityStake = (data.portfolio.equity_percent || 0) / 100;
+            const data = await DB.getInvestorReports();
+            equityStake = (data.equity_percent || 0) / 100;
             
-            // Stats from dashboard data
-            document.getElementById('rep-total-invested').textContent = App.formatCurrency(data.portfolio.total_invested);
-            document.getElementById('rep-current-val').textContent = App.formatCurrency(data.portfolio.total_invested * 1.25); // Mocked growth
-            document.getElementById('rep-net-return').textContent = '+25.0%';
+            // Stats from reports data
+            document.getElementById('rep-total-invested').textContent = App.formatCurrency(data.investment_summary.total_invested);
+            document.getElementById('rep-current-val').textContent = App.formatCurrency(data.investment_summary.total_invested * 1.1); // Simulated conservative growth
+            document.getElementById('rep-net-return').textContent = '+10.0%';
 
-            // Detailed Log
-            const [ordersData, expenseData] = await Promise.all([
-                DB.getOrders(),
-                DB.getExpenses()
-            ]);
+            // Recent Payouts vs Monthly P&L
+            // We'll show the recent payouts in the table as they are consolidated audit events
+            const payouts = data.recent_payouts || [];
 
-            const orders = (Array.isArray(ordersData) ? ordersData : (ordersData.results || []))
-                .filter(o => o.status !== 'cancelled')
-                .map(o => ({ date: o.created_at, type: 'sale', label: `Order #SEC-${o.id}`, amount: o.total_amount }));
-
-            const expenses = (Array.isArray(expenseData) ? expenseData : (expenseData.results || []))
-                .map(e => ({ date: e.created_at, type: 'expense', label: e.description || e.category, amount: e.amount }));
-
-            const allRecords = [...orders, ...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-            const tbody = document.getElementById('investor-report-list');
-
-            if (allRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-12 text-center text-gray-600 text-xs italic">No financial movements recorded in the audit period.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = allRecords.map(r => {
-                const isSale = r.type === 'sale';
-                const shareAmount = isSale ? (r.amount * 0.3 * equityStake) : (r.amount * equityStake);
-
-                return `
+            if (payouts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-12 text-center text-gray-500 text-xs italic">No payout history found in recent audit period.</td></tr>`;
+            } else {
+                tbody.innerHTML = payouts.map(p => `
                     <tr class="hover:bg-white/[0.01] transition-colors group">
                         <td class="px-8 py-5">
-                            <p class="text-xs text-gray-400 font-bold">${new Date(r.date).toLocaleDateString()}</p>
+                            <p class="text-xs text-gray-400 font-bold">${p.date}</p>
                         </td>
                         <td class="px-8 py-5">
                             <div class="flex items-center gap-2">
-                                <span class="w-1.5 h-1.5 rounded-full ${isSale ? 'bg-emerald-500' : 'bg-red-500'}"></span>
-                                <p class="text-xs font-semibold text-white group-hover:text-indigo-400 transition-colors uppercase tracking-tight">${r.label}</p>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <p class="text-xs font-semibold text-white group-hover:text-indigo-400 transition-colors uppercase tracking-tight">Dividend Payout</p>
                             </div>
-                            <p class="text-[9px] text-gray-600 font-bold uppercase mt-1">${r.type}</p>
+                            <p class="text-[9px] text-gray-600 font-bold uppercase mt-1">${p.note || 'Profit Share'}</p>
                         </td>
                         <td class="px-8 py-5">
-                            <p class="text-xs font-bold ${isSale ? 'text-emerald-500/60' : 'text-red-500/60'}">
-                                ${isSale ? '+' : '-'} ${App.formatCurrency(r.amount)}
+                            <p class="text-xs font-bold text-emerald-500/60">
+                                Global Dist.
                             </p>
                         </td>
                         <td class="px-8 py-5 text-right">
-                            <p class="text-sm font-black ${isSale ? 'text-indigo-400' : 'text-gray-500'}">
-                                ${isSale ? '+' : '-'} ${App.formatCurrency(shareAmount)}
+                            <p class="text-sm font-black text-indigo-400">
+                                + ${App.formatCurrency(p.amount)}
                             </p>
                         </td>
                     </tr>
-                `;
-            }).join('');
+                `).join('');
+            }
 
             // Initial Calculator update
             updateProjector(5);
 
-        } catch (err) { console.error(err); }
+        } catch (err) { 
+            console.error('Reports Load Error:', err);
+            if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-12 text-center text-red-500 text-xs">Failed to load financial audit.</td></tr>`;
+        }
     };
 
     const updateProjector = (rate) => {

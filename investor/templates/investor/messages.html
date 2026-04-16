@@ -1,6 +1,11 @@
-{% extends "base_dashboard.html" %} {% load static %} {% block title %}Messages
-- Investor Portal{% endblock %} {% block portal_name %}Investor View{% endblock
-%} {% block page_title %}Messages{% endblock %} {% block sidebar_nav %}
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Messages - Investor Portal{% endblock %}
+{% block portal_name %}Investor View{% endblock %}
+{% block page_title %}Messages{% endblock %}
+
+{% block sidebar_nav %}
 <a href="{% url 'investor-dashboard-page' %}" class="nav-item">
   <iconify-icon icon="solar:pie-chart-2-linear" width="20"></iconify-icon>
   Portfolio
@@ -19,6 +24,7 @@
 <a href="{% url 'investor-messages-page' %}" class="nav-item active">
   <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon>
   Messages
+  <span class="msg-badge hidden">0</span>
 </a>
 {% endblock %} {% block extra_css %}
 <style>
@@ -408,6 +414,18 @@
                         <p class="text-xs">No messages yet. Start the conversation!</p>
                     </div>`;
       } else {
+        // Auto-mark received messages as read
+        const unreadCount = msgs.filter(m => m.receiver == currentUser.id && !m.is_read).length;
+        if (unreadCount > 0) {
+            try {
+                await fetch(`/api/v1/investor/messages/mark-read/${activeChatUser}/`, {
+                    method: 'PATCH',
+                    headers: authHeaders()
+                });
+                if (window.App && App.refreshNotifications) App.refreshNotifications();
+            } catch (e) { console.warn("Failed to mark read", e); }
+        }
+
         area.innerHTML = msgs
           .map((m) => {
             const isSelf = m.sender == currentUser.id;
@@ -415,6 +433,13 @@
               hour: "2-digit",
               minute: "2-digit",
             });
+            const seenHtml = isSelf ? `
+                <div class="flex items-center gap-1 mt-1 opacity-50">
+                    <span class="text-[8px] font-bold uppercase tracking-widest">${m.is_read ? 'Seen' : 'Sent'}</span>
+                    <iconify-icon icon="${m.is_read ? 'solar:check-read-bold' : 'solar:check-circle-linear'}" width="12" class="${m.is_read ? 'text-indigo-400' : ''}"></iconify-icon>
+                </div>
+            ` : "";
+
             const attachmentHtml = m.attachment_url
               ? `
                         <div class="mt-3 ${isSelf ? "text-right" : "text-left"}">
@@ -428,12 +453,15 @@
               : "";
             return `
                         <div class="flex ${isSelf ? "justify-end" : "justify-start"}">
-                            <div class="max-w-[78%] flex flex-col ${isSelf ? "items-end" : "items-start"} gap-1.5">
+                            <div class="max-w-[78%] flex flex-col ${isSelf ? "items-end" : "items-start"} gap-1">
                                 <div class="px-5 py-3 text-sm ${isSelf ? "msg-bubble-sent" : "msg-bubble-recv"}">
                                     ${m.content || ""}
                                     ${attachmentHtml}
                                 </div>
-                                <span class="text-[9px] text-gray-600 uppercase tracking-widest font-bold px-1">${time}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[9px] text-gray-600 uppercase tracking-widest font-bold px-1">${time}</span>
+                                    ${seenHtml}
+                                </div>
                             </div>
                         </div>`;
           })

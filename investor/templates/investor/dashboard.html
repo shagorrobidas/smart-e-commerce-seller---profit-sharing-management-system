@@ -20,6 +20,7 @@
 </a>
 <a href="{% url 'investor-messages-page' %}" class="nav-item">
     <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+    <span class="msg-badge hidden" id="msg-badge-investor">0</span>
 </a>
 {% endblock %}
 
@@ -95,21 +96,30 @@
     </div>
 
     <!-- Capital Allocation -->
-    <div class="glass-card p-8 rounded-3xl">
-        <h3 class="text-lg font-bold text-white mb-2">Capital Allocation</h3>
-        <p class="text-xs text-gray-500 mb-8">Strategic distribution of your invested funds.</p>
+    <div class="glass-card p-8 rounded-3xl relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+        
+        <div class="mb-8">
+            <h3 class="text-xl font-bold text-white tracking-tight">Capital Allocation</h3>
+            <p class="text-[11px] text-gray-500 mt-1 font-medium italic underline decoration-indigo-500/30 underline-offset-4">Strategic fund distribution across core business verticals.</p>
+        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center">
-            <div class="relative h-48 flex items-center justify-center">
+        <div class="flex flex-col sm:flex-row items-center gap-10">
+            <div class="relative w-48 h-48 flex items-center justify-center shrink-0">
                 <canvas id="allocationChart"></canvas>
-                <div class="absolute flex flex-col items-center">
-                    <p class="text-[9px] font-bold text-gray-500 uppercase">Growth</p>
-                    <p class="text-lg font-black text-white">HQ</p>
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Fund</p>
+                    <p class="text-2xl font-black text-white leading-none">Usage</p>
                 </div>
             </div>
-            <div class="space-y-4" id="allocation-list">
+            
+            <div class="flex-1 w-full space-y-4" id="allocation-list">
                 <!-- Populated via JS -->
-                 <div class="text-gray-600 text-xs italic">Mapping allocation...</div>
+                <div class="flex flex-col gap-3">
+                    <div class="h-4 bg-white/5 rounded-lg animate-pulse"></div>
+                    <div class="h-4 bg-white/5 rounded-lg animate-pulse w-3/4"></div>
+                    <div class="h-4 bg-white/5 rounded-lg animate-pulse w-1/2"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -141,50 +151,78 @@
             document.getElementById('stat-expense').textContent = '-' + App.formatCurrency(pnl.total_expenses);
             document.getElementById('stat-net-profit').textContent = App.formatCurrency(pnl.net_profit);
 
+            // Set colors based on values
+            document.getElementById('stat-net-profit').className = pnl.net_profit >= 0 ? 'text-xl font-black text-emerald-400' : 'text-xl font-black text-red-400';
+
             // Audit
-            if (data.audit_status !== 'verified') {
-                const badge = document.getElementById('audit-badge');
+            const badge = document.getElementById('audit-badge');
+            const label = document.getElementById('audit-label');
+            const icon = badge.querySelector('iconify-icon');
+            
+            if (data.audit_status === 'verified') {
+                badge.className = 'flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl';
+                label.textContent = 'Verified';
+                label.className = 'text-[9px] font-bold text-emerald-500 uppercase tracking-widest';
+                icon.className = 'text-emerald-500';
+                icon.setAttribute('icon', 'solar:shield-check-bold');
+            } else {
                 badge.className = 'flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl';
-                document.getElementById('audit-label').textContent = 'Pending Audit';
-                document.getElementById('audit-label').className = 'text-[9px] font-bold text-amber-500 uppercase tracking-widest';
-                badge.querySelector('iconify-icon').className = 'text-amber-500';
+                label.textContent = 'Pending Audit';
+                label.className = 'text-[9px] font-bold text-amber-500 uppercase tracking-widest';
+                icon.className = 'text-amber-500';
+                icon.setAttribute('icon', 'solar:shield-warning-linear');
             }
 
             // Allocation
-            const allocation = data.capital_allocation;
+            const allocation = data.capital_allocation || [];
             const list = document.getElementById('allocation-list');
-            const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444'];
+            const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-            list.innerHTML = allocation.map((a, i) => `
-                <div class="flex items-center justify-between group">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full" style="background: ${colors[i]}"></span>
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">${a.name}</span>
+            if (allocation.length > 0) {
+                list.innerHTML = allocation.map((a, i) => `
+                    <div class="flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full shadow-lg shadow-${colors[i]}/20" style="background: ${colors[i % colors.length]}"></span>
+                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-gray-300 transition-colors">${a.name}</span>
+                        </div>
+                        <span class="text-sm font-black text-white group-hover:text-indigo-400 transition-colors">${a.percent}%</span>
                     </div>
-                    <span class="text-sm font-black text-white">${a.percent}%</span>
-                </div>
-            `).join('');
+                `).join('');
 
-            const ctx = document.getElementById('allocationChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: allocation.map(a => a.name),
-                    datasets: [{
-                        data: allocation.map(a => a.percent),
-                        backgroundColor: colors,
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    maintainAspectRatio: false,
-                    cutout: '75%',
-                    responsive: true,
-                    animation: { animateRotate: true, duration: 2000 }
-                }
-            });
+                const ctx = document.getElementById('allocationChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: allocation.map(a => a.name),
+                        datasets: [{
+                            data: allocation.map(a => a.percent),
+                            backgroundColor: colors,
+                            borderWidth: 0,
+                            hoverOffset: 12,
+                            borderRadius: 10,
+                            spacing: 5
+                        }]
+                    },
+                    options: {
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#111',
+                                titleFont: { size: 10, weight: 'bold' },
+                                bodyFont: { size: 10 },
+                                padding: 12,
+                                displayColors: false
+                            }
+                        },
+                        maintainAspectRatio: false,
+                        cutout: '82%',
+                        responsive: true,
+                        animation: { animateRotate: true, duration: 2500, easing: 'easeOutQuart' }
+                    }
+                });
+            } else {
+                list.innerHTML = '<p class="text-gray-600 text-xs italic text-center py-4">No allocation data available.</p>';
+            }
 
         } catch (err) {
             console.error(err);
