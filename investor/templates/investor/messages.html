@@ -1,189 +1,303 @@
-{% extends "base_dashboard.html" %}
-{% load static %}
-
-{% block title %}Messages - Investor Portal{% endblock %}
-{% block portal_name %}Investor View{% endblock %}
-{% block page_title %}Messages{% endblock %}
-
-{% block sidebar_nav %}
+{% extends "base_dashboard.html" %} {% load static %} {% block title %}Messages
+- Investor Portal{% endblock %} {% block portal_name %}Investor View{% endblock
+%} {% block page_title %}Messages{% endblock %} {% block sidebar_nav %}
 <a href="{% url 'investor-dashboard-page' %}" class="nav-item">
-    <iconify-icon icon="solar:pie-chart-2-linear" width="20"></iconify-icon> Portfolio
+  <iconify-icon icon="solar:pie-chart-2-linear" width="20"></iconify-icon>
+  Portfolio
 </a>
 <a href="{% url 'investor-agreements-page' %}" class="nav-item">
-    <iconify-icon icon="solar:document-text-linear" width="20"></iconify-icon> Agreements
+  <iconify-icon icon="solar:document-text-linear" width="20"></iconify-icon>
+  Agreements
 </a>
 <a href="{% url 'investor-invest' %}" class="nav-item">
-    <iconify-icon icon="solar:wallet-money-linear" width="20"></iconify-icon> Invest
+  <iconify-icon icon="solar:wallet-money-linear" width="20"></iconify-icon>
+  Invest
 </a>
 <a href="{% url 'investor-reports-page' %}" class="nav-item">
-    <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> Reports
+  <iconify-icon icon="solar:file-text-linear" width="20"></iconify-icon> Reports
 </a>
 <a href="{% url 'investor-messages-page' %}" class="nav-item active">
-    <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon> Messages
+  <iconify-icon icon="solar:chat-round-dots-linear" width="20"></iconify-icon>
+  Messages
 </a>
-{% endblock %}
-
-{% block extra_css %}
+{% endblock %} {% block extra_css %}
 <style>
-    .msg-bubble-sent {
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        color: white;
-        border-radius: 1.25rem 1.25rem 0 1.25rem;
-        box-shadow: 0 4px 20px rgba(99,102,241,0.25);
-    }
-    .msg-bubble-recv {
-        background: rgba(255,255,255,0.05);
-        color: #d4d4d4;
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 1.25rem 1.25rem 1.25rem 0;
-    }
-    .user-row-active {
-        background: rgba(99,102,241,0.12) !important;
-        border-color: rgba(99,102,241,0.3) !important;
-    }
-    #msg-area::-webkit-scrollbar { width: 4px; }
-    #msg-area::-webkit-scrollbar-track { background: transparent; }
-    #msg-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  .msg-bubble-sent {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-radius: 1.25rem 1.25rem 0 1.25rem;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+  }
+  .msg-bubble-recv {
+    background: rgba(255, 255, 255, 0.05);
+    color: #d4d4d4;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.25rem 1.25rem 1.25rem 0;
+  }
+  .user-row-active {
+    background: rgba(99, 102, 241, 0.12) !important;
+    border-color: rgba(99, 102, 241, 0.3) !important;
+  }
+  #msg-area::-webkit-scrollbar {
+    width: 4px;
+  }
+  #msg-area::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #msg-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="glass-card rounded-3xl overflow-hidden flex h-[calc(100vh-180px)]">
-
-    <!-- Admin Contact List -->
-    <div class="w-72 border-r border-white/5 flex flex-col bg-white/[0.01] shrink-0">
-        <div class="p-5 border-b border-white/5">
-            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Contact Admin</p>
-            <div class="relative">
-                <iconify-icon icon="solar:magnifer-linear" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" width="14"></iconify-icon>
-                <input type="text" id="search-input" placeholder="Search admins..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-white placeholder-gray-600 outline-none focus:border-indigo-500/50 transition-all">
-            </div>
-        </div>
-
-        <div id="user-list" class="flex-1 overflow-y-auto p-4 space-y-2">
-            <div class="text-center py-8 text-gray-600 text-xs italic animate-pulse">Loading admins...</div>
-        </div>
-
-        <!-- Info Banner -->
-        <div class="p-4 border-t border-white/5 bg-amber-500/5">
-            <div class="flex items-start gap-2">
-                <iconify-icon icon="solar:shield-keyhole-linear" class="text-amber-500 mt-0.5 shrink-0" width="14"></iconify-icon>
-                <p class="text-[10px] text-gray-500 leading-relaxed">You can only message Administrators. All communications are secure and encrypted.</p>
-            </div>
-        </div>
+  <!-- Admin Contact List -->
+  <div
+    class="w-72 border-r border-white/5 flex flex-col bg-white/[0.01] shrink-0"
+  >
+    <div class="p-5 border-b border-white/5">
+      <p
+        class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3"
+      >
+        Contact Admin
+      </p>
+      <div class="relative">
+        <iconify-icon
+          icon="solar:magnifer-linear"
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+          width="14"
+        ></iconify-icon>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search admins..."
+          class="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-white placeholder-gray-600 outline-none focus:border-indigo-500/50 transition-all"
+        />
+      </div>
     </div>
 
-    <!-- Chat Area -->
-    <div class="flex-1 flex flex-col relative bg-black/20 min-w-0">
-
-        <!-- Default Empty State -->
-        <div id="empty-state" class="flex-1 flex items-center justify-center flex-col text-gray-600 text-center px-12 py-8">
-            <div class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mb-5 transition-transform hover:scale-110 duration-300">
-                <iconify-icon icon="solar:chat-square-call-linear" width="40" class="text-indigo-500/40"></iconify-icon>
-            </div>
-            <p class="text-base font-semibold text-gray-400 mb-2">Secure Investor Messaging</p>
-            <p class="text-xs text-gray-600 max-w-xs leading-relaxed">Select an administrator from the left panel to begin a private and secure discussion about your investments.</p>
-        </div>
-
-        <!-- Chat Header (hidden until contact selected) -->
-        <div id="chat-header" class="hidden p-4 border-b border-white/5 items-center justify-between bg-white/[0.02] shrink-0">
-            <div class="flex items-center gap-3">
-                <div id="active-user-avatar" class="w-10 h-10 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold border border-purple-500/20 text-sm">?</div>
-                <div>
-                    <p id="active-user-name" class="text-sm font-semibold text-white">Select a contact</p>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                        <p class="text-[10px] text-gray-500">System Administrator</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-                <iconify-icon icon="solar:shield-check-bold" class="text-purple-400" width="14"></iconify-icon>
-                <span class="text-[9px] font-bold text-purple-400 uppercase tracking-widest">Encrypted</span>
-            </div>
-        </div>
-
-        <!-- Messages Scroll Area -->
-        <div id="msg-area" class="flex-1 overflow-y-auto p-6 space-y-5 scroll-smooth hidden">
-        </div>
-
-        <!-- Input Area (hidden until contact selected) -->
-        <div id="chat-input-container" class="hidden p-5 border-t border-white/5 shrink-0">
-            <form id="chat-form" class="flex items-center gap-3">
-                <div class="flex-1 relative">
-                    <input type="text" id="msg-input"
-                        placeholder="Send a message to the Administrator..."
-                        class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-5 pr-14 text-sm text-white placeholder-gray-600 outline-none focus:border-indigo-500/50 transition-all focus:bg-white/[0.07]"
-                        autocomplete="off">
-                    <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                        <iconify-icon icon="solar:lock-keyhole-minimalistic-linear" class="text-gray-600" width="16"></iconify-icon>
-                    </div>
-                </div>
-                <button type="submit"
-                    class="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl flex items-center justify-center hover:opacity-90 transition-all shadow-xl shadow-indigo-600/20 active:scale-95">
-                    <iconify-icon icon="solar:plain-bold" width="18"></iconify-icon>
-                </button>
-            </form>
-        </div>
+    <div id="user-list" class="flex-1 overflow-y-auto p-4 space-y-2">
+      <div class="text-center py-8 text-gray-600 text-xs italic animate-pulse">
+        Loading admins...
+      </div>
     </div>
+
+    <!-- Info Banner -->
+    <div class="p-4 border-t border-white/5 bg-amber-500/5">
+      <div class="flex items-start gap-2">
+        <iconify-icon
+          icon="solar:shield-keyhole-linear"
+          class="text-amber-500 mt-0.5 shrink-0"
+          width="14"
+        ></iconify-icon>
+        <p class="text-[10px] text-gray-500 leading-relaxed">
+          You can only message Administrators. All communications are secure and
+          encrypted.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Area -->
+  <div class="flex-1 flex flex-col relative bg-black/20 min-w-0">
+    <!-- Default Empty State -->
+    <div
+      id="empty-state"
+      class="flex-1 flex items-center justify-center flex-col text-gray-600 text-center px-12 py-8"
+    >
+      <div
+        class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mb-5 transition-transform hover:scale-110 duration-300"
+      >
+        <iconify-icon
+          icon="solar:chat-square-call-linear"
+          width="40"
+          class="text-indigo-500/40"
+        ></iconify-icon>
+      </div>
+      <p class="text-base font-semibold text-gray-400 mb-2">
+        Secure Investor Messaging
+      </p>
+      <p class="text-xs text-gray-600 max-w-xs leading-relaxed">
+        Select an administrator from the left panel to begin a private and
+        secure discussion about your investments.
+      </p>
+    </div>
+
+    <!-- Chat Header (hidden until contact selected) -->
+    <div
+      id="chat-header"
+      class="hidden p-4 border-b border-white/5 items-center justify-between bg-white/[0.02] shrink-0"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          id="active-user-avatar"
+          class="w-10 h-10 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold border border-purple-500/20 text-sm"
+        >
+          ?
+        </div>
+        <div>
+          <p id="active-user-name" class="text-sm font-semibold text-white">
+            Select a contact
+          </p>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span
+              class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"
+            ></span>
+            <p class="text-[10px] text-gray-500">System Administrator</p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-xl"
+      >
+        <iconify-icon
+          icon="solar:shield-check-bold"
+          class="text-purple-400"
+          width="14"
+        ></iconify-icon>
+        <span
+          class="text-[9px] font-bold text-purple-400 uppercase tracking-widest"
+          >Encrypted</span
+        >
+      </div>
+    </div>
+
+    <!-- Messages Scroll Area -->
+    <div
+      id="msg-area"
+      class="flex-1 overflow-y-auto p-6 space-y-5 scroll-smooth hidden"
+    ></div>
+
+    <!-- Input Area (hidden until contact selected) -->
+    <div
+      id="chat-input-container"
+      class="hidden p-5 border-t border-white/5 shrink-0"
+    >
+      <form id="chat-form" class="flex items-center gap-3">
+        <div class="flex-1 relative">
+          <input
+            type="text"
+            id="msg-input"
+            placeholder="Send a message to the Administrator..."
+            class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-5 pr-14 text-sm text-white placeholder-gray-600 outline-none focus:border-indigo-500/50 transition-all focus:bg-white/[0.07]"
+            autocomplete="off"
+          />
+          <input type="file" id="msg-file" accept="*/*" class="hidden" />
+          <div
+            class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2"
+          >
+            <button
+              type="button"
+              id="attach-btn"
+              class="text-gray-500 hover:text-indigo-300 transition-colors"
+            >
+              <iconify-icon
+                icon="solar:paperclip-linear"
+                width="18"
+              ></iconify-icon>
+            </button>
+          </div>
+        </div>
+        <button
+          type="submit"
+          class="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl flex items-center justify-center hover:opacity-90 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+        >
+          <iconify-icon icon="solar:plain-bold" width="18"></iconify-icon>
+        </button>
+      </form>
+      <div
+        id="selected-file"
+        class="hidden mt-3 text-[11px] text-gray-300 flex items-center gap-2"
+      >
+        <span>Attached:</span>
+        <span id="selected-file-name" class="font-medium"></span>
+        <button
+          type="button"
+          id="remove-file"
+          class="text-indigo-300 hover:text-white"
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-    const MSG_API   = '/api/v1/investor/messages/';
-    const USERS_API = '/api/v1/investor/messages/users/';
-    const SEND_API  = '/api/v1/investor/messages/send/';
+  const MSG_API = "/api/v1/investor/messages/";
+  const USERS_API = "/api/v1/investor/messages/users/";
+  const SEND_API = "/api/v1/investor/messages/send/";
 
-    let activeChatUser = null;
-    let pollingInterval = null;
-    let currentUser = null;
-    let allMessages = [];
+  let activeChatUser = null;
+  let pollingInterval = null;
+  let currentUser = null;
+  let allMessages = [];
 
-    // ── Helpers ────────────────────────────────────────────────
-    const authHeaders = () => {
-        const tokens = JSON.parse(localStorage.getItem('smartEcoTokens') || '{}');
-        return {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${tokens.access || ''}`
-        };
+  // ── Helpers ────────────────────────────────────────────────
+  const escapeHtml = (text) => {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  };
+
+  const isImageUrl = (url) => /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url);
+
+  const authHeaders = (contentType = "application/json") => {
+    const tokens = JSON.parse(localStorage.getItem("smartEcoTokens") || "{}");
+    const headers = {
+      Authorization: `Bearer ${tokens.access || ""}`,
     };
+    if (contentType) {
+      headers["Content-Type"] = contentType;
+    }
+    return headers;
+  };
 
-    const apiGet = async (url) => {
-        const r = await fetch(url, { headers: authHeaders() });
-        if (!r.ok) throw new Error(await r.text());
-        return r.json();
-    };
+  const apiGet = async (url) => {
+    const r = await fetch(url, { headers: authHeaders() });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  };
 
-    const apiPost = async (url, body) => {
-        const r = await fetch(url, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
-        if (!r.ok) {
-            const err = await r.json();
-            throw new Error(err.detail || err.error || 'Failed to send');
-        }
-        return r.json();
-    };
+  const apiPost = async (url, body) => {
+    const isFormData = body instanceof FormData;
+    const r = await fetch(url, {
+      method: "POST",
+      headers: authHeaders(isFormData ? null : "application/json"),
+      body: isFormData ? body : JSON.stringify(body),
+    });
+    if (!r.ok) {
+      const err = await r.json();
+      throw new Error(err.detail || err.error || "Failed to send");
+    }
+    return r.json();
+  };
 
-    // ── Load Admin Contacts ─────────────────────────────────────
-    const loadUsers = async () => {
-        try {
-            const data = await apiGet(USERS_API);
-            const users = Array.isArray(data) ? data : (data.results || []);
-            const userList = document.getElementById('user-list');
+  // ── Load Admin Contacts ─────────────────────────────────────
+  const loadUsers = async () => {
+    try {
+      const data = await apiGet(USERS_API);
+      const users = Array.isArray(data) ? data : data.results || [];
+      const userList = document.getElementById("user-list");
 
-            if (users.length === 0) {
-                userList.innerHTML = `
+      if (users.length === 0) {
+        userList.innerHTML = `
                     <div class="text-center py-8 text-gray-600 text-xs">
                         <iconify-icon icon="solar:user-cross-linear" width="32" class="mb-2 opacity-30"></iconify-icon>
                         <p>No administrators found.</p>
                     </div>`;
-                return;
-            }
+        return;
+      }
 
-            userList.innerHTML = users.map(u => `
-                <div onclick="selectUser(${u.id}, '${u.name}')"
-                     class="user-row border border-transparent p-3 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-all group"
-                     data-id="${u.id}">
+      userList.innerHTML = users
+        .map(
+          (u) => `
+                <div class="user-row border border-transparent p-3 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-all group"
+                     data-id="${u.id}"
+                     data-name="${escapeHtml(u.name)}">
                     <div class="w-10 h-10 rounded-full bg-purple-500/15 text-purple-300 flex items-center justify-center text-sm font-bold border border-purple-500/20 group-hover:border-purple-400/40 transition-colors">
                         ${u.name.charAt(0).toUpperCase()}
                     </div>
@@ -193,113 +307,188 @@
                     </div>
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-60"></span>
                 </div>
-            `).join('');
+            `,
+        )
+        .join("");
 
-            // Restore search filter
-            document.getElementById('search-input').addEventListener('input', function() {
-                const q = this.value.toLowerCase();
-                document.querySelectorAll('.user-row').forEach(row => {
-                    const name = row.querySelector('p').textContent.toLowerCase();
-                    row.style.display = name.includes(q) ? '' : 'none';
-                });
-            });
-        } catch (err) { console.error('Failed to load contacts:', err); }
-    };
-
-    // ── Select Contact ──────────────────────────────────────────
-    window.selectUser = (targetId, targetName) => {
-        activeChatUser = targetId;
-
-        // Show chat UI
-        document.getElementById('empty-state').classList.add('hidden');
-        document.getElementById('chat-header').classList.remove('hidden');
-        document.getElementById('chat-header').classList.add('flex');
-        document.getElementById('msg-area').classList.remove('hidden');
-        document.getElementById('chat-input-container').classList.remove('hidden');
-
-        // Update header
-        document.getElementById('active-user-name').textContent = targetName;
-        document.getElementById('active-user-avatar').textContent = targetName.charAt(0).toUpperCase();
-
-        // Highlight selected user
-        document.querySelectorAll('.user-row').forEach(r => {
-            r.classList.toggle('user-row-active', r.dataset.id == targetId);
+      document.querySelectorAll(".user-row").forEach((row) => {
+        row.addEventListener("click", () => {
+          selectUser(Number(row.dataset.id), row.dataset.name);
         });
+      });
 
-        // Load messages + start polling
-        renderMessages();
-        if (pollingInterval) clearInterval(pollingInterval);
-        pollingInterval = setInterval(renderMessages, 5000);
-    };
+      // Restore search filter
+      document
+        .getElementById("search-input")
+        .addEventListener("input", function () {
+          const q = this.value.toLowerCase();
+          document.querySelectorAll(".user-row").forEach((row) => {
+            const name = row.dataset.name.toLowerCase();
+            row.style.display = name.includes(q) ? "" : "none";
+          });
+        });
+    } catch (err) {
+      console.error("Failed to load contacts:", err);
+    }
+  };
 
-    // ── Render Messages ─────────────────────────────────────────
-    const renderMessages = async () => {
-        if (!activeChatUser) return;
-        try {
-            const data = await apiGet(MSG_API);
-            const allMsgs = Array.isArray(data) ? data : (data.results || []);
+  // ── Select Contact ──────────────────────────────────────────
+  window.selectUser = (targetId, targetName) => {
+    activeChatUser = targetId;
 
-            const msgs = allMsgs.filter(m =>
-                (m.sender == currentUser.id && m.receiver == activeChatUser) ||
-                (m.sender == activeChatUser && m.receiver == currentUser.id)
-            ).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    // Show chat UI
+    document.getElementById("empty-state").classList.add("hidden");
+    document.getElementById("chat-header").classList.remove("hidden");
+    document.getElementById("chat-header").classList.add("flex");
+    document.getElementById("msg-area").classList.remove("hidden");
+    document.getElementById("chat-input-container").classList.remove("hidden");
 
-            const area = document.getElementById('msg-area');
+    // Update header
+    document.getElementById("active-user-name").textContent = targetName;
+    document.getElementById("active-user-avatar").textContent = targetName
+      .charAt(0)
+      .toUpperCase();
 
-            if (msgs.length === 0) {
-                area.innerHTML = `
+    // Highlight selected user
+    document.querySelectorAll(".user-row").forEach((r) => {
+      r.classList.toggle("user-row-active", r.dataset.id == targetId);
+    });
+
+    // Load messages + start polling
+    renderMessages();
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(renderMessages, 5000);
+  };
+
+  const showSelectedFile = () => {
+    const fileInput = document.getElementById("msg-file");
+    const selectedFile = document.getElementById("selected-file");
+    const fileName = document.getElementById("selected-file-name");
+    if (fileInput.files.length > 0) {
+      fileName.textContent = fileInput.files[0].name;
+      selectedFile.classList.remove("hidden");
+    } else {
+      selectedFile.classList.add("hidden");
+    }
+  };
+
+  document.getElementById("attach-btn").addEventListener("click", () => {
+    document.getElementById("msg-file").click();
+  });
+  document.getElementById("remove-file").addEventListener("click", () => {
+    const fileInput = document.getElementById("msg-file");
+    fileInput.value = "";
+    document.getElementById("selected-file").classList.add("hidden");
+  });
+  document
+    .getElementById("msg-file")
+    .addEventListener("change", showSelectedFile);
+
+  // ── Render Messages ─────────────────────────────────────────
+  const renderMessages = async () => {
+    if (!activeChatUser) return;
+    try {
+      const data = await apiGet(MSG_API);
+      const allMsgs = Array.isArray(data) ? data : data.results || [];
+
+      const msgs = allMsgs
+        .filter(
+          (m) =>
+            (m.sender == currentUser.id && m.receiver == activeChatUser) ||
+            (m.sender == activeChatUser && m.receiver == currentUser.id),
+        )
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+      const area = document.getElementById("msg-area");
+
+      if (msgs.length === 0) {
+        area.innerHTML = `
                     <div class="flex items-center justify-center h-full flex-col text-gray-700">
                         <iconify-icon icon="solar:chat-dots-linear" width="40" class="mb-3 opacity-20"></iconify-icon>
                         <p class="text-xs">No messages yet. Start the conversation!</p>
                     </div>`;
-            } else {
-                area.innerHTML = msgs.map(m => {
-                    const isSelf = m.sender == currentUser.id;
-                    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    return `
-                        <div class="flex ${isSelf ? 'justify-end' : 'justify-start'}">
-                            <div class="max-w-[78%] flex flex-col ${isSelf ? 'items-end' : 'items-start'} gap-1.5">
-                                <div class="px-5 py-3 text-sm ${isSelf ? 'msg-bubble-sent' : 'msg-bubble-recv'}">
-                                    ${m.content}
+      } else {
+        area.innerHTML = msgs
+          .map((m) => {
+            const isSelf = m.sender == currentUser.id;
+            const time = new Date(m.created_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            const attachmentHtml = m.attachment_url
+              ? `
+                        <div class="mt-3 ${isSelf ? "text-right" : "text-left"}">
+                            ${
+                              isImageUrl(m.attachment_url)
+                                ? `<img src="${m.attachment_url}" alt="${m.attachment_name || "attachment"}" class="max-w-full rounded-2xl border border-white/10 shadow-sm" />`
+                                : `<a href="${m.attachment_url}" target="_blank" class="inline-flex items-center gap-2 text-xs text-indigo-300 border border-white/10 rounded-xl px-3 py-2 hover:bg-white/5">Download ${m.attachment_name || "file"}</a>`
+                            }
+                        </div>
+                    `
+              : "";
+            return `
+                        <div class="flex ${isSelf ? "justify-end" : "justify-start"}">
+                            <div class="max-w-[78%] flex flex-col ${isSelf ? "items-end" : "items-start"} gap-1.5">
+                                <div class="px-5 py-3 text-sm ${isSelf ? "msg-bubble-sent" : "msg-bubble-recv"}">
+                                    ${m.content || ""}
+                                    ${attachmentHtml}
                                 </div>
                                 <span class="text-[9px] text-gray-600 uppercase tracking-widest font-bold px-1">${time}</span>
                             </div>
                         </div>`;
-                }).join('');
-            }
-            area.scrollTop = area.scrollHeight;
-        } catch (err) { console.error('Failed to load messages:', err); }
-    };
+          })
+          .join("");
+      }
+      area.scrollTop = area.scrollHeight;
+    } catch (err) {
+      console.error("Failed to load messages:", err);
+    }
+  };
 
-    // ── Send Message ────────────────────────────────────────────
-    document.getElementById('chat-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const input = document.getElementById('msg-input');
-        const text = input.value.trim();
-        if (!text || !activeChatUser) return;
+  // ── Send Message ────────────────────────────────────────────
+  document.getElementById("chat-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("msg-input");
+    const fileInput = document.getElementById("msg-file");
+    const text = input.value.trim();
+    const file = fileInput.files[0];
+    if (!text && !file) return;
+    if (!activeChatUser) return;
 
-        const btn = e.target.querySelector('button[type="submit"]');
-        btn.disabled = true;
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
 
-        try {
-            await apiPost(SEND_API, { receiver: activeChatUser, content: text });
-            input.value = '';
-            await renderMessages();
-        } catch (err) {
-            alert(err.message);
-        } finally {
-            btn.disabled = false;
-        }
-    });
+    const payload = file
+      ? new FormData()
+      : { receiver: activeChatUser, content: text };
+    if (file) {
+      payload.append("receiver", activeChatUser);
+      if (text) payload.append("content", text);
+      payload.append("attachment", file);
+      payload.append("attachment_name", file.name);
+    }
 
-    // ── Init ────────────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', async () => {
-        currentUser = App.checkAuth();
-        if (!currentUser || currentUser.role !== 'investor') {
-            window.location.href = '{% url "login" %}';
-            return;
-        }
-        await loadUsers();
-    });
+    try {
+      await apiPost(SEND_API, payload);
+      input.value = "";
+      fileInput.value = "";
+      document.getElementById("selected-file").classList.add("hidden");
+      await renderMessages();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ── Init ────────────────────────────────────────────────────
+  document.addEventListener("DOMContentLoaded", async () => {
+    currentUser = App.checkAuth();
+    if (!currentUser || currentUser.role !== "investor") {
+      window.location.href = '{% url "login" %}';
+      return;
+    }
+    await loadUsers();
+  });
 </script>
 {% endblock %}

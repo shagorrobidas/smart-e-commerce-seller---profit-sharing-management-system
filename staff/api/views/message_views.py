@@ -22,15 +22,13 @@ from admin_panel.api.serializers.user_serializers import UserListSerializer
 # ---------------------------------------------------------------------------
 
 class CanSendMessage(BasePermission):
-    """Only Admin and Investor can send messages. Staff is read-only."""
-    message = "Staff members cannot send messages. You can only read messages from Admin."
+    """Authenticated users may send messages according to role rules."""
+    message = "You do not have permission to send messages."
 
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        # Block staff from POST/PUT/PATCH/DELETE
-        if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
-            return request.user.role in ('admin', 'investor')
+        # Allow any authenticated user to send messages; receiver validation enforces role restrictions.
         return True
 
 
@@ -79,9 +77,11 @@ class MessageCreateSerializer(serializers.ModelSerializer):
     def validate_receiver(self, receiver):
         sender = self.context['request'].user
         if sender.role == 'investor' and receiver.role != 'admin':
-            raise serializers.ValidationError("Investors can only message Admins.")
+            raise serializers.ValidationError("Investors can only message admins.")
         if sender.role == 'admin' and receiver.role not in ('staff', 'investor'):
-            raise serializers.ValidationError("Admin can only message staff or investors.")
+            raise serializers.ValidationError("Admins can only message staff or investors.")
+        if sender.role == 'staff' and receiver.role not in ('admin', 'staff'):
+            raise serializers.ValidationError("Staff can only message admins or other staff.")
         return receiver
 
 
@@ -102,7 +102,7 @@ class MessageListView(generics.ListAPIView):
 
 
 class MessageCreateView(generics.CreateAPIView):
-    """POST – Send a message (text or file). Staff is blocked."""
+    """POST – Send a message (text or file)."""
     permission_classes = [IsAuthenticated, CanSendMessage]
     serializer_class = MessageCreateSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
@@ -168,9 +168,8 @@ class MessageContactListView(generics.ListAPIView):
             return base_qs.filter(role='admin')
 
         elif user.role == 'staff':
-            # Staff can only view messages from admins
-            return base_qs.filter(role='admin')
+            # Staff can contact admins and other staff in the same company
+            return base_qs.filter(role__in=['admin', 'staff'])
 
         else:
-            # Staff can only view messages from admins
-            return base_qs.filter(role='admin')
+            return base_qs.filter(role__in=['admin', 'staff'])
