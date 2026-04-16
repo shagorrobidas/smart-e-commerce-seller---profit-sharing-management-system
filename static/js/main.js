@@ -102,5 +102,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const userInitialEl = document.getElementById('user-initial');
         if (userInitialEl && user.name) userInitialEl.textContent = user.name.charAt(0).toUpperCase();
+
+        // Initialize Notifications
+        App.startNotificationPolling();
     }
 });
+
+// Notification System
+App.unreadCount = parseInt(sessionStorage.getItem('smartEcoUnreadCount')) || 0;
+
+App.fetchUnreadCount = async () => {
+    try {
+        if (typeof DB === 'undefined') return;
+        const data = await DB.getUnreadCount();
+        const count = data.unread_count || 0;
+        
+        // Only show toast if count has INCREASED
+        if (count > App.unreadCount && window.location.pathname.indexOf('/messages/') === -1) {
+            App.showToast(`You have ${count} unread messages.`);
+        }
+        
+        App.unreadCount = count;
+        sessionStorage.setItem('smartEcoUnreadCount', count);
+        App.updateBadges(count);
+    } catch (e) {
+        console.warn('Notification fetch failed', e);
+    }
+};
+
+App.updateBadges = (count) => {
+    const badges = document.querySelectorAll('.msg-badge');
+    badges.forEach(b => {
+        if (count > 0) {
+            b.textContent = count > 9 ? '9+' : count;
+            b.classList.remove('hidden');
+        } else {
+            b.classList.add('hidden');
+        }
+    });
+};
+
+App.showToast = (msg) => {
+    const existing = document.getElementById('global-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'global-toast';
+    // Use inline styles for compatibility where Tailwind is missing
+    toast.style.cssText = `
+        position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999;
+        background: rgba(79, 70, 229, 0.95); backdrop-filter: blur(8px);
+        color: white; padding: 1rem 1.5rem; border-radius: 1rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        display: flex; align-items: center; gap: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-family: 'Inter', sans-serif;
+    `;
+    toast.className = 'animate-slide-in';
+    
+    toast.innerHTML = `
+        <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center;">
+            <iconify-icon icon="solar:chat-round-dots-bold" width="24"></iconify-icon>
+        </div>
+        <div style="flex: 1;">
+            <p style="margin: 0; font-size: 10px; font-weight: 700; text-transform: uppercase; opacity: 0.7; letter-spacing: 0.1em;">New Message</p>
+            <p style="margin: 0; font-size: 13px; font-weight: 600;">${msg}</p>
+        </div>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; opacity: 0.5; cursor: pointer; display: flex; align-items: center;">
+            <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
+        </button>
+    `;
+
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.classList.add('animate-slide-out');
+            setTimeout(() => toast.remove(), 500);
+        }
+    }, 5000);
+};
+
+App.refreshNotifications = () => {
+    App.fetchUnreadCount();
+};
+
+App.startNotificationPolling = () => {
+    App.fetchUnreadCount();
+    setInterval(App.fetchUnreadCount, 10000); // 10 seconds
+};

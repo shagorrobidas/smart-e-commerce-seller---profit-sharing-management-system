@@ -109,7 +109,22 @@ class DataManager {
     return await this.apiCall("/staff/users/");
   }
 
-  // INVENTORY
+  // DASHBOARD DATA
+  async getStaffDashboard() {
+    return await this.apiCall("/staff/dashboard/");
+  }
+
+  async getAdminDashboard() {
+    return await this.apiCall("/admin/dashboard/");
+  }
+
+  // INVENTORY & CATEGORIES
+  async getCategories() {
+    return await this.apiCall("/staff/categories/");
+  }
+  async addCategory(name) {
+    return await this.apiCall("/staff/categories/", "POST", { name });
+  }
   async getInventory(params = "") {
     return await this.apiCall(`/staff/inventory/${params}`);
   }
@@ -129,6 +144,14 @@ class DataManager {
     const role = JSON.parse(localStorage.getItem("smartEcoUser"))?.role;
     const endpoint = role === "admin" ? "/admin/reports/" : "/staff/orders/";
     return await this.apiCall(endpoint);
+  }
+  async getTransactions(params = "") {
+    return await this.apiCall(`/admin/transactions/${params}`);
+  }
+  async approveTransaction(id, action = "approve") {
+    return await this.apiCall(`/admin/transactions/${id}/approve/`, "PATCH", {
+      action,
+    });
   }
   async addOrder(order) {
     return await this.apiCall("/staff/orders/", "POST", order);
@@ -152,10 +175,24 @@ class DataManager {
 
   // MESSAGES
   async getMessages() {
-    return await this.apiCall("/messages/");
+    const role = JSON.parse(localStorage.getItem("smartEcoUser"))?.role || "staff";
+    const prefix = role === "admin" ? "/admin" : (role === "investor" ? "/investor" : "/staff");
+    return await this.apiCall(`${prefix}/messages/`);
   }
   async sendMessage(msg) {
-    return await this.apiCall("/messages/send/", "POST", msg);
+    const role = JSON.parse(localStorage.getItem("smartEcoUser"))?.role || "staff";
+    const prefix = role === "admin" ? "/admin" : (role === "investor" ? "/investor" : "/staff");
+    return await this.apiCall(`${prefix}/messages/send/`, "POST", msg);
+  }
+  async getUnreadCount() {
+    const role = JSON.parse(localStorage.getItem("smartEcoUser"))?.role || "staff";
+    const prefix = role === "admin" ? "/admin" : (role === "investor" ? "/investor" : "/staff");
+    return await this.apiCall(`${prefix}/messages/unread-count/`);
+  }
+  async markAllRead(senderId) {
+    const role = JSON.parse(localStorage.getItem("smartEcoUser"))?.role || "staff";
+    const prefix = role === "admin" ? "/admin" : (role === "investor" ? "/investor" : "/staff");
+    return await this.apiCall(`${prefix}/messages/mark-read/${senderId}/`, "PATCH");
   }
 
   // INVESTOR
@@ -175,6 +212,9 @@ class DataManager {
   }
   async addInvestment(inv) {
     return await this.apiCall("/investor/investments/", "POST", inv);
+  }
+  async approveInvestment(id, action = "approve") {
+    return await this.apiCall(`/admin/investments/${id}/approve/`, "PATCH", { action });
   }
 
   // SETTINGS
