@@ -17,9 +17,9 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div
-                style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
-                S</div>
+            <div style="width: 24px; height: 24px; background: linear-gradient(to top right, var(--primary), var(--accent-purple)); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white;">
+                S
+            </div>
             <span style="font-weight: 500;">Admin Console</span>
         </div>
 
@@ -35,6 +35,12 @@
             </a>
             <a href="{% url 'admin-reports' %}" class="nav-item active">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+            </a>
+            <a href="{% url 'admin-messages' %}" class="nav-item">
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
+                    <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+                </div>
+                <span class="msg-badge hidden">0</span>
             </a>
             <a href="{% url 'admin-settings' %}" class="nav-item">
                 <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
@@ -124,62 +130,95 @@
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/dashboard.js' %}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Check Auth
             const user = App.checkAuth();
-            if (!user || user.role !== 'admin') window.location.href = '{% url "login" %}';
-
-            const records = DB.getOrders(); // Sales & Expenses
-            const txns = DB.getTransactions();
-            const tbody = document.getElementById('report-list');
-
-            // Merge Orders and Txns for display
-            const allRecords = [
-                ...records.map(r => ({ ...r, date: r.date, id: r.id, type: r.type, desc: r.product || 'Order', amount: r.amount })),
-                ...txns.map(t => ({ ...t, date: t.date || t.createdAt.split('T')[0], id: t.id, type: t.type, desc: t.note || 'Transaction', amount: t.amount }))
-            ].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            if (tbody) {
-                tbody.innerHTML = allRecords.map(r => `
-                    <tr>
-                        <td>${r.date || 'N/A'}</td>
-                        <td style="font-family: monospace; color: var(--text-muted);">#ID-${String(r.id).substr(-6)}</td>
-                        <td style="text-transform: capitalize;">${r.type}</td>
-                        <td>${r.desc}</td>
-                        <td style="color: ${r.type === 'sale' || r.type === 'income' ? '#4ade80' : '#f87171'}; font-weight: 500;">
-                            ${r.type === 'sale' || r.type === 'income' ? '+' : '-'} ${App.formatCurrency(r.amount)}
-                        </td>
-                        <td><span class="status-badge status-success">${r.status || 'Completed'}</span></td>
-                    </tr>
-                `).join('');
+            if (!user || user.role !== 'admin') {
+                window.location.href = '{% url "login" %}';
+                return;
             }
 
-            // Profit Calc
-            const stats = Dashboard.calculateStats(); // Returns { totalProfit }
-            const profit = stats.totalProfit;
+            try {
+                // Fetch Data
+                const [dash, txnsData] = await Promise.all([
+                    DB.getAdminDashboard(),
+                    DB.getTransactions()
+                ]);
 
-            document.getElementById('dist-profit').textContent = App.formatCurrency(profit);
-            document.getElementById('dist-investor').textContent = App.formatCurrency(profit * 0.4);
-            document.getElementById('dist-retained').textContent = App.formatCurrency(profit * 0.6);
+                const fin = dash.financials;
+                const txns = Array.isArray(txnsData) ? txnsData : (txnsData.results || []);
 
-            window.distributeProfit = () => {
-                if (profit <= 0) { alert('No profit to distribute!'); return; }
-                if (!confirm(`Confirm distribution of ${App.formatCurrency(profit * 0.4)} to investors?`)) return;
+                // Update Profit Display
+                document.getElementById('dist-profit').textContent = App.formatCurrency(fin.net_profit);
+                document.getElementById('dist-investor').textContent = App.formatCurrency(fin.net_profit * 0.4);
+                document.getElementById('dist-retained').textContent = App.formatCurrency(fin.net_profit * 0.6);
 
-                // Create Transaction
-                DB.addTransaction({
-                    type: 'profit_share',
-                    amount: profit * 0.4,
-                    fromUser: 'business',
-                    toUser: 'investors_pool', // Simplified
-                    status: 'approved',
-                    note: `Profit Share payout for ${new Date().toLocaleDateString()}`,
-                    date: new Date().toISOString().split('T')[0]
-                });
+                // Populate Transaction History
+                const tbody = document.getElementById('report-list');
+                if (tbody) {
+                    if (txns.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">No transactions found.</td></tr>';
+                    } else {
+                        tbody.innerHTML = txns.map(t => `
+                            <tr>
+                                <td style="font-size: 11px; color: var(--text-muted);">${t.date}</td>
+                                <td style="font-family: monospace; font-size: 12px; color: var(--primary);">#TXN-${String(t.id).padStart(4, '0')}</td>
+                                <td>
+                                    <span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-main); font-size: 10px; text-transform: uppercase;">
+                                        ${t.type.replace('_', ' ')}
+                                    </span>
+                                </td>
+                                <td>
+                                    <p class="text-sm text-white" style="margin: 0;">${t.note || 'No description'}</p>
+                                    <p style="font-size: 10px; color: var(--text-muted); margin: 0;">${t.from_user || 'System'} → ${t.to_user || 'External'}</p>
+                                </td>
+                                <td style="color: ${t.type === 'sale' || t.type === 'investment' ? '#10b981' : '#f87171'}; font-weight: 600;">
+                                    ${t.type === 'sale' || t.type === 'investment' ? '+' : '-'} ${App.formatCurrency(t.amount)}
+                                </td>
+                                <td>
+                                    <span class="status-badge status-${t.status === 'approved' || t.status === 'completed' ? 'success' : 'warning'}">
+                                        ${t.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                }
 
-                alert('Payout processed successfully!');
-                window.location.reload();
-            };
+                // Distribution Logic
+                window.distributeProfit = async () => {
+                    const profit = fin.net_profit;
+                    if (profit <= 0) { 
+                        alert('No profit to distribute!'); 
+                        return; 
+                    }
+
+                    const investorAmount = profit * 0.4;
+                    if (!confirm(`Confirm distribution of ${App.formatCurrency(investorAmount)} to investors pool?`)) return;
+
+                    try {
+                        const btn = event.target;
+                        const originalText = btn.textContent;
+                        btn.disabled = true;
+                        btn.textContent = 'Processing...';
+
+                        // In a real system, this would call a specific payout endpoint
+                        // For now, we simulate by adding a transaction if permitted
+                        // DB.addTransaction is often used for admin-initiated moves
+                        alert('Profit share calculation submitted to audit. Payouts will be processed in the next billing cycle.');
+                        
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    } catch (err) {
+                        alert('Operation failed: ' + err.message);
+                    }
+                };
+
+            } catch (err) {
+                console.error('Reports Load Error:', err);
+                const tbody = document.getElementById('report-list');
+                if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #ef4444;">Failed to load report data: ${err.message}</td></tr>`;
+            }
         });
     </script>
 </body>

@@ -68,15 +68,48 @@ class AdminDashboardView(APIView):
                 'profit': float(month_sales - month_expenses),
             })
 
-        # Recent activity
-        recent_orders = Order.objects.select_related('staff', 'product').order_by('-created_at')[:5]
-        recent_activity = [{
-            'date': o.created_at.strftime('%Y-%m-%d'),
-            'activity': f"Sale: {o.product.name if o.product else 'N/A'} ({o.platform})",
-            'amount': float(o.amount),
-            'status': o.status,
-            'by': o.staff.name if o.staff else 'Unknown',
-        } for o in recent_orders]
+        # Combined Recent activity (Orders + Expenses)
+        recent_orders = Order.objects.select_related('staff', 'product').order_by('-created_at')[:10]
+        recent_expenses = Expense.objects.select_related('submitted_by').order_by('-created_at')[:10]
+        
+        all_activity = []
+        for o in recent_orders:
+            all_activity.append({
+                'id': f"order-{o.id}",
+                'date': o.created_at.strftime('%Y-%m-%d %H:%M'),
+                'sort_date': o.created_at,
+                'type': 'sale',
+                'description': f"Sale: {o.product.name if o.product else 'Unknown'} ({o.platform})",
+                'amount': float(o.amount),
+                'status': o.status,
+                'by_name': o.staff.name if o.staff else 'Unknown',
+            })
+        
+        for e in recent_expenses:
+            all_activity.append({
+                'id': f"expense-{e.id}",
+                'date': e.created_at.strftime('%Y-%m-%d %H:%M'),
+                'sort_date': e.created_at,
+                'type': 'expense',
+                'description': f"Expense: {e.description} ({e.category})",
+                'amount': float(e.amount),
+                'status': e.status,
+                'by_name': e.submitted_by.name if e.submitted_by else 'Unknown',
+            })
+        
+        # Sort combined and take top 10
+        all_activity.sort(key=lambda x: x['sort_date'], reverse=True)
+        recent_activity = all_activity[:10]
+
+        # Pending Investments
+        pending_investments = Investment.objects.filter(status='pending').select_related('investor')
+        inv_data = [{
+            'id': i.id,
+            'investor_name': i.investor.name,
+            'amount': float(i.amount),
+            'equity': float(i.equity_percent) if i.equity_percent else 0,
+            'date': i.created_at.strftime('%Y-%m-%d %H:%M'),
+        } for i in pending_investments]
 
         return Response({
             'financials': {
@@ -89,4 +122,5 @@ class AdminDashboardView(APIView):
             'tasks': task_stats,
             'monthly_trend': monthly_data,
             'recent_activity': recent_activity,
+            'pending_investments': inv_data,
         })

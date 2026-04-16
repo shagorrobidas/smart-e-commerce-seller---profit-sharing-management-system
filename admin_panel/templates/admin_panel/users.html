@@ -1,25 +1,22 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Management - Admin</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-  </head>
 
-  <body class="dashboard-body">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div
-          style="
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Management - Admin</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+
+<body class="dashboard-body">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div style="
             width: 24px;
             height: 24px;
             background: linear-gradient(
@@ -32,104 +29,97 @@
             align-items: center;
             justify-content: center;
             color: white;
-          "
-        >
-          S
-        </div>
-        <span style="font-weight: 500">Admin Console</span>
+          ">
+        S
       </div>
+      <span style="font-weight: 500">Admin Console</span>
+    </div>
 
-      <nav class="sidebar-nav">
-        <a href="{% url 'admin-dashboard' %}" class="nav-item">
-          <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
-        </a>
-        <a href="{% url 'admin-users' %}" class="nav-item active">
-          <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon>
-          User Management
-        </a>
-        <a href="{% url 'admin-tasks' %}" class="nav-item">
-          <iconify-icon
-            icon="solar:checklist-minimalistic-linear"
-          ></iconify-icon>
-          Tasks
-        </a>
-        <a href="{% url 'admin-reports' %}" class="nav-item">
-          <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
-        </a>
-        <a href="{% url 'admin-settings' %}" class="nav-item">
-          <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
-        </a>
-      </nav>
+    <nav class="sidebar-nav">
+      <a href="{% url 'admin-dashboard' %}" class="nav-item">
+        <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
+      </a>
+      <a href="{% url 'admin-users' %}" class="nav-item active">
+        <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon>
+        User Management
+      </a>
+      <a href="{% url 'admin-tasks' %}" class="nav-item">
+        <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon>
+        Tasks
+      </a>
+      <a href="{% url 'admin-reports' %}" class="nav-item">
+        <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+      </a>
+      <a href="{% url 'admin-messages' %}" class="nav-item">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
+          <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon>
+          Messages
+        </div>
+        <span class="msg-badge hidden">0</span>
+      </a>
+      <a href="{% url 'admin-settings' %}" class="nav-item">
+        <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
+      </a>
+    </nav>
 
-      <div class="user-profile">
-        <a
-          href="{% url 'profile' %}"
-          style="
+    <div class="user-profile">
+      <a href="{% url 'profile' %}" style="
             display: flex;
             gap: 0.75rem;
             text-decoration: none;
             align-items: center;
             flex: 1;
-          "
-        >
-          <div class="avatar">A</div>
-          <div>
-            <p class="text-sm text-white" id="user-name">Admin</p>
-            <p class="text-xs text-muted" id="user-role">Administrator</p>
-          </div>
-        </a>
-        <button
-          onclick="App.logout()"
-          style="
+          ">
+        <div class="avatar">A</div>
+        <div>
+          <p class="text-sm text-white" id="user-name">Admin</p>
+          <p class="text-xs text-muted" id="user-role">Administrator</p>
+        </div>
+      </a>
+      <button onclick="App.logout()" style="
             margin-left: auto;
             background: none;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-          "
-        >
-          <iconify-icon icon="solar:logout-linear"></iconify-icon>
-        </button>
-      </div>
-    </aside>
+          ">
+        <iconify-icon icon="solar:logout-linear"></iconify-icon>
+      </button>
+    </div>
+  </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <header class="top-bar">
-        <h1 class="page-title">User Management</h1>
-        <button
-          class="btn btn-primary"
-          onclick="
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="top-bar">
+      <h1 class="page-title">User Management</h1>
+      <button class="btn btn-primary" onclick="
             document.getElementById('addUserModal').style.display = 'flex'
-          "
-        >
-          + Add User
-        </button>
-      </header>
+          ">
+        + Add User
+      </button>
+    </header>
 
-      <div class="dashboard-form-card">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Company</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="user-list">
-            <!-- JS Populated -->
-          </tbody>
-        </table>
-      </div>
-    </main>
+    <div class="dashboard-form-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Company</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="user-list">
+          <!-- JS Populated -->
+        </tbody>
+      </table>
+    </div>
+  </main>
 
-    <!-- Add User Modal -->
-    <div
-      id="addUserModal"
-      style="
+  <!-- Add User Modal -->
+  <div id="addUserModal" style="
         display: none;
         position: fixed;
         inset: 0;
@@ -137,89 +127,63 @@
         z-index: 1000;
         align-items: center;
         justify-content: center;
-      "
-    >
-      <div class="dashboard-form-card" style="max-width: 500px; width: 90%">
-        <div
-          style="
+      ">
+    <div class="dashboard-form-card" style="max-width: 500px; width: 90%">
+      <div style="
             display: flex;
             justify-content: space-between;
             margin-bottom: 1.5rem;
-          "
-        >
-          <h3>Add New User</h3>
-          <button
-            onclick="
+          ">
+        <h3>Add New User</h3>
+        <button onclick="
               document.getElementById('addUserModal').style.display = 'none'
-            "
-            style="
+            " style="
               background: none;
               border: none;
               color: white;
               cursor: pointer;
-            "
-          >
-            &times;
-          </button>
-        </div>
-        <form id="addUserForm">
-          <div class="grid md:grid-cols-1 gap-4">
-            <div>
-              <label>Full Name</label>
-              <input
-                type="text"
-                id="new-name"
-                required
-                placeholder="Ex: John Doe"
-              />
-            </div>
-            <div>
-              <label>Role</label>
-              <select id="new-role" required>
-                <option value="staff">Staff / Manager</option>
-                <option value="investor">Investor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div class="md:col-span-2">
-              <label>Email Address</label>
-              <div style="position: relative">
-                <iconify-icon
-                  icon="solar:letter-linear"
-                  style="
+            ">
+          &times;
+        </button>
+      </div>
+      <form id="addUserForm">
+        <div class="grid md:grid-cols-1 gap-4">
+          <div>
+            <label>Full Name</label>
+            <input type="text" id="new-name" required placeholder="Ex: John Doe" />
+          </div>
+          <div>
+            <label>Role</label>
+            <select id="new-role" required>
+              <option value="staff">Staff / Manager</option>
+              <option value="investor">Investor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label>Email Address</label>
+            <div style="position: relative">
+              <iconify-icon icon="solar:letter-linear" style="
                     position: absolute;
                     left: 12px;
                     top: 50%;
                     transform: translateY(-50%);
                     color: var(--text-muted);
-                  "
-                ></iconify-icon>
-                <input
-                  type="email"
-                  id="new-email"
-                  required
-                  placeholder="email@company.com"
-                  style="padding-left: 40px"
-                />
-              </div>
+                  "></iconify-icon>
+              <input type="email" id="new-email" required placeholder="email@company.com" style="padding-left: 40px" />
             </div>
           </div>
+        </div>
 
-          <button
-            type="submit"
-            class="btn btn-primary"
-            style="width: 100%; margin-top: 1.5rem"
-          >
-            Create User
-          </button>
-        </form>
-      </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem">
+          Create User
+        </button>
+      </form>
     </div>
+  </div>
 
-    <!-- Success Modal -->
-    <div
-      id="successModal"
-      style="
+  <!-- Success Modal -->
+  <div id="successModal" style="
         display: none;
         position: fixed;
         inset: 0;
@@ -227,19 +191,14 @@
         z-index: 1001;
         align-items: center;
         justify-content: center;
-      "
-    >
-      <div
-        class="dashboard-form-card"
-        style="
+      ">
+    <div class="dashboard-form-card" style="
           max-width: 400px;
           width: 90%;
           text-align: center;
           padding: 2.5rem;
-        "
-      >
-        <div
-          style="
+        ">
+      <div style="
             width: 72px;
             height: 72px;
             background: rgba(16, 185, 129, 0.1);
@@ -250,38 +209,25 @@
             justify-content: center;
             margin: 0 auto 1.5rem;
             border: 2px solid rgba(16, 185, 129, 0.2);
-          "
-        >
-          <iconify-icon
-            icon="solar:check-circle-bold"
-            style="font-size: 48px"
-          ></iconify-icon>
-        </div>
-        <h2 style="margin-bottom: 0.75rem; color: white; font-weight: 600">
-          Success!
-        </h2>
-        <p
-          id="successMessage"
-          style="color: #94a3b8; margin-bottom: 2rem; line-height: 1.5"
-        >
-          User created successfully.
-        </p>
-        <button
-          onclick="
-            document.getElementById('successModal').style.display = 'none'
-          "
-          class="btn btn-primary"
-          style="width: 100%; height: 48px; font-weight: 600"
-        >
-          Got it
-        </button>
+          ">
+        <iconify-icon icon="solar:check-circle-bold" style="font-size: 48px"></iconify-icon>
       </div>
+      <h2 style="margin-bottom: 0.75rem; color: white; font-weight: 600">
+        Success!
+      </h2>
+      <p id="successMessage" style="color: #94a3b8; margin-bottom: 2rem; line-height: 1.5">
+        User created successfully.
+      </p>
+      <button onclick="
+            document.getElementById('successModal').style.display = 'none'
+          " class="btn btn-primary" style="width: 100%; height: 48px; font-weight: 600">
+        Got it
+      </button>
     </div>
+  </div>
 
-    <!-- Error Modal -->
-    <div
-      id="errorModal"
-      style="
+  <!-- Error Modal -->
+  <div id="errorModal" style="
         display: none;
         position: fixed;
         inset: 0;
@@ -289,19 +235,14 @@
         z-index: 1001;
         align-items: center;
         justify-content: center;
-      "
-    >
-      <div
-        class="dashboard-form-card"
-        style="
+      ">
+    <div class="dashboard-form-card" style="
           max-width: 400px;
           width: 90%;
           text-align: center;
           padding: 2.5rem;
-        "
-      >
-        <div
-          style="
+        ">
+      <div style="
             width: 72px;
             height: 72px;
             background: rgba(239, 68, 68, 0.1);
@@ -312,42 +253,29 @@
             justify-content: center;
             margin: 0 auto 1.5rem;
             border: 2px solid rgba(239, 68, 68, 0.2);
-          "
-        >
-          <iconify-icon
-            icon="solar:close-circle-bold"
-            style="font-size: 48px"
-          ></iconify-icon>
-        </div>
-        <h2 style="margin-bottom: 0.75rem; color: white; font-weight: 600">
-          Error
-        </h2>
-        <p
-          id="errorMessage"
-          style="color: #94a3b8; margin-bottom: 2rem; line-height: 1.5"
-        >
-          Something went wrong.
-        </p>
-        <button
-          onclick="document.getElementById('errorModal').style.display = 'none'"
-          class="btn"
-          style="
+          ">
+        <iconify-icon icon="solar:close-circle-bold" style="font-size: 48px"></iconify-icon>
+      </div>
+      <h2 style="margin-bottom: 0.75rem; color: white; font-weight: 600">
+        Error
+      </h2>
+      <p id="errorMessage" style="color: #94a3b8; margin-bottom: 2rem; line-height: 1.5">
+        Something went wrong.
+      </p>
+      <button onclick="document.getElementById('errorModal').style.display = 'none'" class="btn" style="
             width: 100%;
             height: 48px;
             font-weight: 600;
             background: rgba(255, 255, 255, 0.05);
             color: white;
-          "
-        >
-          Close
-        </button>
-      </div>
+          ">
+        Close
+      </button>
     </div>
+  </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div
-      id="deleteModal"
-      style="
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" style="
         display: none;
         position: fixed;
         inset: 0;
@@ -355,19 +283,14 @@
         z-index: 1001;
         align-items: center;
         justify-content: center;
-      "
-    >
-      <div
-        class="dashboard-form-card"
-        style="
+      ">
+    <div class="dashboard-form-card" style="
           max-width: 400px;
           width: 90%;
           text-align: center;
           padding: 2.5rem;
-        "
-      >
-        <div
-          style="
+        ">
+      <div style="
             width: 72px;
             height: 72px;
             background: rgba(239, 68, 68, 0.1);
@@ -378,74 +301,62 @@
             justify-content: center;
             margin: 0 auto 1.5rem;
             border: 2px solid rgba(239, 68, 68, 0.2);
-          "
-        >
-          <iconify-icon
-            icon="solar:trash-bin-trash-bold"
-            style="font-size: 48px"
-          ></iconify-icon>
-        </div>
-        <h2 style="margin-bottom: 0.75rem; color: white; font-weight: 600">
-          Delete User?
-        </h2>
-        <p style="color: #94a3b8; margin-bottom: 2rem; line-height: 1.5">
-          Are you sure you want to remove this user? This action cannot be
-          undone.
-        </p>
-        <div style="display: flex; gap: 1rem">
-          <button
-            onclick="
+          ">
+        <iconify-icon icon="solar:trash-bin-trash-bold" style="font-size: 48px"></iconify-icon>
+      </div>
+      <h2 style="margin-bottom: 0.75rem; color: white; font-weight: 600">
+        Delete User?
+      </h2>
+      <p style="color: #94a3b8; margin-bottom: 2rem; line-height: 1.5">
+        Are you sure you want to remove this user? This action cannot be
+        undone.
+      </p>
+      <div style="display: flex; gap: 1rem">
+        <button onclick="
               document.getElementById('deleteModal').style.display = 'none'
-            "
-            class="btn"
-            style="flex: 1; background: rgba(255, 255, 255, 0.05); color: white"
-          >
-            Cancel
-          </button>
-          <button
-            id="confirmDeleteBtn"
-            class="btn btn-primary"
-            style="
+            " class="btn" style="flex: 1; background: rgba(255, 255, 255, 0.05); color: white">
+          Cancel
+        </button>
+        <button id="confirmDeleteBtn" class="btn btn-primary" style="
               flex: 1;
               background: #ef4444;
               border-color: #ef4444;
               color: white;
               font-weight: 600;
-            "
-          >
-            Delete
-          </button>
-        </div>
+            ">
+          Delete
+        </button>
       </div>
     </div>
+  </div>
 
-    <script src="{% static 'js/data-manager.js' %}?v=1.2"></script>
+  <script src="{% static 'js/data-manager.js' %}?v=1.2"></script>
 
-    <script src="{% static 'js/main.js' %}"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", async () => {
-        // Check Auth
-        const currentUser = App.checkAuth();
-        if (!currentUser || currentUser.role !== "admin") {
-          window.location.href = '{% url "login" %}';
-          return;
-        }
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Check Auth
+      const currentUser = App.checkAuth();
+      if (!currentUser || currentUser.role !== "admin") {
+        window.location.href = '{% url "login" %}';
+        return;
+      }
 
-        // UI Init
-        const userNameEl = document.getElementById("user-name");
-        if (userNameEl) userNameEl.textContent = currentUser.name;
-        const userRoleEl = document.getElementById("user-role");
-        if (userRoleEl) userRoleEl.textContent = currentUser.role.toUpperCase();
+      // UI Init
+      const userNameEl = document.getElementById("user-name");
+      if (userNameEl) userNameEl.textContent = currentUser.name;
+      const userRoleEl = document.getElementById("user-role");
+      if (userRoleEl) userRoleEl.textContent = currentUser.role.toUpperCase();
 
-        // Render Users
-        const renderUsers = async () => {
-          const data = await DB.getUsers();
-          const users = Array.isArray(data) ? data : data.results || [];
-          const tbody = document.getElementById("user-list");
-          if (tbody) {
-            tbody.innerHTML = users
-              .map(
-                (u) => `
+      // Render Users
+      const renderUsers = async () => {
+        const data = await DB.getUsers();
+        const users = Array.isArray(data) ? data : data.results || [];
+        const tbody = document.getElementById("user-list");
+        if (tbody) {
+          tbody.innerHTML = users
+            .map(
+              (u) => `
                         <tr>
                             <td style="font-weight: 500; color: white;">
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -458,103 +369,103 @@
                             <td>${u.company || "-"}</td>
                             <td><span class="status-badge status-success">${u.is_active ? "Active" : "Inactive"}</span></td>
                             <td>
-                                ${
-                                  u.email !== currentUser.email
-                                    ? `<button onclick="deleteUser('${u.id}')" style="background:none; border:none; color: #f87171; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                ${u.email !== currentUser.email
+                  ? `<button onclick="deleteUser('${u.id}')" style="background:none; border:none; color: #f87171; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;">
                                 <iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon> Remove
                             </button>`
-                                    : '<span class="text-muted text-xs">Current</span>'
-                                }
+                  : '<span class="text-muted text-xs">Current</span>'
+                }
                             </td>
                         </tr>
                     `,
-              )
-              .join("");
+            )
+            .join("");
+        }
+      };
+
+      // Add User Logic
+      const modal = document.getElementById("addUserModal");
+      document
+        .getElementById("addUserForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("new-name").value.trim();
+          const email = document
+            .getElementById("new-email")
+            .value.trim()
+            .toLowerCase();
+          const role = document.getElementById("new-role").value;
+
+          if (!name || !email || !role) {
+            return showErrorModal("Please fill in all required fields.");
           }
-        };
 
-        // Add User Logic
-        const modal = document.getElementById("addUserModal");
-        document
-          .getElementById("addUserForm")
-          .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const name = document.getElementById("new-name").value.trim();
-            const email = document
-              .getElementById("new-email")
-              .value.trim()
-              .toLowerCase();
-            const role = document.getElementById("new-role").value;
-
-            if (!name || !email || !role) {
-              return showErrorModal("Please fill in all required fields.");
-            }
-
-            const existingUsers = await DB.getUsers();
-            const usersList = Array.isArray(existingUsers)
-              ? existingUsers
-              : existingUsers.results || [];
-            if (usersList.some((u) => u.email?.toLowerCase() === email)) {
-              return showErrorModal("A user with this email already exists.");
-            }
-
-            try {
-              await DB.addUser({ name, email, role });
-              showSuccessModal("User created successfully!");
-              modal.style.display = "none";
-              e.target.reset();
-              await renderUsers();
-            } catch (err) {
-              console.error("User creation failed:", err);
-              showErrorModal(err.message || "Could not create user.");
-            }
-          });
-
-        window.showSuccessModal = (msg) => {
-          const modal = document.getElementById("successModal");
-          const msgEl = document.getElementById("successMessage");
-          if (modal && msgEl) {
-            msgEl.textContent = msg;
-            modal.style.display = "flex";
+          const existingUsers = await DB.getUsers();
+          const usersList = Array.isArray(existingUsers)
+            ? existingUsers
+            : existingUsers.results || [];
+          if (usersList.some((u) => u.email?.toLowerCase() === email)) {
+            return showErrorModal("A user with this email already exists.");
           }
-        };
 
-        window.showErrorModal = (msg) => {
-          const modal = document.getElementById("errorModal");
-          const msgEl = document.getElementById("errorMessage");
-          if (modal && msgEl) {
-            msgEl.textContent = msg;
-            modal.style.display = "flex";
+          try {
+            await DB.addUser({ name, email, role });
+            showSuccessModal("User created successfully!");
+            modal.style.display = "none";
+            e.target.reset();
+            await renderUsers();
+          } catch (err) {
+            console.error("User creation failed:", err);
+            showErrorModal(err.message || "Could not create user.");
           }
-        };
+        });
 
-        // Delete User Flow
-        let userIdToDelete = null;
+      window.showSuccessModal = (msg) => {
+        const modal = document.getElementById("successModal");
+        const msgEl = document.getElementById("successMessage");
+        if (modal && msgEl) {
+          msgEl.textContent = msg;
+          modal.style.display = "flex";
+        }
+      };
 
-        window.deleteUser = (id) => {
-          userIdToDelete = id;
-          document.getElementById("deleteModal").style.display = "flex";
-        };
+      window.showErrorModal = (msg) => {
+        const modal = document.getElementById("errorModal");
+        const msgEl = document.getElementById("errorMessage");
+        if (modal && msgEl) {
+          msgEl.textContent = msg;
+          modal.style.display = "flex";
+        }
+      };
 
-        document
-          .getElementById("confirmDeleteBtn")
-          .addEventListener("click", async () => {
-            if (!userIdToDelete) return;
+      // Delete User Flow
+      let userIdToDelete = null;
 
-            try {
-              await DB.apiCall(`/admin/users/${userIdToDelete}/`, "DELETE");
-              document.getElementById("deleteModal").style.display = "none";
-              showSuccessModal("User deleted successfully!");
-              await renderUsers();
-            } catch (err) {
-              showErrorModal(err.message);
-            } finally {
-              userIdToDelete = null;
-            }
-          });
+      window.deleteUser = (id) => {
+        userIdToDelete = id;
+        document.getElementById("deleteModal").style.display = "flex";
+      };
 
-        await renderUsers();
-      });
-    </script>
-  </body>
+      document
+        .getElementById("confirmDeleteBtn")
+        .addEventListener("click", async () => {
+          if (!userIdToDelete) return;
+
+          try {
+            await DB.apiCall(`/admin/users/${userIdToDelete}/`, "DELETE");
+            document.getElementById("deleteModal").style.display = "none";
+            showSuccessModal("User deleted successfully!");
+            await renderUsers();
+          } catch (err) {
+            showErrorModal(err.message);
+          } finally {
+            userIdToDelete = null;
+          }
+        });
+
+      await renderUsers();
+    });
+  </script>
+</body>
+
 </html>

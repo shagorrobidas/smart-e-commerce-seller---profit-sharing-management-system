@@ -35,7 +35,10 @@
                 <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
             </a>
             <a href="{% url 'admin-messages' %}" class="nav-item">
-                <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
+                    <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+                </div>
+                <span class="msg-badge hidden">0</span>
             </a>
             <a href="{% url 'admin-reports' %}" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
@@ -105,12 +108,65 @@
             </div>
         </div>
 
+        <!-- Pending Approvals -->
+        <div class="dashboard-form-card mb-8" id="approvals-section" style="display: none;">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-base font-semibold text-white">Pending Approvals</h3>
+                <span class="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold" id="pending-count">0 Pending</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table" id="approvals-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Date</th>
+                            <th style="width: 20%;">Staff</th>
+                            <th style="width: 35%;">Description</th>
+                            <th style="width: 15%;">Amount</th>
+                            <th style="width: 15%; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS Loaded -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Investment Proposals -->
+        <div class="dashboard-form-card mb-8" id="investments-section" style="display: none;">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="solar:hand-money-linear" class="text-indigo-400" width="20"></iconify-icon>
+                    <h3 class="text-base font-semibold text-white">Investment Proposals</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold" id="invest-count">0 Pending</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table" id="investments-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Date</th>
+                            <th style="width: 25%;">Investor</th>
+                            <th style="width: 20%;">Capital</th>
+                            <th style="width: 20%;">Equity</th>
+                            <th style="width: 20%; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS Loaded -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Recent Activity -->
         <div class="dashboard-form-card">
             <h3 style="margin-bottom: 1rem;">System Activity</h3>
             <table class="data-table" id="activity-table">
                 <thead>
                     <tr>
+                        <th style="width: 20%;">Sl No</th>
+                        <th style="width: 20%;">Staff Name</th>
                         <th style="width: 20%;">Date</th>
                         <th style="width: 40%;">Activity</th>
                         <th style="width: 20%;">Amount</th>

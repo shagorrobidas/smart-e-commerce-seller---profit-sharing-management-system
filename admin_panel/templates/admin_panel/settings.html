@@ -36,6 +36,12 @@
             <a href="{% url 'admin-reports' %}" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
             </a>
+            <a href="{% url 'admin-messages' %}" class="nav-item">
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
+                    <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+                </div>
+                <span class="msg-badge hidden">0</span>
+            </a>
             <a href="{% url 'admin-settings' %}" class="nav-item active">
                 <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
             </a>

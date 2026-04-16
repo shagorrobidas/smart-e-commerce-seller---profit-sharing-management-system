@@ -12,7 +12,8 @@ from .user_views import (
     UserListView,
     UserCreateView,
     UserDetailView,
-    ToggleUserActiveView
+    ToggleUserActiveView,
+    InvestmentApprovalView
 )
 from .task_views import (
     AdminTaskListCreateView,
@@ -44,5 +45,6 @@ __all__ = [
     'AdminReportView',
     'TransactionListView',
     'TransactionApproveView',
-    'VerifyEmailView'
+    'VerifyEmailView',
+    'InvestmentApprovalView'
 ]

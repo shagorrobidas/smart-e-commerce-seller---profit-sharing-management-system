@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.crypto import get_random_string
 
-from api.models import User
+from api.models import User, Investment, Transaction
 from api.permissions import IsAdminRole
 from admin_panel.api.serializers.user_serializers import (
     UserListSerializer, UserCreateSerializer, UserProfileSerializer
@@ -129,3 +129,50 @@ class ToggleUserActiveView(APIView):
             'message': f"User {'activated' if user.is_active else 'deactivated'} successfully.",
             'is_active': user.is_active
         })
+
+
+class InvestmentApprovalView(APIView):
+    """PATCH /api/v1/admin/investments/<id>/approve/ – Approve/Reject investment proposals."""
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def patch(self, request, pk):
+        try:
+            investment = Investment.objects.select_related('investor').get(pk=pk)
+        except Investment.DoesNotExist:
+            return Response({'error': 'Investment proposal not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        action = request.data.get('action')
+        if action not in ['approve', 'reject']:
+            return Response({'error': 'Invalid action. Use approve or reject.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if investment.status != 'pending':
+            return Response({'error': f"Investment is already {investment.status}."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if action == 'approve':
+            investment.status = 'approved'
+            investment.reviewed_by = request.user
+            
+            # Logic: Update investor profile
+            investor = investment.investor
+            investor.balance += investment.amount
+            if investment.equity_percent:
+                investor.equity_percent += investment.equity_percent
+            investor.save()
+
+            # Create Audit Transaction
+            Transaction.objects.create(
+                type='investment',
+                amount=investment.amount,
+                to_user=investor,
+                note=f"Injection Approval: {investment.equity_percent if investment.equity_percent else 0}% Equity stake added.",
+                status='approved'
+            )
+            
+            msg = "Investment proposal approved and capital credited."
+        else:
+            investment.status = 'rejected'
+            investment.reviewed_by = request.user
+            msg = "Investment proposal rejected."
+
+        investment.save()
+        return Response({'message': msg, 'status': investment.status})

@@ -148,4 +148,11 @@ class TransactionApproveView(APIView):
             return Response({'error': 'Invalid action. Use approve or reject.'}, status=400)
 
         txn.save()
+
+        # Sync with reference expense if exists
+        if hasattr(txn, 'reference_expense') and txn.reference_expense:
+            expense = txn.reference_expense
+            expense.status = txn.status
+            expense.save()
+
         return Response({'message': msg, 'status': txn.status})
