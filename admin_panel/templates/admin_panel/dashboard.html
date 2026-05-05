@@ -11,6 +11,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+    /* Premium Activity Tabs */
+    .activity-tabs-container {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: inline-flex;
+        gap: 2px;
+    }
+    .activity-tab {
+        padding: 6px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-radius: 7px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+    .activity-tab iconify-icon {
+        font-size: 14px;
+        opacity: 0.7;
+    }
+    .activity-tab:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .activity-tab.active {
+        color: white;
+        background: var(--primary);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .activity-tab.active iconify-icon {
+        opacity: 1;
+    }
+    </style>
 </head>
 
 <body class="dashboard-body">
@@ -42,6 +83,9 @@
             </a>
             <a href="{% url 'admin-reports' %}" class="nav-item">
                 <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+            </a>
+            <a href="{% url 'admin-products' %}" class="nav-item">
+                <iconify-icon icon="solar:box-linear"></iconify-icon> Products
             </a>
             <a href="{% url 'admin-settings' %}" class="nav-item">
                 <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
@@ -108,6 +152,32 @@
             </div>
         </div>
 
+        <!-- Pending Staff Approvals -->
+        <div class="dashboard-form-card mb-8" id="staff-approvals-section" style="display: none;">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-emerald-400" width="20"></iconify-icon>
+                    <h3 class="text-base font-semibold text-white">Staff Signup Requests</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold" id="staff-pending-count">0 Pending</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table" id="staff-approvals-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Date Joined</th>
+                            <th style="width: 30%;">Name</th>
+                            <th style="width: 30%;">Email</th>
+                            <th style="width: 15%; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS Loaded -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Pending Approvals -->
         <div class="dashboard-form-card mb-8" id="approvals-section" style="display: none;">
             <div class="flex items-center justify-between mb-6">
@@ -159,20 +229,70 @@
             </div>
         </div>
 
+        <!-- Company Products -->
+        <div class="dashboard-form-card mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="solar:box-linear" class="text-indigo-400" width="20"></iconify-icon>
+                    <h3 class="text-base font-semibold text-white">Company Products</h3>
+                </div>
+                <a href="{% url 'admin-products' %}" class="text-xs text-indigo-400 hover:text-indigo-300">View All</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table" id="dashboard-products-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Product</th>
+                            <th style="width: 15%;">Category</th>
+                            <th style="width: 15%;">Stock</th>
+                            <th style="width: 15%;">Price</th>
+                            <th style="width: 25%;">Added By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS Loaded -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Recent Activity -->
         <div class="dashboard-form-card">
-            <h3 style="margin-bottom: 1rem;">System Activity</h3>
-            <table class="data-table" id="activity-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Sl No</th>
-                        <th style="width: 20%;">Staff Name</th>
-                        <th style="width: 20%;">Date</th>
-                        <th style="width: 40%;">Activity</th>
-                        <th style="width: 20%;">Amount</th>
-                        <th style="width: 20%;">Status</th>
-                    </tr>
-                </thead>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <h3 class="text-base font-semibold text-white">System Activity</h3>
+                
+                <!-- Activity Tabs -->
+                <div class="activity-tabs-container">
+                    <button onclick="Dashboard.filterActivity('all')" class="activity-tab active" id="tab-all">
+                        <iconify-icon icon="solar:list-bold-duotone"></iconify-icon> All
+                    </button>
+                    <button onclick="Dashboard.filterActivity('finance')" class="activity-tab" id="tab-finance">
+                        <iconify-icon icon="solar:wad-of-money-bold-duotone"></iconify-icon> Finance
+                    </button>
+                    <button onclick="Dashboard.filterActivity('user')" class="activity-tab" id="tab-user">
+                        <iconify-icon icon="solar:users-group-rounded-bold-duotone"></iconify-icon> Users
+                    </button>
+                    <button onclick="Dashboard.filterActivity('investment')" class="activity-tab" id="tab-investment">
+                        <iconify-icon icon="solar:hand-money-bold-duotone"></iconify-icon> Investors
+                    </button>
+                    <button onclick="Dashboard.filterActivity('product')" class="activity-tab" id="tab-product">
+                        <iconify-icon icon="solar:box-bold-duotone"></iconify-icon> Products
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="data-table" id="activity-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 15%;">By</th>
+                            <th style="width: 15%;">Date</th>
+                            <th style="width: 40%;">Activity</th>
+                            <th style="width: 15%;">Amount</th>
+                            <th style="width: 10%;">Status</th>
+                        </tr>
+                    </thead>
                 <tbody>
                     <!-- JS Loaded -->
                 </tbody>
@@ -181,9 +301,9 @@
 
     </main>
 
-    <script src="{% static 'js/data-manager.js' %}"></script>
+    <script src="{% static 'js/data-manager.js' %}?v=1.1"></script>
     <script src="{% static 'js/main.js' %}"></script>
-    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/dashboard.js' %}?v=1.1"></script>
 </body>
 
 </html>
