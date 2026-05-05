@@ -1,0 +1,520 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Inventory – Admin</title>
+  <meta name="description" content="Admin view of all company products and the staff members who added them." />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <style>
+    /* ── Summary stat mini-cards ── */
+    .prod-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .prod-stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .prod-stat-card .psc-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .prod-stat-card .psc-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary, #fff);
+    }
+    .psc-warn { color: #f59e0b !important; }
+    .psc-danger { color: #ef4444 !important; }
+    .psc-ok    { color: #10b981 !important; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      align-items: center;
+    }
+    .filter-bar input,
+    .filter-bar select {
+      height: 38px;
+      padding: 0 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-primary, #fff);
+      font-size: 13px;
+      outline: none;
+    }
+    .filter-bar input { min-width: 220px; flex: 1; }
+    .filter-bar select { min-width: 160px; }
+    .filter-bar .btn-filter {
+      height: 38px;
+      padding: 0 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s;
+    }
+    .filter-bar .btn-filter:hover,
+    .filter-bar .btn-filter.active {
+      background: rgba(99,102,241,0.18);
+      color: #a5b4fc;
+      border-color: rgba(99,102,241,0.4);
+    }
+
+    /* ── Product table tweaks ── */
+    .product-img {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+    }
+    .product-img-placeholder {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #818cf8;
+      flex-shrink: 0;
+    }
+    .staff-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(99,102,241,0.10);
+      border: 1px solid rgba(99,102,241,0.22);
+      border-radius: 20px;
+      padding: 3px 10px 3px 4px;
+      font-size: 12px;
+      color: #a5b4fc;
+      white-space: nowrap;
+    }
+    .staff-chip .avatar-xs {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .stock-badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .stock-ok     { background: rgba(16,185,129,0.12); color: #10b981; }
+    .stock-low    { background: rgba(245,158,11,0.14); color: #f59e0b; }
+    .stock-zero   { background: rgba(239,68,68,0.12);  color: #ef4444; }
+
+    /* Staff breakdown panel */
+    .staff-breakdown {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .sbd-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 5px 12px 5px 6px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-muted);
+    }
+    .sbd-chip:hover, .sbd-chip.active {
+      background: rgba(99,102,241,0.14);
+      border-color: rgba(99,102,241,0.35);
+      color: #a5b4fc;
+    }
+    .sbd-chip .badge {
+      background: rgba(99,102,241,0.25);
+      color: #a5b4fc;
+      border-radius: 20px;
+      padding: 1px 7px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .sbd-chip .av-sm {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 3rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .empty-state iconify-icon { font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+
+    /* Loading skeleton */
+    @keyframes shimmer {
+      0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; }
+    }
+    .skeleton-row td { animation: shimmer 1.4s infinite; }
+    .skel-bar {
+      height: 13px; border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body class="dashboard-body">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div style="width:24px;height:24px;background:linear-gradient(to top right,var(--primary),var(--accent-purple));border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;">S</div>
+      <span style="font-weight:500">Admin Console</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="{% url 'admin-dashboard' %}" class="nav-item">
+        <iconify-icon icon="solar:widget-linear"></iconify-icon> Dashboard
+      </a>
+      <a href="{% url 'admin-users' %}" class="nav-item">
+        <iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon> User Management
+      </a>
+      <a href="{% url 'admin-tasks' %}" class="nav-item">
+        <iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> Tasks
+      </a>
+      <a href="{% url 'admin-messages' %}" class="nav-item">
+        <div style="display:flex;align-items:center;gap:0.75rem;flex:1;">
+          <iconify-icon icon="solar:chat-round-dots-linear"></iconify-icon> Messages
+        </div>
+        <span class="msg-badge hidden">0</span>
+      </a>
+      <a href="{% url 'admin-products' %}" class="nav-item active">
+        <iconify-icon icon="solar:box-linear"></iconify-icon> Products
+      </a>
+      <a href="{% url 'admin-reports' %}" class="nav-item">
+        <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+      </a>
+      <a href="{% url 'admin-settings' %}" class="nav-item">
+        <iconify-icon icon="solar:settings-linear"></iconify-icon> Settings
+      </a>
+    </nav>
+
+    <div class="user-profile">
+      <a href="{% url 'profile' %}" style="display:flex;gap:0.75rem;text-decoration:none;align-items:center;flex:1;">
+        <div class="avatar">A</div>
+        <div>
+          <p class="text-sm text-white" id="user-name">Admin</p>
+          <p class="text-xs text-muted" id="user-role">Administrator</p>
+        </div>
+      </a>
+      <button onclick="App.logout()" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;">
+        <iconify-icon icon="solar:logout-linear"></iconify-icon>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="top-bar">
+      <div>
+        <h1 class="page-title">Product Inventory</h1>
+        <p class="text-xs text-muted" style="margin-top:2px;" id="page-subtitle">Loading company products…</p>
+      </div>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <a href="{% url 'admin-reports' %}" class="btn" style="background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border);height:36px;display:flex;align-items:center;gap:0.4rem;font-size:13px;padding:0 0.9rem;border-radius:8px;text-decoration:none;">
+          <iconify-icon icon="solar:chart-square-linear"></iconify-icon> Reports
+        </a>
+      </div>
+    </header>
+
+    <!-- Summary Stats -->
+    <div class="prod-stats" id="stats-row">
+      <div class="prod-stat-card">
+        <span class="psc-label">Total Products</span>
+        <span class="psc-value psc-ok" id="stat-total">–</span>
+      </div>
+      <div class="prod-stat-card">
+        <span class="psc-label">Low Stock (≤10)</span>
+        <span class="psc-value psc-warn" id="stat-low">–</span>
+      </div>
+      <div class="prod-stat-card">
+        <span class="psc-label">Out of Stock</span>
+        <span class="psc-value psc-danger" id="stat-zero">–</span>
+      </div>
+      <div class="prod-stat-card">
+        <span class="psc-label">Staff Contributing</span>
+        <span class="psc-value" id="stat-staff">–</span>
+      </div>
+    </div>
+
+    <!-- Staff Breakdown Chips -->
+    <div class="dashboard-form-card" style="margin-bottom:1.25rem;padding:1rem 1.25rem;">
+      <p class="text-xs text-muted" style="margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.06em;">Filter by Employee</p>
+      <div class="staff-breakdown" id="staff-chips">
+        <div class="sbd-chip active" data-id="" id="chip-all">
+          <iconify-icon icon="solar:users-group-rounded-linear" style="font-size:14px;"></iconify-icon>
+          All Staff <span class="badge" id="chip-all-count">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search products…" />
+      <select id="category-filter">
+        <option value="">All Categories</option>
+      </select>
+      <button class="btn-filter" id="low-stock-btn" onclick="toggleLowStock(this)">
+        <iconify-icon icon="solar:danger-triangle-linear"></iconify-icon> Low Stock Only
+      </button>
+    </div>
+
+    <!-- Product Table -->
+    <div class="dashboard-form-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h3 style="font-size:15px;font-weight:600;">All Products
+          <span id="result-count" style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:0.5rem;"></span>
+        </h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="data-table" id="product-table">
+          <thead>
+            <tr>
+              <th style="width:5%;">#</th>
+              <th style="width:30%;">Product</th>
+              <th style="width:14%;">Category</th>
+              <th style="width:10%;">Stock</th>
+              <th style="width:13%;">Buy Price</th>
+              <th style="width:13%;">Sell Price</th>
+              <th style="width:15%;">Added By</th>
+            </tr>
+          </thead>
+          <tbody id="product-list">
+            <!-- skeleton rows -->
+            <tr class="skeleton-row"><td><span class="skel-bar" style="width:18px;"></span></td><td><span class="skel-bar" style="width:140px;"></span></td><td><span class="skel-bar" style="width:80px;"></span></td><td><span class="skel-bar" style="width:40px;"></span></td><td><span class="skel-bar" style="width:60px;"></span></td><td><span class="skel-bar" style="width:60px;"></span></td><td><span class="skel-bar" style="width:100px;"></span></td></tr>
+            <tr class="skeleton-row"><td><span class="skel-bar" style="width:18px;"></span></td><td><span class="skel-bar" style="width:180px;"></span></td><td><span class="skel-bar" style="width:60px;"></span></td><td><span class="skel-bar" style="width:30px;"></span></td><td><span class="skel-bar" style="width:55px;"></span></td><td><span class="skel-bar" style="width:55px;"></span></td><td><span class="skel-bar" style="width:110px;"></span></td></tr>
+            <tr class="skeleton-row"><td><span class="skel-bar" style="width:18px;"></span></td><td><span class="skel-bar" style="width:120px;"></span></td><td><span class="skel-bar" style="width:90px;"></span></td><td><span class="skel-bar" style="width:50px;"></span></td><td><span class="skel-bar" style="width:65px;"></span></td><td><span class="skel-bar" style="width:65px;"></span></td><td><span class="skel-bar" style="width:95px;"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="{% static 'js/data-manager.js' %}?v=1.2"></script>
+  <script src="{% static 'js/main.js' %}?v=1.2"></script>
+  <script>
+    // ─── State ───────────────────────────────────────────────────────────────
+    let allProducts = [];
+    let activeStaffId = '';
+    let lowStockOnly = false;
+    let currency = '৳';
+
+    // ─── Auth Guard ───────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      const currentUser = App.checkAuth();
+      if (!currentUser || currentUser.role !== 'admin') {
+        window.location.href = '{% url "login" %}';
+        return;
+      }
+      const nameEl = document.getElementById('user-name');
+      if (nameEl) nameEl.textContent = currentUser.name;
+      const roleEl = document.getElementById('user-role');
+      if (roleEl) roleEl.textContent = currentUser.role.toUpperCase();
+
+      await loadProducts();
+
+      // Live search
+      document.getElementById('search-input').addEventListener('input', applyFilters);
+      document.getElementById('category-filter').addEventListener('change', applyFilters);
+    });
+
+    // ─── Load Products ────────────────────────────────────────────────────────
+    async function loadProducts() {
+      try {
+        const data = await DB.getAdminProducts();
+        allProducts = data.results || [];
+
+        // Stats
+        document.getElementById('stat-total').textContent = data.total !== undefined ? data.total : allProducts.length;
+        document.getElementById('stat-low').textContent   = data.low_stock_count !== undefined ? data.low_stock_count : 0;
+        document.getElementById('stat-zero').textContent  = data.out_of_stock !== undefined ? data.out_of_stock : 0;
+        document.getElementById('stat-staff').textContent = (data.staff_summary || []).length;
+
+        // Subtitle
+        const sub = document.getElementById('page-subtitle');
+        if (sub) sub.textContent = `Showing all products in your company`;
+
+        // Staff chips
+        buildStaffChips(data.staff_summary || [], data.total !== undefined ? data.total : allProducts.length);
+
+        // Category filter
+        buildCategoryFilter(allProducts);
+
+        // Render
+        renderTable(allProducts);
+
+      } catch (err) {
+        console.error('Failed to load products:', err);
+        document.getElementById('product-list').innerHTML = `
+          <tr><td colspan="7">
+            <div class="empty-state">
+              <iconify-icon icon="solar:shield-warning-linear"></iconify-icon>
+              <p>Failed to load products. ${err.message || ''}</p>
+            </div>
+          </td></tr>`;
+      }
+    }
+
+    // ─── Build Staff Chips ────────────────────────────────────────────────────
+    function buildStaffChips(staffList, totalCount) {
+      const container = document.getElementById('staff-chips');
+      document.getElementById('chip-all-count').textContent = totalCount;
+
+      staffList.forEach(s => {
+        const chip = document.createElement('div');
+        chip.className = 'sbd-chip';
+        chip.dataset.id = s.id;
+        chip.innerHTML = `
+          <div class="av-sm">${(s.name || 'U').charAt(0).toUpperCase()}</div>
+          ${s.name}
+          <span class="badge">${s.product_count}</span>`;
+        chip.addEventListener('click', () => filterByStaff(s.id, chip));
+        container.appendChild(chip);
+      });
+
+      document.getElementById('chip-all').addEventListener('click', () => filterByStaff('', document.getElementById('chip-all')));
+    }
+
+    function filterByStaff(staffId, clickedChip) {
+      activeStaffId = staffId;
+      document.querySelectorAll('.sbd-chip').forEach(c => c.classList.remove('active'));
+      clickedChip.classList.add('active');
+      applyFilters();
+    }
+
+    // ─── Build Category Filter ────────────────────────────────────────────────
+    function buildCategoryFilter(products) {
+      const sel = document.getElementById('category-filter');
+      const cats = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+      cats.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ─── Low Stock Toggle ─────────────────────────────────────────────────────
+    function toggleLowStock(btn) {
+      lowStockOnly = !lowStockOnly;
+      btn.classList.toggle('active', lowStockOnly);
+      applyFilters();
+    }
+
+    // ─── Apply Filters ────────────────────────────────────────────────────────
+    function applyFilters() {
+      const search   = document.getElementById('search-input').value.toLowerCase().trim();
+      const category = document.getElementById('category-filter').value;
+
+      let filtered = allProducts.filter(p => {
+        const matchSearch   = !search   || p.name.toLowerCase().includes(search) || (p.description || '').toLowerCase().includes(search);
+        const matchCategory = !category || p.category === category;
+        const matchStaff    = !activeStaffId || (p.added_by && String(p.added_by.id) === String(activeStaffId));
+        const matchLow      = !lowStockOnly  || p.is_low_stock;
+        return matchSearch && matchCategory && matchStaff && matchLow;
+      });
+
+      renderTable(filtered);
+    }
+
+    // ─── Render Table ─────────────────────────────────────────────────────────
+    function renderTable(products) {
+      const tbody = document.getElementById('product-list');
+      const countEl = document.getElementById('result-count');
+      if (countEl) countEl.textContent = `(${products.length} items)`;
+
+      if (!products.length) {
+        tbody.innerHTML = `
+          <tr><td colspan="7">
+            <div class="empty-state">
+              <iconify-icon icon="solar:box-minimalistic-linear"></iconify-icon>
+              <p>No products found matching your filters.</p>
+            </div>
+          </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = products.map((p, idx) => {
+        const stockClass = p.stock === 0 ? 'stock-zero' : p.is_low_stock ? 'stock-low' : 'stock-ok';
+        const stockLabel = p.stock === 0 ? 'Out of Stock' : p.is_low_stock ? `Low (${p.stock})` : p.stock;
+        const staffName  = (p.added_by && p.added_by.name) ? p.added_by.name : 'Unknown';
+        const staffInit  = staffName.charAt(0).toUpperCase();
+
+        const imgEl = p.image
+          ? `<img src="${p.image}" class="product-img" alt="${p.name}" loading="lazy" />`
+          : `<div class="product-img-placeholder"><iconify-icon icon="solar:box-linear" style="font-size:16px;"></iconify-icon></div>`;
+
+        return `
+          <tr>
+            <td style="color:var(--text-muted);font-size:12px;">${idx + 1}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:0.6rem;">
+                ${imgEl}
+                <div>
+                  <div style="font-weight:500;color:white;font-size:13px;">${p.name}</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Profit: ${currency}${p.profit_per_unit.toFixed(2)}/unit</div>
+                </div>
+              </div>
+            </td>
+            <td style="font-size:12px;color:var(--text-muted);">${p.category}</td>
+            <td><span class="stock-badge ${stockClass}">${stockLabel}</span></td>
+            <td style="font-size:13px;">${currency}${p.buy_price.toFixed(2)}</td>
+            <td style="font-size:13px;font-weight:500;color:white;">${currency}${p.sell_price.toFixed(2)}</td>
+            <td>
+              <div class="staff-chip">
+                <div class="avatar-xs">${staffInit}</div>
+                ${staffName}
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

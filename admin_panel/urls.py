@@ -1,7 +1,7 @@
 """admin_panel/urls.py – Both frontend and API routes."""
 
 from django.urls import path, include
-from .views import AdminDashboardView, AdminUsersView, AdminTasksView, AdminReportsView, AdminSettingsView, AdminMessagesView
+from .views import AdminDashboardView, AdminUsersView, AdminTasksView, AdminReportsView, AdminSettingsView, AdminMessagesView, AdminProductsView
 
 urlpatterns = [
     # Frontend Pages
@@ -9,6 +9,7 @@ urlpatterns = [
     path('users/', AdminUsersView.as_view(), name='admin-users'),
     path('tasks/', AdminTasksView.as_view(), name='admin-tasks'),
     path('messages/', AdminMessagesView.as_view(), name='admin-messages'),
+    path('products/', AdminProductsView.as_view(), name='admin-products'),
     path('reports/', AdminReportsView.as_view(), name='admin-reports'),
     path('settings/', AdminSettingsView.as_view(), name='admin-settings'),
 ]

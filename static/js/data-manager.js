@@ -118,6 +118,14 @@ class DataManager {
     return await this.apiCall("/admin/dashboard/");
   }
 
+  async getAdminProducts(params = "") {
+    return await this.apiCall(`/admin/products/${params}`);
+  }
+
+  async approveStaff(id, action = 'approve') {
+    return await this.apiCall(`/admin/users/${id}/approve/`, "POST", { action });
+  }
+
   // INVENTORY & CATEGORIES
   async getCategories() {
     return await this.apiCall("/staff/categories/");

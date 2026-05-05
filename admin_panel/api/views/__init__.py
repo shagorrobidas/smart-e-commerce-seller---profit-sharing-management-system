@@ -7,7 +7,7 @@ from .auth_views import (
     ResetPasswordView,
     VerifyEmailView
 )
-from .dashboard_views import AdminDashboardView
+from .dashboard_views import AdminDashboardView, AdminProductListView, AdminUserApproveView
 from .user_views import (
     UserListView,
     UserCreateView,
@@ -35,6 +35,7 @@ __all__ = [
     'ForgotPasswordView',
     'ResetPasswordView',
     'AdminDashboardView',
+    'AdminProductListView',
     'UserListView',
     'UserCreateView',
     'UserDetailView',
@@ -46,5 +47,6 @@ __all__ = [
     'TransactionListView',
     'TransactionApproveView',
     'VerifyEmailView',
-    'InvestmentApprovalView'
+    'InvestmentApprovalView',
+    'AdminUserApproveView'
 ]

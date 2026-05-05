@@ -20,3 +20,6 @@ class AdminSettingsView(TemplateView):
 
 class AdminMessagesView(TemplateView):
     template_name = 'admin_panel/messages.html'
+
+class AdminProductsView(TemplateView):
+    template_name = 'admin_panel/products.html'
