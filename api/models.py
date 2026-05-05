@@ -84,14 +84,37 @@ class User(AbstractUser):
 class Business(models.Model):
     """Registered businesses/companies in the system."""
     name = models.CharField(max_length=200, unique=True)
+    owner_name = models.CharField(max_length=150, blank=True, default='')
+    email = models.EmailField(blank=True, default='')
+    phone = models.CharField(max_length=20, blank=True, default='')
+    description = models.TextField(blank=True, default='')
+    address = models.TextField(blank=True, default='')
+    is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name_plural = 'Businesses'
-        ordering = ['name']
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.name
+
+
+class ContactMessage(models.Model):
+    """Messages from the landing page contact form."""
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"From {self.name}: {self.subject}"
 
 
 class Category(models.Model):
