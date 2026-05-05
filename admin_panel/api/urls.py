@@ -6,11 +6,14 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from admin_panel.api.views import (
     RegisterView, LoginView, LogoutView, ProfileView,
     ForgotPasswordView, ResetPasswordView, VerifyEmailView,
-    AdminDashboardView,
+    AdminDashboardView, AdminProductListView, AdminUserApproveView,
     UserListView, UserCreateView, UserDetailView, ToggleUserActiveView,
     AdminTaskListCreateView, AdminTaskDetailView,
     BusinessSettingsView,
     AdminReportView, TransactionListView, TransactionApproveView, InvestmentApprovalView,
+)
+from admin_panel.api.views.public_views import (
+    BusinessRegistrationView, ContactMessageView
 )
 # Re-use shared messaging views (import directly to avoid circular imports)
 from staff.api.views.message_views import (
@@ -34,7 +37,9 @@ auth_urlpatterns = [
 # Admin endpoints  /api/v1/admin/
 admin_urlpatterns = [
     path('dashboard/', AdminDashboardView.as_view(), name='api-admin-dashboard'),
+    path('products/', AdminProductListView.as_view(), name='api-admin-products'),
     path('users/', UserListView.as_view(), name='admin-user-list'),
+    path('users/<int:pk>/approve/', AdminUserApproveView.as_view(), name='api-admin-user-approve'),
     path('users/create/', UserCreateView.as_view(), name='admin-user-create'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='admin-user-detail'),
     path('users/<int:pk>/toggle-active/', ToggleUserActiveView.as_view(), name='admin-user-toggle'),
@@ -55,5 +60,11 @@ admin_urlpatterns = [
     path('messages/users/', MessageContactListView.as_view(), name='admin-user-contact-list'),
 ]
 
+# Public endpoints /api/v1/public/
+public_urlpatterns = [
+    path('business-register/', BusinessRegistrationView.as_view(), name='public-business-register'),
+    path('contact/', ContactMessageView.as_view(), name='public-contact'),
+]
+
 # Unified urlpatterns
-urlpatterns = auth_urlpatterns + admin_urlpatterns
+urlpatterns = auth_urlpatterns + admin_urlpatterns + public_urlpatterns

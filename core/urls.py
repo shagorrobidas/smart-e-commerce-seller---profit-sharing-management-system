@@ -10,7 +10,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 # Import patterns from admin_panel api file specifically 
 # for legacy support if needed
-from admin_panel.api.urls import auth_urlpatterns
+from admin_panel.api.urls import auth_urlpatterns, public_urlpatterns
 
 urlpatterns = [
     # Django Admin Panel
@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/v1/admin/', include('admin_panel.api.urls')),
     path('api/v1/staff/', include('staff.api.urls')),
     path('api/v1/investor/', include('investor.api.urls')),
+    path('api/v1/public/', include((public_urlpatterns, 'public'))),
 
     # Role-based App Frontend Pages
     path('admin/', include('admin_panel.urls')),
